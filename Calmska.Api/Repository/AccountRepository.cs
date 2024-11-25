@@ -1,4 +1,7 @@
-﻿using Calmska.Api.Interfaces;
+﻿using AutoMapper;
+using Calmska.Api.DTO;
+using Calmska.Api.Helper;
+using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +10,12 @@ namespace Calmska.Api.Repository
     public class AccountRepository : IAccountRepository
     {
         private readonly CalmskaDbContext _context;
-        public AccountRepository(CalmskaDbContext context) => _context = context;
-
+        private readonly IMapper _mapper;
+        public AccountRepository(CalmskaDbContext context, IMapper mapper) 
+        {
+            _context = context;
+            _mapper = mapper;
+        }
         public async Task<IEnumerable<Account>> GetAllAsync()
         {
             return await _context.Accounts.ToListAsync();
@@ -17,36 +24,91 @@ namespace Calmska.Api.Repository
         public async Task<IEnumerable<Account>> GetAllByArgumentAsync(Account account)
         {
             return await _context.Accounts
-                .Where(item => (!string.IsNullOrEmpty(account.UserId.ToString()) && item.UserId.ToString().Contains(account.UserId.ToString(), StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.UserName) && item.UserName.Contains(account.UserName, StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.Email) && item.Email.Contains(account.Email, StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.PasswordHashed) && item.PasswordHashed.Contains(account.PasswordHashed, StringComparison.OrdinalIgnoreCase)))
+                .Where(item =>
+                    (account.UserId == Guid.Empty || item.UserId.ToString().ToLower().Contains(account.UserId.ToString().ToLower())) &&
+                    (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
+                    (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
+                    (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
+                )
                 .ToListAsync();
         }
 
         public async Task<Account?> GetByArgumentAsync(Account account)
         {
-            return _context.Accounts != null ? await _context.Accounts
-                .Where(item => (!string.IsNullOrEmpty(account.UserId.ToString()) && item.UserId.ToString().Contains(account.UserId.ToString(), StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.UserName) && item.UserName.Contains(account.UserName, StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.Email) && item.Email.Contains(account.Email, StringComparison.OrdinalIgnoreCase))
-                                && (!string.IsNullOrEmpty(account.PasswordHashed) && item.PasswordHashed.Contains(account.PasswordHashed, StringComparison.OrdinalIgnoreCase)))
-                .FirstOrDefaultAsync() : null;
+            return await _context.Accounts
+                .Where(item =>
+                    (account.UserId == Guid.Empty || item.UserId.ToString().ToLower().Contains(account.UserId.ToString().ToLower())) &&
+                    (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
+                    (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
+                    (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
+                )
+                .FirstOrDefaultAsync();
         }
 
-        public Task<bool> AddAsync(Account account)
+        public async Task<OperationResult> AddAsync(AccountDTO accountDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (accountDto == null)
+                    return new OperationResult { Result = false, Error = "The provided Account object is null." };
+
+                var userByEmail = GetByArgumentAsync(new Account { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
+                if (userByEmail.Result != null)
+                    return new OperationResult { Result = false, Error = "The user with provided email exists." };
+
+                accountDto.PasswordHashed = HashPassword.SetHash(accountDto.PasswordHashed);
+                var account = _mapper.Map<Account>(accountDto);
+                await _context.Accounts.AddAsync(account);
+
+                var result = await _context.SaveChangesAsync();
+                return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty } ;
+            }catch (Exception ex)
+            {
+                return new OperationResult { Result = false, Error = $"{ex.Message} - {ex.InnerException}" };
+            }
         }
 
-        public Task<bool> UpdateAsync(Account account)
+        public async Task<OperationResult> UpdateAsync(AccountDTO account)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (account == null)
+                    return new OperationResult { Result = false, Error = "The provided Account object is null." };
+
+                Account? existingAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == account.UserId);
+                if(existingAccount == null)
+                    return new OperationResult { Result = false, Error = "Didn't find any account with the provided userId." };
+
+                existingAccount.UserName = account.UserName;
+                existingAccount.Email = account.Email;
+                if (!string.IsNullOrEmpty(account.PasswordHashed))
+                    existingAccount.PasswordHashed = BCrypt.Net.BCrypt.HashPassword(account.PasswordHashed);
+
+                var result = await _context.SaveChangesAsync();
+                return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult { Result = false, Error = $"{ex.Message} - {ex.InnerException}" };
+            }
         }
 
-        public Task<bool> DeleteAsync(Account account)
+        public async Task<OperationResult> DeleteAsync(Account account)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (account == null)
+                    return new OperationResult { Result = false, Error = "The provided Account object is null." };
+
+                _context.Accounts.Remove(account);
+
+                var result = await _context.SaveChangesAsync();
+                return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
+            }
+            catch (Exception ex)
+            {
+                return new OperationResult { Result = false, Error = $"{ex.Message} - {ex.InnerException}" };
+            }
         }
     }
 }
