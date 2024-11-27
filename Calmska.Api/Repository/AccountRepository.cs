@@ -93,14 +93,18 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(Account account)
+        public async Task<OperationResult> DeleteAsync(Guid accountId)
         {
             try
             {
-                if (account == null)
-                    return new OperationResult { Result = false, Error = "The provided Account object is null." };
+                if (accountId == Guid.Empty)
+                    return new OperationResult { Result = false, Error = "The provided AccountId is null." };
 
-                _context.Accounts.Remove(account);
+                var accountObject = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == accountId);
+                if (accountObject == null)
+                    return new OperationResult { Result = false, Error = "There is no settings with provided id." };
+
+                _context.Accounts.Remove(accountObject);
 
                 var result = await _context.SaveChangesAsync();
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };

@@ -10,6 +10,8 @@ namespace Calmska.Api.Helper
         {
             CreateMap<Account, AccountDTO>();
             CreateMap<AccountDTO, Account>();
+            CreateMap<Settings, SettingsDTO>();
+            CreateMap<SettingsDTO, Settings>();
         }
     }
 }

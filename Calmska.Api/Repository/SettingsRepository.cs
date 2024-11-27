@@ -1,4 +1,5 @@
-﻿using Calmska.Api.DTO;
+﻿using AutoMapper;
+using Calmska.Api.DTO;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,39 +9,55 @@ namespace Calmska.Api.Repository
     public class SettingsRepository : ISettingsRepository
     {
         private readonly CalmskaDbContext _context;
-        public SettingsRepository(CalmskaDbContext context) => _context = context;
+        private readonly IMapper _mapper;
+        public SettingsRepository(CalmskaDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
         public async Task<IEnumerable<Settings>> GetAllAsync()
         {
             return await _context.SettingsDb.ToListAsync();
         }
 
-        public async Task<IEnumerable<Settings>> GetAllByArgumentAsync(Settings settings)
+        public async Task<IEnumerable<Settings>> GetAllByArgumentAsync(SettingsDTO settings)
         {
             return await _context.SettingsDb
                 .Where(item =>
-                    (settings.SettingsId == Guid.Empty || item.SettingsId.ToString().Contains(settings.SettingsId.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-                    (settings.SettingsJson == string.Empty || item.SettingsJson.Contains(settings.SettingsJson, StringComparison.OrdinalIgnoreCase)) &&
-                    (settings.UserId == Guid.Empty || item.UserId.ToString().Contains(settings.UserId.ToString(), StringComparison.OrdinalIgnoreCase))
-                    ).ToListAsync();
+                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
+                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
+                    (string.IsNullOrEmpty(settings.PomodoroTimer) || item.Color.ToLower().Contains(settings.PomodoroTimer.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroBreak) || item.Color.ToLower().Contains(settings.PomodoroBreak.ToLower())) &&
+                    (!settings.UserId.HasValue || item.UserId == settings.UserId))
+                )
+                .ToListAsync();
         }
 
-        public async Task<Settings?> GetByArgumentAsync(Settings settings)
+        public async Task<Settings?> GetByArgumentAsync(SettingsDTO settings)
         {
             return await _context.SettingsDb
                 .Where(item =>
-                    (settings.SettingsId == Guid.Empty || item.SettingsId.ToString().Contains(settings.SettingsId.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-                    (string.IsNullOrEmpty(settings.SettingsJson) || item.SettingsJson.Contains(settings.SettingsJson, StringComparison.OrdinalIgnoreCase)) &&
-                    (settings.UserId == Guid.Empty || item.UserId.ToString().Contains(settings.UserId.ToString(), StringComparison.OrdinalIgnoreCase))
-                    ).FirstOrDefaultAsync();
+                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
+                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
+                    (string.IsNullOrEmpty(settings.PomodoroTimer) || item.Color.ToLower().Contains(settings.PomodoroTimer.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroBreak) || item.Color.ToLower().Contains(settings.PomodoroBreak.ToLower())) &&
+                    (!settings.UserId.HasValue || item.UserId == settings.UserId))
+                )
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<OperationResult> AddAsync(Settings settings)
+        public async Task<OperationResult> AddAsync(SettingsDTO settingsDTO)
         {
             try
             {
-                if (settings == null)
+                if (settingsDTO == null)
                     return new OperationResult { Result = false, Error = "The provided Settings object is null." };
 
+                var settingsByUserId = GetByArgumentAsync(new SettingsDTO { UserId = settingsDTO.UserId, SettingsId = Guid.Empty });
+                if (settingsByUserId.Result != null)
+                    return new OperationResult { Result = false, Error = $"The settings object exists for the user with id: {settingsDTO.UserId}." };
+
+                var settings = _mapper.Map<Settings>(settingsDTO);
                 await _context.SettingsDb.AddAsync(settings);
 
                 var result = await _context.SaveChangesAsync();
@@ -52,19 +69,26 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(Settings settings)
+        public async Task<OperationResult> UpdateAsync(SettingsDTO settingsDTO)
         {
             try
             {
-                if (settings == null)
+                if (settingsDTO == null)
                     return new OperationResult { Result = false, Error = "The provided Settings object is null." };
 
-                Settings? existingSettings = await _context.SettingsDb.FirstOrDefaultAsync(a => a.SettingsId == a.SettingsId);
+                Settings? existingSettings = await _context.SettingsDb.FirstOrDefaultAsync(a => a.SettingsId == settingsDTO.SettingsId);
                 if (existingSettings == null)
                     return new OperationResult { Result = false, Error = "Didn't find any settings with the provided settingsId." };
 
-                existingSettings.SettingsJson = settings.SettingsJson;
-                existingSettings.UserId = settings.UserId;
+                if(!string.IsNullOrEmpty(settingsDTO.Color))
+                    existingSettings.Color = settingsDTO.Color;
+                if(!string.IsNullOrEmpty(settingsDTO.PomodoroTimer))
+                    existingSettings.PomodoroTimer = settingsDTO.PomodoroTimer;
+                if(!string.IsNullOrEmpty(settingsDTO.PomodoroBreak))
+                    existingSettings.PomodoroBreak = settingsDTO.PomodoroBreak;
+            
+                if(settingsDTO.UserId != null)
+                    existingSettings.UserId = (Guid)settingsDTO.UserId;
 
                 var result = await _context.SaveChangesAsync();
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
@@ -75,14 +99,18 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(Settings settings)
+        public async Task<OperationResult> DeleteAsync(Guid settingsId)
         {
             try
             {
-                if (settings == null)
-                    return new OperationResult { Result = false, Error = "The provided Settings object is null." };
+                if (settingsId == Guid.Empty)
+                    return new OperationResult { Result = false, Error = "The provided SettingsId is null." };
 
-                _context.SettingsDb.Remove(settings);
+                var settingsObject = await _context.SettingsDb.FirstOrDefaultAsync(s => s.SettingsId == settingsId);
+                if(settingsObject == null)
+                    return new OperationResult { Result = false, Error = "There is no settings with provided id." };
+                
+                _context.SettingsDb.Remove(settingsObject);
 
                 var result = await _context.SaveChangesAsync();
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };

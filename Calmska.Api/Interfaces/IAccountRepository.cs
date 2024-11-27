@@ -10,6 +10,6 @@ namespace Calmska.Api.Interfaces
         Task<Account?> GetByArgumentAsync(AccountDTO account);
         Task<OperationResult> AddAsync(AccountDTO account);
         Task<OperationResult> UpdateAsync(AccountDTO account);
-        Task<OperationResult> DeleteAsync(Account account);
+        Task<OperationResult> DeleteAsync(Guid accountId);
     }
 }

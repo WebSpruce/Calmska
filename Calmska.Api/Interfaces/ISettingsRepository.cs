@@ -6,10 +6,10 @@ namespace Calmska.Api.Interfaces
     public interface ISettingsRepository
     {
         Task<IEnumerable<Settings>> GetAllAsync();
-        Task<IEnumerable<Settings>> GetAllByArgumentAsync(Settings account);
-        Task<Settings?> GetByArgumentAsync(Settings account);
-        Task<OperationResult> AddAsync(Settings account);
-        Task<OperationResult> UpdateAsync(Settings account);
-        Task<OperationResult> DeleteAsync(Settings account);
+        Task<IEnumerable<Settings>> GetAllByArgumentAsync(SettingsDTO settingsDTO);
+        Task<Settings?> GetByArgumentAsync(SettingsDTO settingsDTO);
+        Task<OperationResult> AddAsync(SettingsDTO settingsDTO);
+        Task<OperationResult> UpdateAsync(SettingsDTO settingsDTO);
+        Task<OperationResult> DeleteAsync(Guid settingsId);
     }
 }
