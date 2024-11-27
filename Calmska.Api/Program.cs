@@ -48,12 +48,12 @@ namespace Calmska.Api
                 var result = await accountRepository.GetAllAsync();
                 return Results.Ok(result);
             });
-            accounts.MapPost("/searchList", async (IAccountRepository accountRepository, [FromBody] Account account) =>
+            accounts.MapPost("/searchList", async (IAccountRepository accountRepository, [FromBody] AccountDTO account) =>
             {
                 var result = await accountRepository.GetAllByArgumentAsync(account);
                 return result != null ? Results.Ok(result) : Results.NotFound("Accounts not found");
             });
-            accounts.MapPost("/search", async (IAccountRepository accountRepository, [FromBody] Account account) =>
+            accounts.MapPost("/search", async (IAccountRepository accountRepository, [FromBody] AccountDTO account) =>
             {
                 var result = await accountRepository.GetByArgumentAsync(account);
                 return result != null ? Results.Ok(result) : Results.NotFound("Account not found");

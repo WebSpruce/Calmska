@@ -21,11 +21,11 @@ namespace Calmska.Api.Repository
             return await _context.Accounts.ToListAsync();
         }
 
-        public async Task<IEnumerable<Account>> GetAllByArgumentAsync(Account account)
+        public async Task<IEnumerable<Account>> GetAllByArgumentAsync(AccountDTO account)
         {
             return await _context.Accounts
                 .Where(item =>
-                    (account.UserId == Guid.Empty || item.UserId.ToString().ToLower().Contains(account.UserId.ToString().ToLower())) &&
+                    (!account.UserId.HasValue || item.UserId == account.UserId) &&
                     (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                     (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                     (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
@@ -33,11 +33,11 @@ namespace Calmska.Api.Repository
                 .ToListAsync();
         }
 
-        public async Task<Account?> GetByArgumentAsync(Account account)
+        public async Task<Account?> GetByArgumentAsync(AccountDTO account)
         {
             return await _context.Accounts
                 .Where(item =>
-                    (account.UserId == Guid.Empty || item.UserId.ToString().ToLower().Contains(account.UserId.ToString().ToLower())) &&
+                    (!account.UserId.HasValue || item.UserId == account.UserId) &&
                     (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                     (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                     (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
@@ -52,7 +52,7 @@ namespace Calmska.Api.Repository
                 if (accountDto == null)
                     return new OperationResult { Result = false, Error = "The provided Account object is null." };
 
-                var userByEmail = GetByArgumentAsync(new Account { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
+                var userByEmail = GetByArgumentAsync(new AccountDTO { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
                 if (userByEmail.Result != null)
                     return new OperationResult { Result = false, Error = "The user with provided email exists." };
 
