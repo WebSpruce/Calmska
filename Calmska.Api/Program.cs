@@ -21,6 +21,9 @@ namespace Calmska.Api
 
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+            builder.Services.AddScoped<IMoodRepository, MoodRepository>();
+            builder.Services.AddScoped<IMoodHistoryRepository, MoodHistoryRepository>();
+            builder.Services.AddScoped<ITipsRepository, TipsRepository>();
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -42,6 +45,7 @@ namespace Calmska.Api
             app.UseAuthorization();
 
             //endpoints
+            #region Accounts
             var accounts = app
                 .MapGroup("/api/v1/accounts")
                 .WithTags("Accounts");
@@ -73,9 +77,10 @@ namespace Calmska.Api
             accounts.MapDelete("/", async (IAccountRepository accountRepository, [FromBody] Guid accountId) =>
             {
                 var result = await accountRepository.DeleteAsync(accountId);
-                return result.Result ? Results.Ok("Account deleted  successfully") : Results.BadRequest(result.Error);
+                return result.Result ? Results.Ok("Account deleted successfully") : Results.BadRequest(result.Error);
             });
-            
+            #endregion Accounts
+            #region Settings
             var settings = app
                 .MapGroup("/api/v1/settings")
                 .WithTags("Settings");
@@ -87,12 +92,12 @@ namespace Calmska.Api
             settings.MapPost("/searchList", async (ISettingsRepository settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
             {
                 var result = await settingsRepository.GetAllByArgumentAsync(settingsDTO);
-                return result != null ? Results.Ok(result) : Results.NotFound("Accounts not found");
+                return result != null ? Results.Ok(result) : Results.NotFound("Settings not found");
             });
             settings.MapPost("/search", async (ISettingsRepository settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
             {
                 var result = await settingsRepository.GetByArgumentAsync(settingsDTO);
-                return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
+                return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
             });
             settings.MapPost("/", async (ISettingsRepository settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
             {
@@ -102,13 +107,120 @@ namespace Calmska.Api
             settings.MapPut("/", async (ISettingsRepository settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
             {
                 var result = await settingsRepository.UpdateAsync(settingsDTO);
-                return result.Result ? Results.Ok("Account updated successfully") : Results.BadRequest(result.Error);
+                return result.Result ? Results.Ok("Settings updated successfully") : Results.BadRequest(result.Error);
             });
             settings.MapDelete("/", async (ISettingsRepository settingsRepository, [FromBody] Guid settingsId) =>
             {
                 var result = await settingsRepository.DeleteAsync(settingsId);
-                return result.Result ? Results.Ok("Account deleted  successfully") : Results.BadRequest(result.Error);
+                return result.Result ? Results.Ok("Setting deleted successfully") : Results.BadRequest(result.Error);
             });
+            #endregion Settings
+            #region Mood
+            var mood = app
+                .MapGroup("/api/v1/moods")
+                .WithTags("Moods");
+            mood.MapGet("/", async (IMoodRepository moodRepository) =>
+            {
+                var result = await moodRepository.GetAllAsync();
+                return Results.Ok(result);
+            });
+            mood.MapPost("/searchList", async (IMoodRepository moodRepository, [FromBody] MoodDTO moodDTO) =>
+            {
+                var result = await moodRepository.GetAllByArgumentAsync(moodDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Moods not found");
+            });
+            mood.MapPost("/search", async (IMoodRepository moodRepository, [FromBody] MoodDTO moodDTO) =>
+            {
+                var result = await moodRepository.GetByArgumentAsync(moodDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Mood not found");
+            });
+            mood.MapPost("/", async (IMoodRepository moodRepository, [FromBody] MoodDTO moodDTO) =>
+            {
+                var result = await moodRepository.AddAsync(moodDTO);
+                return result.Result ? Results.Created($"/{moodDTO.MoodId}", moodDTO) : Results.BadRequest(result.Error);
+            });
+            mood.MapPut("/", async (IMoodRepository moodRepository, [FromBody] MoodDTO moodDTO) =>
+            {
+                var result = await moodRepository.UpdateAsync(moodDTO);
+                return result.Result ? Results.Ok("Mood updated successfully") : Results.BadRequest(result.Error);
+            });
+            mood.MapDelete("/", async (IMoodRepository moodRepository, [FromBody] Guid moodId) =>
+            {
+                var result = await moodRepository.DeleteAsync(moodId);
+                return result.Result ? Results.Ok("Mood deleted successfully") : Results.BadRequest(result.Error);
+            });
+            #endregion Mood
+            #region MoodHistory
+            var moodHistory = app
+                .MapGroup("/api/v1/moodhistory")
+                .WithTags("MoodHistory");
+            moodHistory.MapGet("/", async (IMoodHistoryRepository moodHistoryRepository) =>
+            {
+                var result = await moodHistoryRepository.GetAllAsync();
+                return Results.Ok(result);
+            });
+            moodHistory.MapPost("/searchList", async (IMoodHistoryRepository moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            {
+                var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("MoodHistory not found");
+            });
+            moodHistory.MapPost("/search", async (IMoodHistoryRepository moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            {
+                var result = await moodHistoryRepository.GetByArgumentAsync(moodHistoryDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
+            });
+            moodHistory.MapPost("/", async (IMoodHistoryRepository moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            {
+                var result = await moodHistoryRepository.AddAsync(moodHistoryDTO);
+                return result.Result ? Results.Created($"/{moodHistoryDTO.UserId}", moodHistoryDTO) : Results.BadRequest(result.Error);
+            });
+            moodHistory.MapPut("/", async (IMoodHistoryRepository moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            {
+                var result = await moodHistoryRepository.UpdateAsync(moodHistoryDTO);
+                return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
+            });
+            moodHistory.MapDelete("/", async (IMoodHistoryRepository moodHistoryRepository, [FromBody] Guid moodHistoryId) =>
+            {
+                var result = await moodHistoryRepository.DeleteAsync(moodHistoryId);
+                return result.Result ? Results.Ok("MoodHistory deleted successfully") : Results.BadRequest(result.Error);
+            });
+            #endregion MoodHistory
+            #region Tips
+            var tips = app
+                .MapGroup("/api/v1/tips")
+                .WithTags("Tips");
+            tips.MapGet("/", async (ITipsRepository tipsRepository) =>
+            {
+                var result = await tipsRepository.GetAllAsync();
+                return Results.Ok(result);
+            });
+            tips.MapPost("/searchList", async (ITipsRepository tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            {
+                var result = await tipsRepository.GetAllByArgumentAsync(tipsDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
+            });
+            tips.MapPost("/search", async (ITipsRepository tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            {
+                var result = await tipsRepository.GetByArgumentAsync(tipsDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
+            });
+            tips.MapPost("/", async (ITipsRepository tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            {
+                var result = await tipsRepository.AddAsync(tipsDTO);
+                return result.Result ? Results.Created($"/{tipsDTO.TipId}", tipsDTO) : Results.BadRequest(result.Error);
+            });
+            tips.MapPut("/", async (ITipsRepository tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            {
+                var result = await tipsRepository.UpdateAsync(tipsDTO);
+                return result.Result ? Results.Ok("Tip updated successfully") : Results.BadRequest(result.Error);
+            });
+            tips.MapDelete("/", async (ITipsRepository tipsRepository, [FromBody] Guid tipId) =>
+            {
+                var result = await tipsRepository.DeleteAsync(tipId);
+                return result.Result ? Results.Ok("Tip deleted successfully") : Results.BadRequest(result.Error);
+            });
+            #endregion Tips
+
 
             app.Run();
         }

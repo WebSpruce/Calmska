@@ -79,8 +79,8 @@ namespace Calmska.Api.Repository
                 if(existingAccount == null)
                     return new OperationResult { Result = false, Error = "Didn't find any account with the provided userId." };
 
-                existingAccount.UserName = account.UserName;
-                existingAccount.Email = account.Email;
+                existingAccount.UserName = account.UserName ?? string.Empty;
+                existingAccount.Email = account.Email ?? string.Empty;
                 if (!string.IsNullOrEmpty(account.PasswordHashed))
                     existingAccount.PasswordHashed = BCrypt.Net.BCrypt.HashPassword(account.PasswordHashed);
 

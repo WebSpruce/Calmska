@@ -12,6 +12,12 @@ namespace Calmska.Api.Helper
             CreateMap<AccountDTO, Account>();
             CreateMap<Settings, SettingsDTO>();
             CreateMap<SettingsDTO, Settings>();
+            CreateMap<MoodDTO, Mood>();
+            CreateMap<Mood, MoodDTO>();
+            CreateMap<MoodHistoryDTO, MoodHistory>();
+            CreateMap<MoodHistory, MoodHistoryDTO>();
+            CreateMap<TipsDTO, Tips>();
+            CreateMap<Tips, TipsDTO>();
         }
     }
 }
