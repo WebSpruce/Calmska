@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Api.Repository
 {
-    public class TipsRepository : ITipsRepository
+    public class TipsRepository : IRepository<Tips, TipsDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;

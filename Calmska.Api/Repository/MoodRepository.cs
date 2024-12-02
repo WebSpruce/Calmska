@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Api.Repository
 {
-    public class MoodRepository : IMoodRepository
+    public class MoodRepository : IRepository<Mood, MoodDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;

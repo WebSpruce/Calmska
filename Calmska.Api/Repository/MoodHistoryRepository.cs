@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
 using Calmska.Api.DTO;
-using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Calmska.Api.Repository
 {
-    public class MoodHistoryRepository : IMoodHistoryRepository
+    public class MoodHistoryRepository : IRepository<MoodHistory, MoodHistoryDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Api.Repository
 {
-    public class AccountRepository : IAccountRepository
+    public class AccountRepository : IRepository<Account, AccountDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
