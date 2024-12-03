@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Calmska.Api.DTO;
+using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,20 +16,23 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<Mood>> GetAllAsync()
+        public async Task<PaginatedResult<Mood>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await _context.Moods.ToListAsync();
+            var query = await Task.Run(_context.Moods.AsQueryable);
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<Mood>> GetAllByArgumentAsync(MoodDTO moodDTO)
+        public async Task<PaginatedResult<Mood>> GetAllByArgumentAsync(MoodDTO moodDTO, int? pageNumber, int? pageSize)
         {
-            return await _context.Moods
+            var query = await Task.Run(_context.Moods
                 .Where(item =>
                     (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
                     (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
                     (string.IsNullOrEmpty(moodDTO.Type) || item.Type.ToLower().Contains(moodDTO.Type.ToLower()))
                 )
-                .ToListAsync();
+                .AsQueryable);
+
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
         public async Task<Mood?> GetByArgumentAsync(MoodDTO moodDTO)

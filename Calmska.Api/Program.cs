@@ -49,14 +49,14 @@ namespace Calmska.Api
             var accounts = app
                 .MapGroup("/api/v1/accounts")
                 .WithTags("Accounts");
-            accounts.MapGet("/", async (IRepository<Account, AccountDTO> accountRepository) =>
+            accounts.MapGet("/", async (IRepository<Account, AccountDTO> accountRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await accountRepository.GetAllAsync();
+                var result = await accountRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            accounts.MapPost("/searchList", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
+            accounts.MapPost("/searchList", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await accountRepository.GetAllByArgumentAsync(accountDTO);
+                var result = await accountRepository.GetAllByArgumentAsync(accountDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("Accounts not found");
             });
             accounts.MapPost("/search", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
@@ -84,14 +84,14 @@ namespace Calmska.Api
             var settings = app
                 .MapGroup("/api/v1/settings")
                 .WithTags("Settings");
-            settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository) =>
+            settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await settingsRepository.GetAllAsync();
+                var result = await settingsRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            settings.MapPost("/searchList", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
+            settings.MapPost("/searchList", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await settingsRepository.GetAllByArgumentAsync(settingsDTO);
+                var result = await settingsRepository.GetAllByArgumentAsync(settingsDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("Settings not found");
             });
             settings.MapPost("/search", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
@@ -119,14 +119,14 @@ namespace Calmska.Api
             var mood = app
                 .MapGroup("/api/v1/moods")
                 .WithTags("Moods");
-            mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository) =>
+            mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int ? pageNumber, [FromQuery] int ? pageSize) =>
             {
-                var result = await moodRepository.GetAllAsync();
+                var result = await moodRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            mood.MapPost("/searchList", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO) =>
+            mood.MapPost("/searchList", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await moodRepository.GetAllByArgumentAsync(moodDTO);
+                var result = await moodRepository.GetAllByArgumentAsync(moodDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("Moods not found");
             });
             mood.MapPost("/search", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO) =>
@@ -154,14 +154,14 @@ namespace Calmska.Api
             var moodHistory = app
                 .MapGroup("/api/v1/moodhistory")
                 .WithTags("MoodHistory");
-            moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository) =>
+            moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await moodHistoryRepository.GetAllAsync();
+                var result = await moodHistoryRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            moodHistory.MapPost("/searchList", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            moodHistory.MapPost("/searchList", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDTO);
+                var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("MoodHistory not found");
             });
             moodHistory.MapPost("/search", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
@@ -189,14 +189,14 @@ namespace Calmska.Api
             var tips = app
                 .MapGroup("/api/v1/tips")
                 .WithTags("Tips");
-            tips.MapGet("/", async (IRepository<Tips, TipsDTO> tipsRepository) =>
+            tips.MapGet("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await tipsRepository.GetAllAsync();
+                var result = await tipsRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            tips.MapPost("/searchList", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            tips.MapPost("/searchList", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
-                var result = await tipsRepository.GetAllByArgumentAsync(tipsDTO);
+                var result = await tipsRepository.GetAllByArgumentAsync(tipsDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
             });
             tips.MapPost("/search", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO) =>

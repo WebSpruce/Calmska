@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Calmska.Api.DTO;
+using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,20 +16,23 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<Tips>> GetAllAsync()
+        public async Task<PaginatedResult<Tips>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await _context.TipsDb.ToListAsync();
+            var query = await Task.Run(_context.TipsDb.AsQueryable);
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<Tips>> GetAllByArgumentAsync(TipsDTO tips)
+        public async Task<PaginatedResult<Tips>> GetAllByArgumentAsync(TipsDTO tips, int? pageNumber, int? pageSize)
         {
-            return await _context.TipsDb
+            var query = await Task.Run(_context.TipsDb
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
                     (string.IsNullOrEmpty(tips.Type) || item.Type.ToLower().Contains(tips.Type.ToLower()))
                 )
-                .ToListAsync();
+                .AsQueryable);
+
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
         public async Task<Tips?> GetByArgumentAsync(TipsDTO tips)

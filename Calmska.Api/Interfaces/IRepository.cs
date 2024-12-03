@@ -1,11 +1,12 @@
 ﻿using Calmska.Api.DTO;
+using Calmska.Models.Models;
 
 namespace Calmska.Api.Interfaces
 {
     public interface IRepository<TEntity, TFilter>
     {
-        Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<IEnumerable<TEntity>> GetAllByArgumentAsync(TFilter filter);
+        Task<PaginatedResult<TEntity>> GetAllAsync(int? pageNumber, int? pageSize);
+        Task<PaginatedResult<TEntity>> GetAllByArgumentAsync(TFilter filter, int? pageNumber, int? pageSize);
         Task<TEntity?> GetByArgumentAsync(TFilter filter);
         Task<OperationResult> AddAsync(TFilter entity);
         Task<OperationResult> UpdateAsync(TFilter entity);

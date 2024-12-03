@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Calmska.Api.DTO;
+using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +16,15 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<Settings>> GetAllAsync()
+        public async Task<PaginatedResult<Settings>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await _context.SettingsDb.ToListAsync();
+            var query = await Task.Run(_context.SettingsDb.AsQueryable);
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<Settings>> GetAllByArgumentAsync(SettingsDTO settings)
+        public async Task<PaginatedResult<Settings>> GetAllByArgumentAsync(SettingsDTO settings, int? pageNumber, int? pageSize)
         {
-            return await _context.SettingsDb
+            var query = await Task.Run(_context.SettingsDb
                 .Where(item =>
                     (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
                     (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
@@ -30,7 +32,9 @@ namespace Calmska.Api.Repository
                     (string.IsNullOrEmpty(settings.PomodoroBreak) || item.Color.ToLower().Contains(settings.PomodoroBreak.ToLower())) &&
                     (!settings.UserId.HasValue || item.UserId == settings.UserId))
                 )
-                .ToListAsync();
+                .AsQueryable);
+
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
         public async Task<Settings?> GetByArgumentAsync(SettingsDTO settings)
