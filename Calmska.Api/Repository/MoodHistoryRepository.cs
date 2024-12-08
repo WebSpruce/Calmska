@@ -4,11 +4,11 @@ using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Calmska.Api.Repository
 {
-    public class MoodHistoryRepository : IMoodHistoryRepository
+    public class MoodHistoryRepository : IRepository<MoodHistory, MoodHistoryDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
@@ -17,21 +17,24 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<MoodHistory>> GetAllAsync()
+        public async Task<PaginatedResult<MoodHistory>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await _context.MoodHistoryDb.ToListAsync();
+            var query = await Task.Run(_context.MoodHistoryDb.AsQueryable);
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<MoodHistory>> GetAllByArgumentAsync(MoodHistoryDTO moodHistoryDTO)
+        public async Task<PaginatedResult<MoodHistory>> GetAllByArgumentAsync(MoodHistoryDTO moodHistoryDTO, int? pageNumber, int? pageSize)
         {
-            return await _context.MoodHistoryDb
+            var query = await Task.Run(_context.MoodHistoryDb
                 .Where(item =>
                     (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
                     (!moodHistoryDTO.Date.HasValue || item.Date.Date == moodHistoryDTO.Date.Value.Date) &&
                     (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
                     (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
-                .ToListAsync();
+                .AsQueryable);
+
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
         public async Task<MoodHistory?> GetByArgumentAsync(MoodHistoryDTO moodHistoryDTO)

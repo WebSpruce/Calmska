@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Api.Repository
 {
-    public class AccountRepository : IAccountRepository
+    public class AccountRepository : IRepository<Account, AccountDTO>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
@@ -16,21 +16,25 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<Account>> GetAllAsync()
+       
+        public async Task<PaginatedResult<Account>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await _context.Accounts.ToListAsync();
+            var query = await Task.Run(_context.Accounts.AsQueryable);
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<Account>> GetAllByArgumentAsync(AccountDTO account)
+        public async Task<PaginatedResult<Account>> GetAllByArgumentAsync(AccountDTO account, int? pageNumber, int? pageSize)
         {
-            return await _context.Accounts
-                .Where(item =>
-                    (!account.UserId.HasValue || item.UserId == account.UserId) &&
-                    (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
-                    (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
-                    (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
-                )
-                .ToListAsync();
+            var query = await Task.Run(_context.Accounts
+            .Where(item =>
+                (!account.UserId.HasValue || item.UserId == account.UserId) &&
+                (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
+                (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
+                (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
+            )
+            .AsQueryable);
+
+            return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
         public async Task<Account?> GetByArgumentAsync(AccountDTO account)

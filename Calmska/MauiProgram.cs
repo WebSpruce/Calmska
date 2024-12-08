@@ -11,8 +11,14 @@ namespace Calmska
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("CanelaBlack.otf", "CanelaBlack");
+                    fonts.AddFont("CanelaLight.otf", "CanelaLight");
+                    fonts.AddFont("CanelaMedium.otf", "CanelaMedium");
+                    fonts.AddFont("CanelaRegular.otf", "CanelaRegular");
+                    fonts.AddFont("MADEINFINITYBlack.otf", "MADEINFINITYBlack");
+                    fonts.AddFont("MADEINFINITYLight.otf", "MADEINFINITYLight");
+                    fonts.AddFont("MADEINFINITYMedium.otf", "MADEINFINITYMedium");
+                    fonts.AddFont("MADEINFINITYRegular.otf", "MADEINFINITYRegular");
                 });
 
 #if DEBUG
