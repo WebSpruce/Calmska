@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Calmska.ViewModels
 {
-    internal partial class LoginViewModel : ObservableObject
+    internal partial class RegisterViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _backgroundImageSource = "leaf.png";
@@ -16,25 +16,10 @@ namespace Calmska.ViewModels
         private bool _isPasswordMode = true;
         [ObservableProperty]
         private string _passwordBtnIcon = "eye_hidden.svg";
-
         [RelayCommand]
-        internal void ChangePasswordVisibility()
+        internal async Task GoToLogin()
         {
-            IsPasswordMode = !IsPasswordMode;
-            if (IsPasswordMode)
-                PasswordBtnIcon = "eye_open.svg";
-            else
-                PasswordBtnIcon = "eye_hidden.svg";
-        }
-        [RelayCommand]
-        internal void Login()
-        {
-
-        }
-        [RelayCommand]
-        internal async Task GoToRegister()
-        {
-            await Shell.Current.GoToAsync($"..");
+            await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
         }
     }
 }

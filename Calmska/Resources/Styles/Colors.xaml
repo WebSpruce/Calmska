@@ -8,6 +8,7 @@
     <Color x:Key="SecondGreen">#538A5E</Color>
     <Color x:Key="AccentOrange">#EA7649</Color>
     <Color x:Key="AccentLightOrange">#D4A373</Color>
+    <Color x:Key="PlaceholderGray">#e3d5ca</Color>
 
     <Color x:Key="Primary">#344E41</Color>
     <Color x:Key="PrimaryDark">#344E41</Color>
