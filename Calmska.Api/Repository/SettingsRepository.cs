@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Calmska.Api.DTO;
+using Calmska.Models.DTO;
 using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;

@@ -1,6 +1,6 @@
-using Calmska.Api.DTO;
 using Calmska.Api.Interfaces;
 using Calmska.Api.Repository;
+using Calmska.Models.DTO;
 using Calmska.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

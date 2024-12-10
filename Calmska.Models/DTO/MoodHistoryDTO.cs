@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Calmska.Api.DTO
+namespace Calmska.Models.DTO
 {
     public class MoodHistoryDTO
     {
