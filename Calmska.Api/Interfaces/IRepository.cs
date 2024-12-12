@@ -1,5 +1,4 @@
-﻿using Calmska.Models.DTO;
-using Calmska.Models.Models;
+﻿using Calmska.Models.Models;
 
 namespace Calmska.Api.Interfaces
 {

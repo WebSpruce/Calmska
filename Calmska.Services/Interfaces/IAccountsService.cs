@@ -20,14 +20,14 @@ namespace Calmska.Services.Interfaces
         /// <param name="pageNumber">The page number for pagination.</param>
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A paginated result containing matched accounts.</returns>
-        Task<PaginatedResult<AccountDTO>> SearchAccountsAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize);
+        Task<PaginatedResult<AccountDTO>> SearchAccountsByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize);
 
         /// <summary>
         /// Get a specific account by its unique identifier.
         /// </summary>
         /// <param name="accountId">The unique identifier of the account.</param>
         /// <returns>The account if found, or null if not.</returns>
-        Task<AccountDTO?> GetAccountByIdAsync(Guid accountId);
+        Task<AccountDTO?> GetAccountByArgumentAsync(Guid accountId);
 
         /// <summary>
         /// Add a new account.
