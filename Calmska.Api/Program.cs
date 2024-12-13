@@ -16,10 +16,10 @@ namespace Calmska.Api
             var mongoDBSettings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
             builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 
-            builder.Services.AddDbContext<CalmskaDbContext>(options => 
+            builder.Services.AddDbContext<CalmskaDbContext>(options =>
             options.UseMongoDB(mongoDBSettings?.AtlasURI ?? "", mongoDBSettings?.DatabaseName ?? string.Empty));
 
-            builder.Services.AddScoped<IRepository<Account,AccountDTO>, AccountRepository>();
+            builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
             builder.Services.AddScoped<IRepository<Mood, MoodDTO>, MoodRepository>();
             builder.Services.AddScoped<IRepository<MoodHistory, MoodHistoryDTO>, MoodHistoryRepository>();
@@ -54,13 +54,30 @@ namespace Calmska.Api
                 var result = await accountRepository.GetAllAsync(pageNumber, pageSize);
                 return Results.Ok(result);
             });
-            accounts.MapPost("/searchList", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            accounts.MapGet("/searchList", async(IRepository < Account, AccountDTO > accountRepository,
+                [FromQuery] Guid ? UserId, [FromQuery] string ? UserName, [FromQuery] string ? Email, [FromQuery] string? PasswordHashed, 
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.GetAllByArgumentAsync(accountDTO, pageNumber, pageSize);
                 return result != null ? Results.Ok(result) : Results.NotFound("Accounts not found");
             });
-            accounts.MapPost("/search", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
+            accounts.MapGet("/search", async (IRepository<Account, AccountDTO> accountRepository,
+                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.GetByArgumentAsync(accountDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
             });

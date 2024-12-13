@@ -13,32 +13,32 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<AccountDTO>>> GetAllAccountsAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<IEnumerable<AccountDTO?>>> GetAllAccountsAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<IEnumerable<AccountDTO>>(_httpClient, "/accounts");
+            return await HttpClientHelper.GetAsync<IEnumerable<AccountDTO?>>(_httpClient, "/accounts");
         }
 
-        public async Task<PaginatedResult<AccountDTO>> SearchAccountsByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<IEnumerable<AccountDTO?>>>> SearchAccountsByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
+        {
+            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<AccountDTO?>>>(_httpClient, "/accounts/searchList");
+        }
+
+        public async Task<OperationResultT<AccountDTO?>> GetAccountByArgumentAsync(AccountDTO accountCriteria)
+        {
+            return await HttpClientHelper.GetAsync<AccountDTO?>(_httpClient, "/accounts/search");
+        }
+
+        public async Task<OperationResultT<bool>> AddAccountAsync(AccountDTO newAccount)
+        {
+            return await HttpClientHelper.PostAsync<AccountDTO?>(_httpClient, "/accounts", newAccount);
+        }
+
+        public async Task<OperationResultT<bool>> UpdateAccountAsync(AccountDTO updatedAccount)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<AccountDTO?> GetAccountByArgumentAsync(Guid accountId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<OperationResult> AddAccountAsync(AccountDTO newAccount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<OperationResult> UpdateAccountAsync(AccountDTO updatedAccount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<OperationResult> DeleteAccountAsync(Guid accountId)
+        public async Task<OperationResultT<bool>> DeleteAccountAsync(Guid accountId)
         {
             throw new NotImplementedException();
         }
