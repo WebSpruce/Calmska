@@ -1,9 +1,11 @@
-using Calmska.Api.DTO;
 using Calmska.Api.Interfaces;
 using Calmska.Api.Repository;
+using Calmska.Models.DTO;
 using Calmska.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Calmska.Api
 {
@@ -16,10 +18,10 @@ namespace Calmska.Api
             var mongoDBSettings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
             builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 
-            builder.Services.AddDbContext<CalmskaDbContext>(options => 
+            builder.Services.AddDbContext<CalmskaDbContext>(options =>
             options.UseMongoDB(mongoDBSettings?.AtlasURI ?? "", mongoDBSettings?.DatabaseName ?? string.Empty));
 
-            builder.Services.AddScoped<IRepository<Account,AccountDTO>, AccountRepository>();
+            builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
             builder.Services.AddScoped<IRepository<Mood, MoodDTO>, MoodRepository>();
             builder.Services.AddScoped<IRepository<MoodHistory, MoodHistoryDTO>, MoodHistoryRepository>();
@@ -52,29 +54,62 @@ namespace Calmska.Api
             accounts.MapGet("/", async (IRepository<Account, AccountDTO> accountRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await accountRepository.GetAllAsync(pageNumber, pageSize);
-                return Results.Ok(result);
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Accounts not found: {result?.error}");
             });
-            accounts.MapPost("/searchList", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            accounts.MapGet("/searchList", async(IRepository < Account, AccountDTO > accountRepository,
+                [FromQuery] Guid ? UserId, [FromQuery] string ? UserName, [FromQuery] string ? Email, [FromQuery] string? PasswordHashed, 
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.GetAllByArgumentAsync(accountDTO, pageNumber, pageSize);
-                return result != null ? Results.Ok(result) : Results.NotFound("Accounts not found");
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Accounts not found: {result?.error}");
             });
-            accounts.MapPost("/search", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
+            accounts.MapGet("/search", async (IRepository<Account, AccountDTO> accountRepository,
+                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.GetByArgumentAsync(accountDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
             });
-            accounts.MapPost("/", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
+            accounts.MapPost("/", async (IRepository<Account, AccountDTO> accountRepository,
+                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.AddAsync(accountDTO);
                 return result.Result ? Results.Created($"/{accountDTO.UserId}", accountDTO) : Results.BadRequest(result.Error);
             });
-            accounts.MapPut("/", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] AccountDTO accountDTO) =>
+            accounts.MapPut("/", async (IRepository<Account, AccountDTO> accountRepository,
+                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
             {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
                 var result = await accountRepository.UpdateAsync(accountDTO);
                 return result.Result ? Results.Ok("Account updated successfully") : Results.BadRequest(result.Error);
             });
-            accounts.MapDelete("/", async (IRepository<Account, AccountDTO> accountRepository, [FromBody] Guid accountId) =>
+            accounts.MapDelete("/", async (IRepository<Account, AccountDTO> accountRepository, [FromQuery] Guid accountId) =>
             {
                 var result = await accountRepository.DeleteAsync(accountId);
                 return result.Result ? Results.Ok("Account deleted successfully") : Results.BadRequest(result.Error);
@@ -87,25 +122,62 @@ namespace Calmska.Api
             settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await settingsRepository.GetAllAsync(pageNumber, pageSize);
-                return Results.Ok(result);
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Settings not found: {result?.error}");
             });
-            settings.MapPost("/searchList", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            settings.MapGet("/searchList", async (IRepository<Settings, SettingsDTO> settingsRepository, 
+                [FromQuery] Guid? SettingsId, [FromQuery] string ? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery]Guid? UserId,
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                var settingsDTO = new SettingsDTO()
+                {
+                    SettingsId = SettingsId,
+                    Color = Color,
+                    PomodoroBreak = PomodoroBreak,
+                    PomodoroTimer = PomodoroTimer,
+                    UserId = UserId,
+                };
                 var result = await settingsRepository.GetAllByArgumentAsync(settingsDTO, pageNumber, pageSize);
-                return result != null ? Results.Ok(result) : Results.NotFound("Settings not found");
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Settings not found: {result?.error}");
             });
-            settings.MapPost("/search", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
+            settings.MapGet("/search", async (IRepository<Settings, SettingsDTO> settingsRepository,
+                [FromQuery] Guid? SettingsId, [FromQuery] string? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery] Guid? UserId) =>
             {
+                var settingsDTO = new SettingsDTO()
+                {
+                    SettingsId = SettingsId,
+                    Color = Color,
+                    PomodoroBreak = PomodoroBreak,
+                    PomodoroTimer = PomodoroTimer,
+                    UserId = UserId,
+                };
                 var result = await settingsRepository.GetByArgumentAsync(settingsDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
             });
-            settings.MapPost("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
+            settings.MapPost("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
+                [FromQuery] Guid? SettingsId, [FromQuery] string? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery] Guid? UserId) =>
             {
+                var settingsDTO = new SettingsDTO()
+                {
+                    SettingsId = SettingsId,
+                    Color = Color,
+                    PomodoroBreak = PomodoroBreak,
+                    PomodoroTimer = PomodoroTimer,
+                    UserId = UserId,
+                };
                 var result = await settingsRepository.AddAsync(settingsDTO);
                 return result.Result ? Results.Created($"/{settingsDTO.UserId}", settingsDTO) : Results.BadRequest(result.Error);
             });
-            settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] SettingsDTO settingsDTO) =>
+            settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
+                [FromQuery] Guid? SettingsId, [FromQuery] string? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery] Guid? UserId) =>
             {
+                var settingsDTO = new SettingsDTO()
+                {
+                    SettingsId = SettingsId,
+                    Color = Color,
+                    PomodoroBreak = PomodoroBreak,
+                    PomodoroTimer = PomodoroTimer,
+                    UserId = UserId,
+                };
                 var result = await settingsRepository.UpdateAsync(settingsDTO);
                 return result.Result ? Results.Ok("Settings updated successfully") : Results.BadRequest(result.Error);
             });
@@ -119,28 +191,56 @@ namespace Calmska.Api
             var mood = app
                 .MapGroup("/api/v1/moods")
                 .WithTags("Moods");
-            mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int ? pageNumber, [FromQuery] int ? pageSize) =>
+            mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await moodRepository.GetAllAsync(pageNumber, pageSize);
-                return Results.Ok(result);
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Moods not found: {result?.error}");
             });
-            mood.MapPost("/searchList", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            mood.MapGet("/searchList", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type,
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                var moodDTO = new MoodDTO()
+                {
+                    MoodId = MoodId,
+                    MoodName = MoodName,
+                    Type = Type,
+                };
                 var result = await moodRepository.GetAllByArgumentAsync(moodDTO, pageNumber, pageSize);
-                return result != null ? Results.Ok(result) : Results.NotFound("Moods not found");
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Moods not found: {result?.error}");
             });
-            mood.MapPost("/search", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO) =>
+            mood.MapGet("/search", async (IRepository<Mood, MoodDTO> moodRepository, 
+                [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type) =>
             {
+                var moodDTO = new MoodDTO()
+                {
+                    MoodId = MoodId,
+                    MoodName = MoodName,
+                    Type = Type,
+                };
                 var result = await moodRepository.GetByArgumentAsync(moodDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Mood not found");
             });
-            mood.MapPost("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO) =>
+            mood.MapPost("/", async (IRepository<Mood, MoodDTO> moodRepository,
+                [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type) =>
             {
+                var moodDTO = new MoodDTO()
+                {
+                    MoodId = MoodId,
+                    MoodName = MoodName,
+                    Type = Type,
+                };
                 var result = await moodRepository.AddAsync(moodDTO);
                 return result.Result ? Results.Created($"/{moodDTO.MoodId}", moodDTO) : Results.BadRequest(result.Error);
             });
-            mood.MapPut("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] MoodDTO moodDTO) =>
+            mood.MapPut("/", async (IRepository<Mood, MoodDTO> moodRepository,
+                [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type) =>
             {
+                var moodDTO = new MoodDTO()
+                {
+                    MoodId = MoodId,
+                    MoodName = MoodName,
+                    Type = Type,
+                };
                 var result = await moodRepository.UpdateAsync(moodDTO);
                 return result.Result ? Results.Ok("Mood updated successfully") : Results.BadRequest(result.Error);
             });
@@ -157,25 +257,98 @@ namespace Calmska.Api
             moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await moodHistoryRepository.GetAllAsync(pageNumber, pageSize);
-                return Results.Ok(result);
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"MoodHistory not found: {result?.error}");
             });
-            moodHistory.MapPost("/searchList", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            moodHistory.MapGet("/searchList", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
+                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId,
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                DateTime? parsedDate = null;
+                if (!string.IsNullOrEmpty(Date))
+                {
+                    if (!DateTime.TryParse(Date, out var validDate))
+                    {
+                        return Results.BadRequest($"Invalid Date format: {Date}");
+                    }
+                    parsedDate = validDate;
+                }
+
+                var moodHistoryDTO = new MoodHistoryDTO()
+                {
+                    MoodHistoryId = MoodHistoryId,
+                    Date = parsedDate,
+                    UserId = UserId,
+                    MoodId = MoodId,
+                };
                 var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDTO, pageNumber, pageSize);
-                return result != null ? Results.Ok(result) : Results.NotFound("MoodHistory not found");
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"MoodHistory not found: {result?.error}");
             });
-            moodHistory.MapPost("/search", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            moodHistory.MapGet("/search", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
+                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId) =>
             {
+                DateTime? parsedDate = null;
+                if (!string.IsNullOrEmpty(Date))
+                {
+                    if (!DateTime.TryParse(Date, out var validDate))
+                    {
+                        return Results.BadRequest($"Invalid Date format: {Date}");
+                    }
+                    parsedDate = validDate;
+                }
+
+                var moodHistoryDTO = new MoodHistoryDTO()
+                {
+                    MoodHistoryId = MoodHistoryId,
+                    Date = parsedDate,
+                    UserId = UserId,
+                    MoodId = MoodId,
+                };
                 var result = await moodHistoryRepository.GetByArgumentAsync(moodHistoryDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
             });
-            moodHistory.MapPost("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            moodHistory.MapPost("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
+                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId) =>
             {
+                DateTime? parsedDate = null;
+                if (!string.IsNullOrEmpty(Date))
+                {
+                    if (!DateTime.TryParse(Date, out var validDate))
+                    {
+                        return Results.BadRequest($"Invalid Date format: {Date}");
+                    }
+                    parsedDate = validDate;
+                }
+
+                var moodHistoryDTO = new MoodHistoryDTO()
+                {
+                    MoodHistoryId = MoodHistoryId,
+                    Date = parsedDate,
+                    UserId = UserId,
+                    MoodId = MoodId,
+                };
                 var result = await moodHistoryRepository.AddAsync(moodHistoryDTO);
                 return result.Result ? Results.Created($"/{moodHistoryDTO.UserId}", moodHistoryDTO) : Results.BadRequest(result.Error);
             });
-            moodHistory.MapPut("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] MoodHistoryDTO moodHistoryDTO) =>
+            moodHistory.MapPut("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
+                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId) =>
             {
+                DateTime? parsedDate = null;
+                if (!string.IsNullOrEmpty(Date))
+                {
+                    if (!DateTime.TryParse(Date, out var validDate))
+                    {
+                        return Results.BadRequest($"Invalid Date format: {Date}");
+                    }
+                    parsedDate = validDate;
+                }
+
+                var moodHistoryDTO = new MoodHistoryDTO()
+                {
+                    MoodHistoryId = MoodHistoryId,
+                    Date = parsedDate,
+                    UserId = UserId,
+                    MoodId = MoodId,
+                };
                 var result = await moodHistoryRepository.UpdateAsync(moodHistoryDTO);
                 return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
             });
@@ -192,25 +365,53 @@ namespace Calmska.Api
             tips.MapGet("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await tipsRepository.GetAllAsync(pageNumber, pageSize);
-                return Results.Ok(result);
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Tips not found: {result?.error}");
             });
-            tips.MapPost("/searchList", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            tips.MapGet("/searchList", async (IRepository<Tips, TipsDTO> tipsRepository, [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type,
+                [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
+                var tipsDTO = new TipsDTO()
+                {
+                    TipId = TipId,
+                    Content = Content,
+                    Type = Type,
+                };
                 var result = await tipsRepository.GetAllByArgumentAsync(tipsDTO, pageNumber, pageSize);
-                return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
+                return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Tips not found: {result?.error}");
             });
-            tips.MapPost("/search", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            tips.MapGet("/search", async (IRepository<Tips, TipsDTO> tipsRepository, 
+                [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type) =>
             {
+                var tipsDTO = new TipsDTO()
+                {
+                    TipId = TipId,
+                    Content = Content,
+                    Type = Type,
+                };
                 var result = await tipsRepository.GetByArgumentAsync(tipsDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
             });
-            tips.MapPost("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            tips.MapPost("/", async (IRepository<Tips, TipsDTO> tipsRepository,
+                [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type) =>
             {
+                var tipsDTO = new TipsDTO()
+                {
+                    TipId = TipId,
+                    Content = Content,
+                    Type = Type,
+                };
                 var result = await tipsRepository.AddAsync(tipsDTO);
                 return result.Result ? Results.Created($"/{tipsDTO.TipId}", tipsDTO) : Results.BadRequest(result.Error);
             });
-            tips.MapPut("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromBody] TipsDTO tipsDTO) =>
+            tips.MapPut("/", async (IRepository<Tips, TipsDTO> tipsRepository,
+                [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type) =>
             {
+                var tipsDTO = new TipsDTO()
+                {
+                    TipId = TipId,
+                    Content = Content,
+                    Type = Type,
+                };
                 var result = await tipsRepository.UpdateAsync(tipsDTO);
                 return result.Result ? Results.Ok("Tip updated successfully") : Results.BadRequest(result.Error);
             });
