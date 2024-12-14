@@ -13,9 +13,9 @@ namespace Calmska.Models.DTO
         [JsonPropertyName("color")]
         public string? Color { get; set; } = string.Empty;
         [JsonPropertyName("pomodorotimer")]
-        public string? PomodoroTimer { get; set; } = string.Empty;
+        public float? PomodoroTimer { get; set; } = 0.0f;
         [JsonPropertyName("pomodorobreak")]
-        public string? PomodoroBreak { get; set; } = string.Empty;
+        public float? PomodoroBreak { get; set; } = 0.0f;
         [JsonPropertyName("userid")]
         public Guid? UserId { get; set; }
     }
