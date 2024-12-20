@@ -6,8 +6,10 @@ namespace Calmska.Services.Helper
 {
     internal class HttpClientHelper
     {
+        private static readonly string ApiUri = Environment.GetEnvironmentVariable("calmskaApiUri") ?? string.Empty;
         internal static async Task<OperationResultT<T>> GetAsync<T>(HttpClient client, string endpoint)
         {
+            endpoint = $"{ApiUri}{endpoint}";
             var result = new OperationResultT<T>();
             try
             {
@@ -44,6 +46,7 @@ namespace Calmska.Services.Helper
         }
         internal static async Task<OperationResultT<bool>> PostAsync<T>(HttpClient client, string endpoint, T data)
         {
+            endpoint = $"{ApiUri}{endpoint}";
             var result = new OperationResultT<bool>();
             try
             {
@@ -76,6 +79,7 @@ namespace Calmska.Services.Helper
     
         internal static async Task<OperationResultT<bool>> PutAsync<T>(HttpClient client, string endpoint, T data)
         {
+            endpoint = $"{ApiUri}{endpoint}";
             var result = new OperationResultT<bool>();
             try
             {
@@ -107,6 +111,7 @@ namespace Calmska.Services.Helper
         }
         internal static async Task<OperationResultT<bool>> DeleteAsync(HttpClient client, string endpoint)
         {
+            endpoint = $"{ApiUri}{endpoint}";
             var result = new OperationResultT<bool>();
             try
             {

@@ -15,11 +15,10 @@ namespace Calmska.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var mongoDBSettings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
-            builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
-
+            string atlasURI = Environment.GetEnvironmentVariable("mongoDbUri") ?? string.Empty;
+            string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
             builder.Services.AddDbContext<CalmskaDbContext>(options =>
-            options.UseMongoDB(mongoDBSettings?.AtlasURI ?? "", mongoDBSettings?.DatabaseName ?? string.Empty));
+            options.UseMongoDB(atlasURI, dbName));
 
             builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
