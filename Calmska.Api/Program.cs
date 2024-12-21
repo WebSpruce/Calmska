@@ -4,8 +4,6 @@ using Calmska.Models.DTO;
 using Calmska.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Calmska.Api
 {
@@ -83,28 +81,14 @@ namespace Calmska.Api
                 return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
             });
             accounts.MapPost("/", async (IRepository<Account, AccountDTO> accountRepository,
-                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
+                [FromBody] AccountDTO accountDTO) =>
             {
-                var accountDTO = new AccountDTO()
-                {
-                    UserId = UserId,
-                    UserName = UserName,
-                    Email = Email,
-                    PasswordHashed = PasswordHashed,
-                };
                 var result = await accountRepository.AddAsync(accountDTO);
                 return result.Result ? Results.Created($"/{accountDTO.UserId}", accountDTO) : Results.BadRequest(result.Error);
             });
             accounts.MapPut("/", async (IRepository<Account, AccountDTO> accountRepository,
-                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
+                [FromBody] AccountDTO accountDTO) =>
             {
-                var accountDTO = new AccountDTO()
-                {
-                    UserId = UserId,
-                    UserName = UserName,
-                    Email = Email,
-                    PasswordHashed = PasswordHashed,
-                };
                 var result = await accountRepository.UpdateAsync(accountDTO);
                 return result.Result ? Results.Ok("Account updated successfully") : Results.BadRequest(result.Error);
             });
@@ -153,30 +137,14 @@ namespace Calmska.Api
                 return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
             });
             settings.MapPost("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
-                [FromQuery] Guid? SettingsId, [FromQuery] string? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery] Guid? UserId) =>
+                [FromBody] SettingsDTO settingsDTO) =>
             {
-                var settingsDTO = new SettingsDTO()
-                {
-                    SettingsId = SettingsId,
-                    Color = Color,
-                    PomodoroBreak = PomodoroBreak,
-                    PomodoroTimer = PomodoroTimer,
-                    UserId = UserId,
-                };
                 var result = await settingsRepository.AddAsync(settingsDTO);
                 return result.Result ? Results.Created($"/{settingsDTO.UserId}", settingsDTO) : Results.BadRequest(result.Error);
             });
             settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
-                [FromQuery] Guid? SettingsId, [FromQuery] string? Color, [FromQuery] float? PomodoroTimer, [FromQuery] float? PomodoroBreak, [FromQuery] Guid? UserId) =>
+                [FromBody] SettingsDTO settingsDTO) =>
             {
-                var settingsDTO = new SettingsDTO()
-                {
-                    SettingsId = SettingsId,
-                    Color = Color,
-                    PomodoroBreak = PomodoroBreak,
-                    PomodoroTimer = PomodoroTimer,
-                    UserId = UserId,
-                };
                 var result = await settingsRepository.UpdateAsync(settingsDTO);
                 return result.Result ? Results.Ok("Settings updated successfully") : Results.BadRequest(result.Error);
             });
@@ -220,26 +188,14 @@ namespace Calmska.Api
                 return result != null ? Results.Ok(result) : Results.NotFound("Mood not found");
             });
             mood.MapPost("/", async (IRepository<Mood, MoodDTO> moodRepository,
-                [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type) =>
+                [FromBody] MoodDTO moodDTO) =>
             {
-                var moodDTO = new MoodDTO()
-                {
-                    MoodId = MoodId,
-                    MoodName = MoodName,
-                    Type = Type,
-                };
                 var result = await moodRepository.AddAsync(moodDTO);
                 return result.Result ? Results.Created($"/{moodDTO.MoodId}", moodDTO) : Results.BadRequest(result.Error);
             });
             mood.MapPut("/", async (IRepository<Mood, MoodDTO> moodRepository,
-                [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] string? Type) =>
+                [FromBody] MoodDTO moodDTO) =>
             {
-                var moodDTO = new MoodDTO()
-                {
-                    MoodId = MoodId,
-                    MoodName = MoodName,
-                    Type = Type,
-                };
                 var result = await moodRepository.UpdateAsync(moodDTO);
                 return result.Result ? Results.Ok("Mood updated successfully") : Results.BadRequest(result.Error);
             });
@@ -306,48 +262,34 @@ namespace Calmska.Api
                 return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
             });
             moodHistory.MapPost("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
-                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId) =>
+                [FromBody] MoodHistoryDTO moodHistoryDTO) =>
             {
                 DateTime? parsedDate = null;
-                if (!string.IsNullOrEmpty(Date))
+                if (!string.IsNullOrEmpty(moodHistoryDTO.Date.ToString()))
                 {
-                    if (!DateTime.TryParse(Date, out var validDate))
+                    if (!DateTime.TryParse(moodHistoryDTO.Date.ToString(), out var validDate))
                     {
-                        return Results.BadRequest($"Invalid Date format: {Date}");
+                        return Results.BadRequest($"Invalid Date format: {moodHistoryDTO.Date.ToString()}");
                     }
                     parsedDate = validDate;
                 }
-
-                var moodHistoryDTO = new MoodHistoryDTO()
-                {
-                    MoodHistoryId = MoodHistoryId,
-                    Date = parsedDate,
-                    UserId = UserId,
-                    MoodId = MoodId,
-                };
+                moodHistoryDTO.Date = parsedDate;
                 var result = await moodHistoryRepository.AddAsync(moodHistoryDTO);
                 return result.Result ? Results.Created($"/{moodHistoryDTO.UserId}", moodHistoryDTO) : Results.BadRequest(result.Error);
             });
             moodHistory.MapPut("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
-                [FromQuery] Guid? MoodHistoryId, [FromQuery] string? Date, [FromQuery] Guid? UserId, [FromQuery] Guid? MoodId) =>
+                [FromBody] MoodHistoryDTO moodHistoryDTO) =>
             {
                 DateTime? parsedDate = null;
-                if (!string.IsNullOrEmpty(Date))
+                if (!string.IsNullOrEmpty(moodHistoryDTO.Date.ToString()))
                 {
-                    if (!DateTime.TryParse(Date, out var validDate))
+                    if (!DateTime.TryParse(moodHistoryDTO.Date.ToString(), out var validDate))
                     {
-                        return Results.BadRequest($"Invalid Date format: {Date}");
+                        return Results.BadRequest($"Invalid Date format: {moodHistoryDTO.Date.ToString()}");
                     }
                     parsedDate = validDate;
                 }
-
-                var moodHistoryDTO = new MoodHistoryDTO()
-                {
-                    MoodHistoryId = MoodHistoryId,
-                    Date = parsedDate,
-                    UserId = UserId,
-                    MoodId = MoodId,
-                };
+                moodHistoryDTO.Date = parsedDate;
                 var result = await moodHistoryRepository.UpdateAsync(moodHistoryDTO);
                 return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
             });
@@ -391,26 +333,14 @@ namespace Calmska.Api
                 return result != null ? Results.Ok(result) : Results.NotFound("Tip not found");
             });
             tips.MapPost("/", async (IRepository<Tips, TipsDTO> tipsRepository,
-                [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type) =>
+                [FromBody] TipsDTO tipsDTO) =>
             {
-                var tipsDTO = new TipsDTO()
-                {
-                    TipId = TipId,
-                    Content = Content,
-                    Type = Type,
-                };
                 var result = await tipsRepository.AddAsync(tipsDTO);
                 return result.Result ? Results.Created($"/{tipsDTO.TipId}", tipsDTO) : Results.BadRequest(result.Error);
             });
             tips.MapPut("/", async (IRepository<Tips, TipsDTO> tipsRepository,
-                [FromQuery] Guid? TipId, [FromQuery] string? Content, [FromQuery] string? Type) =>
+                [FromBody] TipsDTO tipsDTO) =>
             {
-                var tipsDTO = new TipsDTO()
-                {
-                    TipId = TipId,
-                    Content = Content,
-                    Type = Type,
-                };
                 var result = await tipsRepository.UpdateAsync(tipsDTO);
                 return result.Result ? Results.Ok("Tip updated successfully") : Results.BadRequest(result.Error);
             });

@@ -2,11 +2,10 @@
 using Calmska.Models.Models;
 using Calmska.Services.Helper;
 using Calmska.Services.Interfaces;
-using System.Net;
 
 namespace Calmska.Services.Services
 {
-    public class AccountsService : IAccountsService
+    public class AccountsService : IService<AccountDTO>
     {
         private readonly HttpClient _httpClient;
         public AccountsService(HttpClient httpClient)
@@ -14,12 +13,12 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<AccountDTO?>>> GetAllAccountsAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<IEnumerable<AccountDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
             return await HttpClientHelper.GetAsync<IEnumerable<AccountDTO?>>(_httpClient, "/accounts");
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<AccountDTO?>>>> SearchAccountsByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<IEnumerable<AccountDTO?>>>> SearchAllByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -49,7 +48,7 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<AccountDTO?>>>(_httpClient, endpoint);
         }
 
-        public async Task<OperationResultT<AccountDTO?>> GetAccountByArgumentAsync(AccountDTO accountCriteria)
+        public async Task<OperationResultT<AccountDTO?>> GetByArgumentAsync(AccountDTO accountCriteria)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -79,17 +78,17 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<AccountDTO?>(_httpClient, endpoint);
         }
 
-        public async Task<OperationResultT<bool>> AddAccountAsync(AccountDTO newAccount)
+        public async Task<OperationResultT<bool>> AddAsync(AccountDTO newAccount)
         {
             return await HttpClientHelper.PostAsync<AccountDTO?>(_httpClient, "/accounts", newAccount);
         }
 
-        public async Task<OperationResultT<bool>> UpdateAccountAsync(AccountDTO updatedAccount)
+        public async Task<OperationResultT<bool>> UpdateAsync(AccountDTO updatedAccount)
         {
             return await HttpClientHelper.PutAsync<AccountDTO?>(_httpClient, "/accounts", updatedAccount);
         }
 
-        public async Task<OperationResultT<bool>> DeleteAccountAsync(Guid accountId)
+        public async Task<OperationResultT<bool>> DeleteAsync(Guid accountId)
         {
             return await HttpClientHelper.DeleteAsync(_httpClient, $"/accounts?accountId={accountId}");
         }
