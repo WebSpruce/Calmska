@@ -2,9 +2,9 @@
 
 namespace Calmska.Api.Helper
 {
-    public static class Pagination
+    internal static class Pagination
     {
-        public static PaginatedResult<T> Paginate<T>(IQueryable<T> query, int? pageNumber, int? pageSize)
+        internal static PaginatedResult<T> Paginate<T>(IQueryable<T> query, int? pageNumber, int? pageSize)
         {
             // Validate query
             if (query == null || !query.Any())

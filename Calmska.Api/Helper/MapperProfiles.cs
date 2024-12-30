@@ -10,14 +10,28 @@ namespace Calmska.Api.Helper
         {
             CreateMap<Account, AccountDTO>();
             CreateMap<AccountDTO, Account>();
-            CreateMap<Settings, SettingsDTO>();
-            CreateMap<SettingsDTO, Settings>();
             CreateMap<MoodDTO, Mood>();
             CreateMap<Mood, MoodDTO>();
             CreateMap<MoodHistoryDTO, MoodHistory>();
             CreateMap<MoodHistory, MoodHistoryDTO>();
             CreateMap<TipsDTO, Tips>();
             CreateMap<Tips, TipsDTO>();
+
+            CreateMap<Settings, SettingsDTO>()
+            .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
+            .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)));
+
+            CreateMap<SettingsDTO, Settings>()
+                .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => src.PomodoroTimer.HasValue ? src.PomodoroTimer.Value.ToString() : string.Empty))
+                .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => src.PomodoroBreak.HasValue ? src.PomodoroBreak.Value.ToString() : string.Empty));
+        }
+        private static float? ConvertToFloat(string value)
+        {
+            if (float.TryParse(value, out var result))
+            {
+                return result;
+            }
+            return null;
         }
     }
 }
