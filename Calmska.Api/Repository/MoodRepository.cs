@@ -26,7 +26,7 @@ namespace Calmska.Api.Repository
         {
             var query = await Task.Run(_context.Moods
                 .Where(item =>
-                    (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
+                    (moodDTO.MoodId != Guid.Empty || !moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
                     (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
                     (string.IsNullOrEmpty(moodDTO.Type) || item.Type.ToLower().Contains(moodDTO.Type.ToLower()))
                 )
@@ -39,7 +39,7 @@ namespace Calmska.Api.Repository
         {
             return await _context.Moods
                .Where(item =>
-                   (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
+                   (moodDTO.MoodId != Guid.Empty || !moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
                    (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
                    (string.IsNullOrEmpty(moodDTO.Type) || item.Type.ToLower().Contains(moodDTO.Type.ToLower()))
                )

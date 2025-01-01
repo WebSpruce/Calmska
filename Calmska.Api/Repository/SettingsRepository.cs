@@ -28,11 +28,11 @@ namespace Calmska.Api.Repository
             string PomodoroBreak = settings.PomodoroBreak.ToString() ?? string.Empty;
             var query = await Task.Run(_context.SettingsDb
                 .Where(item =>
-                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
+                    (settings.SettingsId == Guid.Empty || !settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
                     (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
                     (string.IsNullOrEmpty(PomodoroTimer) || item.Color.ToLower().Contains(PomodoroTimer.ToLower())) &&
                     (string.IsNullOrEmpty(PomodoroBreak) || item.Color.ToLower().Contains(PomodoroBreak.ToLower())) &&
-                    (!settings.UserId.HasValue || item.UserId == settings.UserId))
+                    (settings.UserId == Guid.Empty || !settings.UserId.HasValue || item.UserId == settings.UserId))
                 )
                 .AsQueryable);
 
@@ -45,11 +45,11 @@ namespace Calmska.Api.Repository
             string PomodoroBreak = settings.PomodoroBreak.ToString() ?? string.Empty;
             return await _context.SettingsDb
                 .Where(item =>
-                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
+                    (settings.SettingsId == Guid.Empty || !settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
                     (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
                     (string.IsNullOrEmpty(PomodoroTimer) || item.Color.ToLower().Contains(PomodoroTimer.ToLower())) &&
                     (string.IsNullOrEmpty(PomodoroBreak) || item.Color.ToLower().Contains(PomodoroBreak.ToLower())) &&
-                    (!settings.UserId.HasValue || item.UserId == settings.UserId))
+                    (settings.UserId == Guid.Empty || !settings.UserId.HasValue || item.UserId == settings.UserId))
                 )
                 .FirstOrDefaultAsync();
         }

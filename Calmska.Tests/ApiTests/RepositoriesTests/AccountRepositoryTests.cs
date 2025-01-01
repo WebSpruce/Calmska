@@ -87,14 +87,16 @@
         public async Task AddAsync_ShouldReturnError_WhenEmailAlreadyExists()
         {
             _context.Accounts.RemoveRange(_context.Accounts.ToList());
-            var accountDto = new AccountDTO { Email = "newuser@example.com", PasswordHashed = "password123" };
+            var existingAccount = new Account{ UserId = Guid.NewGuid(), Email = "test@example.com", UserName = "existinguser", PasswordHashed = "hashedpassword" };
+            _context.Accounts.Add(existingAccount);
+            await _context.SaveChangesAsync();
 
-            _mockMapper.Setup(m => m.Map<Account>(It.IsAny<AccountDTO>()))
-                       .Returns(new Account { Email = accountDto.Email, UserName = accountDto.UserName ?? string.Empty, PasswordHashed = accountDto.PasswordHashed ?? string.Empty });
+            var accountDto = new AccountDTO{ Email = "test@example.com", UserName = "newuser", PasswordHashed = "newpassword" };
+
             var result = await _repository.AddAsync(accountDto);
 
-            result.Result.Should().BeTrue();
-            result.Error.Should().BeEmpty();
+            result.Result.Should().BeFalse();
+            result.Error.Should().Be("The user with provided email exists.");
         }
         [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenAccountIsAdded()
@@ -108,6 +110,82 @@
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
+        }
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnError_WhenAccountDtoIsNull()
+        {
+            AccountDTO accountDto = null;
+
+            var result = await _repository.UpdateAsync(accountDto);
+
+            result.Result.Should().BeFalse();
+            result.Error.Should().Be("The provided Account object is null.");
+        }
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnError_WhenAccountNotFound()
+        {
+            var accountDto = new AccountDTO { UserId = Guid.NewGuid(), UserName = "nonexistentuser" };
+
+            var result = await _repository.UpdateAsync(accountDto);
+
+            result.Result.Should().BeFalse();
+            result.Error.Should().Be("Didn't find any account with the provided userId.");
+        }
+        [Fact]
+        public async Task UpdateAsync_ShouldReturnSuccess_WhenAccountIsUpdated()
+        {
+            _context.Accounts.RemoveRange(_context.Accounts.ToList());
+            var existingAccount = new Account { UserId = Guid.NewGuid(), Email = "test@example.com", UserName = "existinguser", PasswordHashed = BCrypt.Net.BCrypt.HashPassword("password123") };
+            _context.Accounts.Add(existingAccount);
+            await _context.SaveChangesAsync();
+
+            var accountDto = new AccountDTO { UserId = existingAccount.UserId, UserName = "updateduser", Email = "updated@example.com", PasswordHashed = "newpassword" };
+
+            var result = await _repository.UpdateAsync(accountDto);
+
+            result.Result.Should().BeTrue();
+            result.Error.Should().BeEmpty();
+
+            var updatedAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == existingAccount.UserId);
+            updatedAccount.Should().NotBeNull();
+            updatedAccount!.UserName.Should().Be(accountDto.UserName);
+            updatedAccount.Email.Should().Be(accountDto.Email);
+            BCrypt.Net.BCrypt.Verify(accountDto.PasswordHashed, updatedAccount.PasswordHashed).Should().BeTrue();
+        }
+        [Fact]
+        public async Task DeleteAsync_ShouldReturnError_WhenAccountIdIsEmpty()
+        {
+            var accountId = Guid.Empty;
+
+            var result = await _repository.DeleteAsync(accountId);
+
+            result.Result.Should().BeFalse();
+            result.Error.Should().Be("The provided AccountId is null.");
+        }
+        [Fact]
+        public async Task DeleteAsync_ShouldReturnError_WhenAccountNotFound()
+        {
+            var accountId = Guid.NewGuid();
+
+            var result = await _repository.DeleteAsync(accountId);
+
+            result.Result.Should().BeFalse();
+            result.Error.Should().Be("There is no settings with provided id.");
+        }
+        [Fact]
+        public async Task DeleteAsync_ShouldReturnSuccess_WhenAccountIsDeleted()
+        {
+            var existingAccount = new Account { UserId = Guid.NewGuid(), Email = "test@example.com", UserName = "userToDelete", PasswordHashed = "hashedpassword" };
+            _context.Accounts.Add(existingAccount);
+            await _context.SaveChangesAsync();
+
+            var result = await _repository.DeleteAsync(existingAccount.UserId);
+
+            result.Result.Should().BeTrue();
+            result.Error.Should().BeEmpty();
+
+            var deletedAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == existingAccount.UserId);
+            deletedAccount.Should().BeNull();
         }
     }
 }

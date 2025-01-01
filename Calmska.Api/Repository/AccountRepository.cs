@@ -27,7 +27,7 @@ namespace Calmska.Api.Repository
         {
             var query = await Task.Run(_context.Accounts
             .Where(item =>
-                (!account.UserId.HasValue || item.UserId == account.UserId) &&
+                (account.UserId == Guid.Empty || !account.UserId.HasValue || item.UserId == account.UserId) &&
                 (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                 (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                 (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
@@ -41,7 +41,7 @@ namespace Calmska.Api.Repository
         {
             return await _context.Accounts
                 .Where(item =>
-                    (!account.UserId.HasValue || item.UserId == account.UserId) &&
+                    (account.UserId == Guid.Empty || !account.UserId.HasValue || item.UserId == account.UserId) &&
                     (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                     (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                     (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))

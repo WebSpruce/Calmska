@@ -4,7 +4,6 @@ using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Calmska.Api.Repository
 {
@@ -27,10 +26,10 @@ namespace Calmska.Api.Repository
         {
             var query = await Task.Run(_context.MoodHistoryDb
                 .Where(item =>
-                    (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
+                    (moodHistoryDTO.MoodHistoryId == Guid.Empty || !moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
                     (!moodHistoryDTO.Date.HasValue || item.Date.Date == moodHistoryDTO.Date.Value.Date) &&
-                    (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
-                    (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
+                    (moodHistoryDTO.UserId == Guid.Empty || !moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
+                    (moodHistoryDTO.MoodId == Guid.Empty || !moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
                 .AsQueryable);
 
@@ -41,10 +40,10 @@ namespace Calmska.Api.Repository
         {
             return await _context.MoodHistoryDb
                 .Where(item =>
-                    (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
+                    (moodHistoryDTO.MoodHistoryId == Guid.Empty || !moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
                     (!moodHistoryDTO.Date.HasValue || item.Date.Date == moodHistoryDTO.Date.Value.Date) &&
-                    (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
-                    (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
+                    (moodHistoryDTO.UserId == Guid.Empty || !moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
+                    (moodHistoryDTO.MoodId == Guid.Empty || !moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
                 .FirstOrDefaultAsync();
         }

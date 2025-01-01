@@ -11,9 +11,10 @@ namespace Calmska.Api.Helper
             CreateMap<Account, AccountDTO>();
             CreateMap<AccountDTO, Account>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId ?? Guid.NewGuid()))
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName ?? string.Empty))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email ?? string.Empty))
-            .ForMember(dest => dest.PasswordHashed, opt => opt.MapFrom(src => src.PasswordHashed ?? string.Empty));
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.UserName) ? string.Empty : src.UserName))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Email) ? string.Empty : src.Email))
+            .ForMember(dest => dest.PasswordHashed, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.PasswordHashed) ? string.Empty : src.PasswordHashed));
+
 
             CreateMap<MoodDTO, Mood>();
             CreateMap<Mood, MoodDTO>();
