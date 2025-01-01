@@ -2,10 +2,9 @@
 global using FluentAssertions;
 global using AutoMapper;
 global using Moq;
-global using Moq.Protected;
-global using System.Text.Json;
-global using System.Net;
-global using System.Net.Http.Headers;
 global using Calmska.Api.Helper;
 global using Calmska.Models.DTO;
 global using Calmska.Models.Models;
+global using Calmska.Api.Repository;
+global using Calmska.Api;
+global using Microsoft.EntityFrameworkCore;

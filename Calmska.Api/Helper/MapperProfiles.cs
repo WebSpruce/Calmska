@@ -9,11 +9,18 @@ namespace Calmska.Api.Helper
         public MapperProfiles()
         {
             CreateMap<Account, AccountDTO>();
-            CreateMap<AccountDTO, Account>();
+            CreateMap<AccountDTO, Account>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId ?? Guid.NewGuid()))
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName ?? string.Empty))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email ?? string.Empty))
+            .ForMember(dest => dest.PasswordHashed, opt => opt.MapFrom(src => src.PasswordHashed ?? string.Empty));
+
             CreateMap<MoodDTO, Mood>();
             CreateMap<Mood, MoodDTO>();
+
             CreateMap<MoodHistoryDTO, MoodHistory>();
             CreateMap<MoodHistory, MoodHistoryDTO>();
+
             CreateMap<TipsDTO, Tips>();
             CreateMap<Tips, TipsDTO>();
 

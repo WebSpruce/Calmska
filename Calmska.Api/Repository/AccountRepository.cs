@@ -56,8 +56,8 @@ namespace Calmska.Api.Repository
                 if (accountDto == null)
                     return new OperationResult { Result = false, Error = "The provided Account object is null." };
 
-                var userByEmail = GetByArgumentAsync(new AccountDTO { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
-                if (userByEmail.Result != null)
+                var userByEmail = await GetByArgumentAsync(new AccountDTO { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
+                if (userByEmail != null)
                     return new OperationResult { Result = false, Error = "The user with provided email exists." };
 
                 accountDto.PasswordHashed = HashPassword.SetHash(accountDto.PasswordHashed);
