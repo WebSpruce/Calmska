@@ -7,4 +7,7 @@ global using Calmska.Models.DTO;
 global using Calmska.Models.Models;
 global using Calmska.Api.Repository;
 global using Calmska.Api;
+global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.EntityFrameworkCore;
+global using System.Net.Http.Json;
+global using System.Net;
