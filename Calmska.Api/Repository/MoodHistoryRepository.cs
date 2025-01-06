@@ -26,10 +26,10 @@ namespace Calmska.Api.Repository
         {
             var query = await Task.Run(_context.MoodHistoryDb
                 .Where(item =>
-                    (moodHistoryDTO.MoodHistoryId == Guid.Empty || !moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
+                    (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
                     (!moodHistoryDTO.Date.HasValue || item.Date.Date == moodHistoryDTO.Date.Value.Date) &&
-                    (moodHistoryDTO.UserId == Guid.Empty || !moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
-                    (moodHistoryDTO.MoodId == Guid.Empty || !moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
+                    (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
+                    (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
                 .AsQueryable);
 
@@ -40,10 +40,10 @@ namespace Calmska.Api.Repository
         {
             return await _context.MoodHistoryDb
                 .Where(item =>
-                    (moodHistoryDTO.MoodHistoryId == Guid.Empty || !moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
+                    (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
                     (!moodHistoryDTO.Date.HasValue || item.Date.Date == moodHistoryDTO.Date.Value.Date) &&
-                    (moodHistoryDTO.UserId == Guid.Empty || !moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
-                    (moodHistoryDTO.MoodId == Guid.Empty || !moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
+                    (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
+                    (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
                 .FirstOrDefaultAsync();
         }

@@ -134,13 +134,13 @@ namespace Calmska.Api
                     UserId = UserId,
                 };
                 var result = await settingsRepository.GetByArgumentAsync(settingsDTO);
-                return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
+                return result != null ? Results.Ok(result) : Results.NotFound("Setting not found: {result?.error}");
             });
             settings.MapPost("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
                 [FromBody] SettingsDTO settingsDTO) =>
             {
                 var result = await settingsRepository.AddAsync(settingsDTO);
-                return result.Result ? Results.Created($"/{settingsDTO.UserId}", settingsDTO) : Results.BadRequest(result.Error);
+                return result.Result ? Results.Created($"/api/v1/settings/{settingsDTO.SettingsId}", settingsDTO) : Results.BadRequest(result.Error);
             });
             settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
                 [FromBody] SettingsDTO settingsDTO) =>

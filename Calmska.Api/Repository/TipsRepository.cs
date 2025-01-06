@@ -26,7 +26,7 @@ namespace Calmska.Api.Repository
         {
             var query = await Task.Run(_context.TipsDb
                 .Where(item =>
-                    (tips.TipId == Guid.Empty || !tips.TipId.HasValue || item.TipId == tips.TipId) &&
+                    (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
                     (string.IsNullOrEmpty(tips.Type) || item.Type.ToLower().Contains(tips.Type.ToLower()))
                 )
@@ -39,7 +39,7 @@ namespace Calmska.Api.Repository
         {
             return await _context.TipsDb
                 .Where(item =>
-                    (tips.TipId == Guid.Empty || !tips.TipId.HasValue || item.TipId == tips.TipId) &&
+                    (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
                     (string.IsNullOrEmpty(tips.Type) || item.Type.ToLower().Contains(tips.Type.ToLower()))
                 )
