@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Calmska.Api\Calmska.Api.csproj" />
     <ProjectReference Include="..\Calmska.Models\Calmska.Models.csproj" />
+    <ProjectReference Include="..\Calmska.Services\Calmska.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
