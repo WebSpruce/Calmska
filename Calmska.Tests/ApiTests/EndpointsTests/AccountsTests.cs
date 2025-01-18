@@ -30,6 +30,15 @@
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
         [Fact]
+        public async Task Login_ShouldReturnOk_WhenAccountExist()
+        {
+            string endpoint = "/api/v1/accounts/login?Email=test@test.com&PasswordHashed=mypass";
+
+            var response = await _client.GetAsync(endpoint);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        [Fact]
         public async Task AddAccount_ShouldReturnCreated_WhenAccountIsValid()
         {
             string endpoint = "/api/v1/accounts";

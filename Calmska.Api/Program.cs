@@ -2,6 +2,8 @@ using Calmska.Api.Interfaces;
 using Calmska.Api.Repository;
 using Calmska.Models.DTO;
 using Calmska.Models.Models;
+using Firebase.Auth;
+using Firebase.Auth.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +17,13 @@ namespace Calmska.Api
 
             string atlasURI = Environment.GetEnvironmentVariable("mongoDbUri") ?? string.Empty;
             string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
+            string firebaseApiKey = Environment.GetEnvironmentVariable("calmska_firebaseApiKey") ?? string.Empty;
             builder.Services.AddDbContext<CalmskaDbContext>(options =>
             options.UseMongoDB(atlasURI, dbName));
 
             builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
             builder.Services.AddScoped<IRepository<Mood, MoodDTO>, MoodRepository>();
             builder.Services.AddScoped<IRepository<MoodHistory, MoodHistoryDTO>, MoodHistoryRepository>();
@@ -27,6 +32,15 @@ namespace Calmska.Api
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddAuthorization();
+            builder.Services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig()
+            {
+                ApiKey = firebaseApiKey,
+                AuthDomain = "calmska.firebaseapp.com",
+                Providers = new FirebaseAuthProvider[]
+                {
+                    new EmailProvider()
+                }
+            }));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -79,6 +93,19 @@ namespace Calmska.Api
                 };
                 var result = await accountRepository.GetByArgumentAsync(accountDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
+            });
+            accounts.MapGet("/login", async (IAccountRepository accountRepository,
+                [FromQuery] Guid? UserId, [FromQuery] string? UserName, [FromQuery] string? Email, [FromQuery] string? PasswordHashed) =>
+            {
+                var accountDTO = new AccountDTO()
+                {
+                    UserId = Guid.Empty,
+                    UserName = string.Empty,
+                    Email = Email,
+                    PasswordHashed = PasswordHashed,
+                };
+                var result = await accountRepository.LoginAsync(accountDTO);
+                return result != null ? Results.Ok(result) : Results.NotFound("Account does not exist");
             });
             accounts.MapPost("/", async (IRepository<Account, AccountDTO> accountRepository,
                 [FromBody] AccountDTO accountDTO) =>

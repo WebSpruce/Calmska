@@ -4,17 +4,20 @@ using Calmska.Api.Helper;
 using Calmska.Api.Interfaces;
 using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
+using Firebase.Auth;
 
 namespace Calmska.Api.Repository
 {
-    public class AccountRepository : IRepository<Account, AccountDTO>
+    public class AccountRepository : IAccountRepository
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
-        public AccountRepository(CalmskaDbContext context, IMapper mapper) 
+        private readonly FirebaseAuthClient _authClient;
+        public AccountRepository(CalmskaDbContext context, IMapper mapper, FirebaseAuthClient authClient) 
         {
             _context = context;
             _mapper = mapper;
+            _authClient = authClient;
         }
        
         public async Task<PaginatedResult<Account>> GetAllAsync(int? pageNumber, int? pageSize)
@@ -48,7 +51,27 @@ namespace Calmska.Api.Repository
                 )
                 .FirstOrDefaultAsync();
         }
-
+        public async Task<bool> LoginAsync(AccountDTO account)
+        {
+            try
+            {
+                var userExists = await _context.Accounts.FirstOrDefaultAsync(u => u.Email == account.Email);
+                if (userExists == null)
+                {
+                    return false;
+                }
+                if (HashPassword.VerifyPassword(account.PasswordHashed, userExists.PasswordHashed))
+                {
+                    await _authClient.SignInWithEmailAndPasswordAsync(account.Email, userExists.PasswordHashed);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         public async Task<OperationResult> AddAsync(AccountDTO accountDto)
         {
             try
@@ -60,11 +83,16 @@ namespace Calmska.Api.Repository
                 if (userByEmail != null)
                     return new OperationResult { Result = false, Error = "The user with provided email exists." };
 
+
                 accountDto.PasswordHashed = HashPassword.SetHash(accountDto.PasswordHashed);
+                //if firebase fails, it throws an exception
                 var account = _mapper.Map<Account>(accountDto);
                 await _context.Accounts.AddAsync(account);
 
                 var result = await _context.SaveChangesAsync();
+                if(result > 0)
+                    await _authClient.CreateUserWithEmailAndPasswordAsync(accountDto.Email, accountDto.PasswordHashed);
+
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty } ;
             }catch (Exception ex)
             {

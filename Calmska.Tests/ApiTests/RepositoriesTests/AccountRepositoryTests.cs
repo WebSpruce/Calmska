@@ -1,10 +1,14 @@
-﻿namespace Calmska.Tests.ApiTests.RepositoriesTests
+﻿using Firebase.Auth;
+using Firebase.Auth.Providers;
+
+namespace Calmska.Tests.ApiTests.RepositoriesTests
 {
     public class AccountRepositoryTests
     {
         private readonly AccountRepository _repository;
         private readonly Mock<IMapper> _mockMapper;
         private readonly CalmskaDbContext _context;
+        private readonly FirebaseAuthClient _authClient;
 
         public AccountRepositoryTests()
         {
@@ -14,7 +18,15 @@
 
             _context = new CalmskaDbContext(options);
             _mockMapper = new Mock<IMapper>();
-            _repository = new AccountRepository(_context, _mockMapper.Object);
+            _authClient = new FirebaseAuthClient(new FirebaseAuthConfig {
+                ApiKey = "X",
+                AuthDomain = "calmska.firebaseapp.com",
+                Providers = new FirebaseAuthProvider[]
+                {
+                    new EmailProvider()
+                }
+            });
+            _repository = new AccountRepository(_context, _mockMapper.Object, _authClient);
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResults()
@@ -61,6 +73,18 @@
 
             result.Should().NotBeNull();
             result.Email.Should().Be("test@example.com");
+        }
+        [Fact]
+        public async Task LoginAsync_ShouldTrue_WhenCredentialAreCorrect()
+        {
+            _context.Accounts.RemoveRange(_context.Accounts.ToList());
+            var account = new Account { UserId = Guid.NewGuid(), Email = "test@test.com", UserName = "user1", PasswordHashed = "$2a$10$p4BKLzY7oYIBfE9Bghj6gerIeaNeWjjIkk2r3kL5xrBncTriO.Mz." };
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            var result = await _repository.LoginAsync(new AccountDTO { Email = "test@test.com", PasswordHashed = "mypass" });
+
+            result.Should().BeTrue();
         }
         [Fact]
         public async Task GetByArgumentAsync_ShouldReturnNull_WhenNotFound()

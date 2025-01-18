@@ -1,5 +1,4 @@
-﻿using Calmska.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Calmska.ViewModels
@@ -27,9 +26,9 @@ namespace Calmska.ViewModels
                 PasswordBtnIcon = "eye_hidden.svg";
         }
         [RelayCommand]
-        internal void Login()
+        internal async void Login()
         {
-
+            
         }
         [RelayCommand]
         internal async Task GoToRegister()
