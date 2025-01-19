@@ -19,7 +19,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context = new CalmskaDbContext(options);
             _mockMapper = new Mock<IMapper>();
             _authClient = new FirebaseAuthClient(new FirebaseAuthConfig {
-                ApiKey = "X",
+                ApiKey = "AIzaSyC9n7fMCBsCILljwozMJcDhpdTEEBQfe98",
                 AuthDomain = "calmska.firebaseapp.com",
                 Providers = new FirebaseAuthProvider[]
                 {

@@ -23,7 +23,6 @@ namespace Calmska.Api
 
             builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
             builder.Services.AddScoped<IRepository<Mood, MoodDTO>, MoodRepository>();
             builder.Services.AddScoped<IRepository<MoodHistory, MoodHistoryDTO>, MoodHistoryRepository>();

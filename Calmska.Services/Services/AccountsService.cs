@@ -5,7 +5,7 @@ using Calmska.Services.Interfaces;
 
 namespace Calmska.Services.Services
 {
-    public class AccountsService : IService<AccountDTO>
+    public class AccountsService : IAccountService
     {
         private readonly HttpClient _httpClient;
         public AccountsService(HttpClient httpClient)
@@ -76,6 +76,28 @@ namespace Calmska.Services.Services
             }
 
             return await HttpClientHelper.GetAsync<AccountDTO?>(_httpClient, endpoint);
+        }
+
+        public async Task<OperationResultT<bool>> LoginAsync(AccountDTO accountCriteria)
+        {
+            List<string> endpointParameters = new();
+            string endpoint = string.Empty;
+
+            if (accountCriteria != null)
+            {
+                if (!string.IsNullOrEmpty(accountCriteria.Email))
+                {
+                    endpointParameters.Add($"Email={Uri.EscapeDataString(accountCriteria.Email)}");
+                }
+                if (!string.IsNullOrEmpty(accountCriteria.PasswordHashed))
+                {
+                    endpointParameters.Add($"PasswordHashed={Uri.EscapeDataString(accountCriteria.PasswordHashed)}");
+                }
+                var queryString = string.Join("&", endpointParameters);
+                endpoint = $"/accounts/login?{queryString}";
+            }
+
+            return await HttpClientHelper.GetAsync<bool>(_httpClient, endpoint);
         }
 
         public async Task<OperationResultT<bool>> AddAsync(AccountDTO newAccount)

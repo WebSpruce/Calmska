@@ -100,6 +100,19 @@
             Assert.Equal("User1", result.Result.UserName);
             Assert.Equal(string.Empty, result.Error);
         }
+        [Fact]
+        public async Task LoginAsync_ShouldReturnTrue_WhenRequestIsSuccessful()
+        {  
+            var account = new AccountDTO { UserId = Guid.Empty, UserName = "", Email = "test@test.com", PasswordHashed = "mypass" };
+
+            SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(true));
+
+            var result = await _accountsService.LoginAsync(account);
+
+            Assert.NotNull(result);
+            Assert.True(result.Result);
+            Assert.Equal(string.Empty, result.Error);
+        }
 
         [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
