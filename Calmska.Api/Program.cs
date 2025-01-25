@@ -15,6 +15,9 @@ namespace Calmska.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
             string atlasURI = Environment.GetEnvironmentVariable("mongoDbUri") ?? string.Empty;
             string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
             string firebaseApiKey = Environment.GetEnvironmentVariable("calmska_firebaseApiKey") ?? string.Empty;
@@ -50,6 +53,10 @@ namespace Calmska.Api
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
+            else
+            {
+                app.UseForwardedHeaders();
             }
 
             app.UseHttpsRedirection();
