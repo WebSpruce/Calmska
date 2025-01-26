@@ -12,7 +12,7 @@ namespace Calmska.Services.Helper
             var result = new OperationResultT<T>();
             try
             {
-                var response = await client.GetAsync($"{client.BaseAddress?.AbsoluteUri}{endpoint}");
+                var response = await client.GetAsync(endpoint);
                 if (!response.IsSuccessStatusCode)
                 {
                     result.Error = $"Request failed with status code {response.StatusCode}. Endpoint: {endpoint}";

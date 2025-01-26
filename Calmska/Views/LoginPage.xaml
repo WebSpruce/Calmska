@@ -25,14 +25,18 @@
                         Aspect="AspectFit" WidthRequest="20" HeightRequest="20"/>
                     <Entry Placeholder="************" Text="{Binding EPassword}" IsPassword="{Binding IsPasswordMode}" 
                        TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" BackgroundColor="{DynamicResource SecondGreen}" FontSize="16"
-                       WidthRequest="230" Margin="5,0"/>
-                    <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" WidthRequest="15" HeightRequest="15"/>
+                       WidthRequest="220" Margin="5,0,10,0"/>
+                    <Grid WidthRequest="50" HeightRequest="45" Margin="-10,0,0,0">
+                        <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" WidthRequest="15" HeightRequest="15"/>
+                    </Grid>
                 </HorizontalStackLayout>
             </Border>
             <Button Text="LOGIN" Command="{Binding LoginCommand}" CornerRadius="100"
                     BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
                     WidthRequest="150"/>
         </StackLayout>
+        <ActivityIndicator IsRunning="{Binding IsActivityIndicatorRunning}" Color="{DynamicResource AccentLightOrange}"
+                           WidthRequest="20" VerticalOptions="End" Margin="0,0,0,50" />
         <Label Text="Join us by signing up for an account"
             TextDecorations="Underline" FontFamily="CanelaRegular" FontSize="14"
             HorizontalOptions="Center" VerticalOptions="End" Padding="0,0,0,30">

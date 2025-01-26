@@ -13,4 +13,17 @@
         ContentTemplate="{DataTemplate local:LoginPage}"
         Route="LoginPage" />
 
+    <TabBar>
+        <Tab
+            Title="Pomodoro"
+            >
+            <ShellContent ContentTemplate="{DataTemplate local:PomodoroPage}"/>
+        </Tab>
+        <Tab
+            Title="Tips"
+            >
+            <!--<ShellContent ContentTemplate="{DataTemplate local:PomodoroPage}"/>-->
+        </Tab>
+    </TabBar>
+
 </Shell>

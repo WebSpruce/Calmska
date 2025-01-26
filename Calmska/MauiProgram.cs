@@ -3,6 +3,7 @@ using Calmska.Services.Interfaces;
 using Calmska.Services.Services;
 using Calmska.ViewModels;
 using Calmska.Views;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ namespace Calmska
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("CanelaBlack.otf", "CanelaBlack");
@@ -34,6 +36,7 @@ namespace Calmska
 #endif
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
+            builder.Services.AddView<PomodoroPage, PomodoroViewModel>(ServiceLifetime.Transient);
 
             builder.AddAppSettings();
 
