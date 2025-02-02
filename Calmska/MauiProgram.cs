@@ -1,4 +1,5 @@
-﻿using Calmska.Models.DTO;
+﻿using Calmska.Controls;
+using Calmska.Models.DTO;
 using Calmska.Services.Interfaces;
 using Calmska.Services.Services;
 using Calmska.ViewModels;
@@ -37,6 +38,10 @@ namespace Calmska
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<PomodoroPage, PomodoroViewModel>(ServiceLifetime.Transient);
+            builder.Services.AddView<TipsPage, TipsViewModel>(ServiceLifetime.Transient);
+            builder.Services.AddView<SettingsPage, SettingsViewModel>(ServiceLifetime.Transient);
+            builder.Services.AddSingleton<CustomTabBar>();
+            builder.Services.AddSingleton<CustomTabBarViewModel>();
 
             builder.AddAppSettings();
 

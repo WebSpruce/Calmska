@@ -65,6 +65,7 @@ namespace Calmska.ViewModels
                     var userJson = JsonSerializer.Serialize(user.Result);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
                     await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                    Shell.Current.Items.Remove(Shell.Current.CurrentItem);
                 }
                 else
                 {

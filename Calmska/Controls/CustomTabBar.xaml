@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calmska.Controls.CustomTabBar"
+             BackgroundColor="Transparent">
+    <Border StrokeShape="RoundRectangle 50,50,50,50" HorizontalOptions="Center" Padding="0" Margin="20">
+        <Grid ColumnDefinitions="*,*,*" 
+            BackgroundColor="{DynamicResource AccentOrange}" Padding="5">
+
+            <Button ImageSource="pomodoro_white.svg" Command="{Binding NavigateCommand}" CommandParameter="PomodoroPage"
+                         Grid.Column="0"  BackgroundColor="{Binding PomodoroButtonColor}" HorizontalOptions="Center"
+                         HeightRequest="50" WidthRequest="100" CornerRadius="50" Padding="10" Margin="10,0"/>
+            <Button ImageSource="cupofcoffee.svg" Command="{Binding NavigateCommand}" CommandParameter="TipsPage"
+                         Grid.Column="1"  BackgroundColor="{Binding TipsButtonColor}" HorizontalOptions="Center"
+                         HeightRequest="50" WidthRequest="100" CornerRadius="50" Padding="10" Margin="10,0"/>
+            <Button ImageSource="settings_white.svg" Command="{Binding NavigateCommand}" CommandParameter="SettingsPage"
+                         Grid.Column="2"  BackgroundColor="{Binding SettingsButtonColor}" HorizontalOptions="Center"
+                         HeightRequest="50" WidthRequest="100" CornerRadius="50" Padding="10" Margin="10,0"/>
+        </Grid>
+    </Border>
+
+</ContentView>
