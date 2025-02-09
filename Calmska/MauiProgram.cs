@@ -30,6 +30,7 @@ namespace Calmska
                     fonts.AddFont("MADEINFINITYLight.otf", "MADEINFINITYLight");
                     fonts.AddFont("MADEINFINITYMedium.otf", "MADEINFINITYMedium");
                     fonts.AddFont("MADEINFINITYRegular.otf", "MADEINFINITYRegular");
+                    fonts.AddFont("MaterialIconsRoundRegular.otf", "MaterialIcons");
                 });
 
 #if DEBUG
@@ -37,12 +38,14 @@ namespace Calmska
 #endif
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
-            builder.Services.AddTransient<PomodoroPage>();
-            builder.Services.AddTransient<PomodoroViewModel>();
             builder.Services.AddView<TipsPage, TipsViewModel>(ServiceLifetime.Transient);
             builder.Services.AddView<SettingsPage, SettingsViewModel>(ServiceLifetime.Transient);
+
+            builder.Services.AddTransient<PomodoroPage>();
             builder.Services.AddSingleton<CustomTabBar>();
+
             builder.Services.AddSingleton<CustomTabBarViewModel>();
+            builder.Services.AddTransient<PomodoroViewModel>();
 
             builder.AddAppSettings();
 

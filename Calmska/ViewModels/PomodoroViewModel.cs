@@ -1,13 +1,19 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Calmska.Models.DTO;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Calmska.ViewModels
 {
     public partial class PomodoroViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _playPauseButtonText = "Play";
+        private string _navBarTitle = string.Empty;
+        [ObservableProperty]
+        private string _playPauseIcon = IconFont.Play_arrow;
+        [ObservableProperty]
+        private string _timeType = "PAUSED";
         public float ProgressValue => 1 - ((float)_timeRemaining / (_isWorkSession ? WorkTime : BreakTime));
         private static int _timeRemaining;
         public string TimeRemaining => $"{_timeRemaining / 60:D2}:{_timeRemaining % 60:D2}";
@@ -19,9 +25,10 @@ namespace Calmska.ViewModels
         private CancellationTokenSource _cancellationTokenSource;
         public PomodoroViewModel()
         {
-            //string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-            //var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
+            string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+            var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
             _timeRemaining = WorkTime;
+            NavBarTitle = user != null ? (user.UserName ?? string.Empty) : string.Empty;
         }
         [RelayCommand]
         private async void PlayPause()
@@ -30,12 +37,14 @@ namespace Calmska.ViewModels
             {   // Pause
                 _isRunning = false;
                 _cancellationTokenSource?.Cancel();
-                PlayPauseButtonText = "Play";
+                PlayPauseIcon = IconFont.Play_arrow;
+                TimeType = "PAUSED";
             }
             else
             {   // Play
                 _isRunning = true;
-                PlayPauseButtonText = "Pause";
+                PlayPauseIcon = IconFont.Pause;
+                TimeType = "WORKING TIME";
                 _cancellationTokenSource = new CancellationTokenSource();
                 await RunTimerAsync(_cancellationTokenSource.Token);
             }
@@ -48,7 +57,8 @@ namespace Calmska.ViewModels
             _cancellationTokenSource?.Cancel();
             _isWorkSession = true;
             _timeRemaining = WorkTime;
-            PlayPauseButtonText = "Play";
+            PlayPauseIcon = IconFont.Play_arrow;
+            TimeType = "PAUSED";
             OnPropertyChanged(nameof(TimeRemaining));
             OnPropertyChanged(nameof(ProgressValue));
         }
@@ -76,7 +86,7 @@ namespace Calmska.ViewModels
                 } 
 
                 _isRunning = false;
-                PlayPauseButtonText = "Play";
+                PlayPauseIcon = IconFont.Play_arrow;
             }
             catch (TaskCanceledException)
             {

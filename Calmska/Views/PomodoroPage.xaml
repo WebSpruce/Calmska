@@ -3,27 +3,54 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.PomodoroPage"
              xmlns:controls="clr-namespace:Calmska.Controls"
+             xmlns:calmska="clr-namespace:Calmska"
              BackgroundColor="{DynamicResource MainGreen}"
+             Shell.NavBarIsVisible="True"
              Title="PomodoroPage">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
+    <Shell.TitleView>
+        <HorizontalStackLayout VerticalOptions="Fill">
+            <Label Text="{Binding NavBarTitle, StringFormat='Hello {0}'}" FontFamily="CanelaBlack"
+                TextColor="White" VerticalTextAlignment="Center" VerticalOptions="Center" HeightRequest="50" FontSize="29" />
+        </HorizontalStackLayout>
+    </Shell.TitleView>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding GoToSettingsCommand}">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="MaterialIcons"
+                    Glyph="&#xe8b8;"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+
     <Grid RowDefinitions="*, Auto">
         <ContentView>
             <Grid>
+                <Label Text="Either you run the day or the day runs you."
+                    FontSize="24" FontFamily="CanelaRegular" HorizontalOptions="Start" VerticalOptions="Start" Padding="15,0"/>
+                
                 <Ellipse Stroke="LightGray" StrokeThickness="7"
-                 WidthRequest="200" HeightRequest="200"
-                 HorizontalOptions="Center" VerticalOptions="Center"/>
+                    WidthRequest="200" HeightRequest="200" HorizontalOptions="Center" VerticalOptions="Center"/>
 
                 <GraphicsView x:Name="CircularProgress"
                       WidthRequest="200" HeightRequest="200"
                       HorizontalOptions="Center" VerticalOptions="Center"/>
 
                 <Label Text="{Binding TimeRemaining}"
-               FontSize="24" 
-               HorizontalOptions="Center"
-               VerticalOptions="Center"/>
+                    FontSize="35" FontFamily="CanelaRegular" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Text="{Binding TimeType}"
+                    FontSize="15" FontFamily="MADEINFINITYRegular" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,80,0,0"/>
 
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="End" Spacing="30" Margin="0,50,0,0">
-                    <Button Text="{Binding PlayPauseButtonText}" HeightRequest="50" Command="{Binding PlayPauseCommand}" BackgroundColor="White"/>
-                    <Button Text="Reset" HeightRequest="50" Command="{Binding ResetCommand}" BackgroundColor="White"/>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="End" Spacing="30">
+                    <Button Text="{Binding PlayPauseIcon}" Style="{x:StaticResource MaterialIcons}" HeightRequest="80" WidthRequest="80" Command="{Binding PlayPauseCommand}" 
+                            BackgroundColor="Transparent" TextColor="White" FontSize="40"/>
+                    <Button Text="{x:Static calmska:IconFont.Restart_alt}" Style="{x:StaticResource MaterialIcons}" HeightRequest="80" WidthRequest="80" Command="{Binding ResetTimerCommand}" 
+                            BackgroundColor="Transparent" TextColor="White" FontSize="40"/>
                 </StackLayout>
             </Grid>
         </ContentView>
