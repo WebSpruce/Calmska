@@ -1,4 +1,5 @@
 ﻿using Calmska.Models.DTO;
+using Calmska.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
@@ -67,26 +68,30 @@ namespace Calmska.ViewModels
         {
             try
             {
-                while (_isRunning && _timeRemaining > 0)
+                while (_isRunning)
                 {
-                    await Task.Delay(1000, cancellationToken);
+                    TimeType = _isWorkSession ? "WORKING TIME" : "BREAK TIME";
+                    OnPropertyChanged(nameof(TimeType));
 
-                    if (cancellationToken.IsCancellationRequested)
-                        return;
+                    while (_isRunning && _timeRemaining > 0)
+                    {
+                        await Task.Delay(1000, cancellationToken);
 
-                    _timeRemaining--;
-                    OnPropertyChanged(nameof(TimeRemaining));
-                    OnPropertyChanged(nameof(ProgressValue));
+                        if (cancellationToken.IsCancellationRequested)
+                            return;
+
+                        _timeRemaining--;
+                        OnPropertyChanged(nameof(TimeRemaining));
+                        OnPropertyChanged(nameof(ProgressValue));
+                    }
+
+                    // Switch to the next mode (Work → Break, Break → Work)
+                    if (_timeRemaining == 0)
+                    {
+                        _isWorkSession = !_isWorkSession;
+                        _timeRemaining = _isWorkSession ? WorkTime : BreakTime;
+                    }
                 }
-
-                if (_timeRemaining == 0)
-                {
-                    _isWorkSession = !_isWorkSession;
-                    _timeRemaining = _isWorkSession ? WorkTime : BreakTime;
-                } 
-
-                _isRunning = false;
-                PlayPauseIcon = IconFont.Play_arrow;
             }
             catch (TaskCanceledException)
             {

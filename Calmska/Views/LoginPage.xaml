@@ -7,7 +7,7 @@
              Shell.TabBarIsVisible="False">
     <Grid>
         <Image Source="{Binding BackgroundImageSource}" 
-               Aspect="AspectFill" Opacity="0.4" ScaleX="-1.2" ScaleY="1.2" Margin="0,-100,-160,0" VerticalOptions="Start" HorizontalOptions="End"/>
+               Aspect="AspectFill" Opacity="0.4" ScaleX="-1.2" ScaleY="1.2" Margin="0,-100,-160,0"  VerticalOptions="Start" HorizontalOptions="End"/>
         <StackLayout VerticalOptions="EndAndExpand" HorizontalOptions="Center" Spacing="10" Padding="0,0,0,100">
             <Label Text="Sign In" 
                    FontSize="48" FontFamily="CanelaBlack" HorizontalOptions="Center" TextColor="White" FontAttributes="Bold"/>

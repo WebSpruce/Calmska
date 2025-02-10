@@ -4,6 +4,7 @@
              x:Class="Calmska.Views.PomodoroPage"
              xmlns:controls="clr-namespace:Calmska.Controls"
              xmlns:calmska="clr-namespace:Calmska"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
              BackgroundColor="{DynamicResource MainGreen}"
              Shell.NavBarIsVisible="True"
              Title="PomodoroPage">
@@ -12,6 +13,12 @@
         <BackButtonBehavior IsVisible="False"/>
     </Shell.BackButtonBehavior>
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <vm:CustomTabBarViewModel x:Key="customTabBarViewModel"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <Shell.TitleView>
         <HorizontalStackLayout VerticalOptions="Fill">
             <Label Text="{Binding NavBarTitle, StringFormat='Hello {0}'}" FontFamily="CanelaBlack"
@@ -19,7 +26,7 @@
         </HorizontalStackLayout>
     </Shell.TitleView>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding GoToSettingsCommand}">
+        <ToolbarItem Command="{Binding Source={StaticResource customTabBarViewModel}, Path=NavigateCommand}" CommandParameter="SettingsPage">
             <ToolbarItem.IconImageSource>
                 <FontImageSource
                     FontFamily="MaterialIcons"

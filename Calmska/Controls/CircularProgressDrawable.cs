@@ -14,7 +14,7 @@ namespace Calmska.Controls
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
-            float strokeWidth = 8;
+            float strokeWidth = 15;
             float radius = 100; // Half of WidthRequest/HeightRequest of GraphicsView
             float centerX = dirtyRect.Width / 2;
             float centerY = dirtyRect.Height / 2;
@@ -24,11 +24,11 @@ namespace Calmska.Controls
             canvas.StrokeSize = strokeWidth;
             canvas.StrokeColor = Colors.LightGray;
             canvas.DrawCircle(centerX, centerY, radius);
-
+            canvas.Rotate(-90);
             // Draw the red progress
             canvas.StrokeColor = Color.FromArgb("#EA7649");
             canvas.DrawArc(
-                centerX - radius, centerY - radius, radius * 2, radius * 2,
+                centerX - radius - 200, centerY - radius, radius * 2, radius * 2,
                 startAngle, sweepAngle, false, false);
         }
     }
