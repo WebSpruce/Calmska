@@ -10,7 +10,7 @@
         [Fact]
         public async Task GetAllTips_ShouldReturnOk_WhenTipsExist()
         {
-            string endpoint = "/api/v1/tips?pageNumber=1&pageSize=10";
+            string endpoint = "/api/v2/tips?pageNumber=1&pageSize=10";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -23,7 +23,7 @@
         [Fact]
         public async Task SearchListTips_ShouldReturnOk_WhenTipsMatchCriteria()
         {
-            string endpoint = "/api/v1/tips/searchList?Content=Updated tip content.&Type=updated-type&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v2/tips/searchList?Content=Updated tip content.&Type=updated-type&pageNumber=1&pageSize=5";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -36,7 +36,7 @@
         [Fact]
         public async Task SearchListTips_ShouldReturnNotFound_WhenNoTipsMatchCriteria()
         {
-            string endpoint = "/api/v1/tips/searchList?Content=nonexistent&type=random&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v2/tips/searchList?Content=nonexistent&type=random&pageNumber=1&pageSize=5";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -47,7 +47,7 @@
         [Fact]
         public async Task SearchTip_ShouldReturnOk_WhenTipExists()
         {
-            string endpoint = "/api/v1/tips/search?TipId=44a85f64-5717-4562-b3fc-2c963f66afa6";
+            string endpoint = "/api/v2/tips/search?TipId=44a85f64-5717-4562-b3fc-2c963f66afa6";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -60,7 +60,7 @@
         [Fact]
         public async Task SearchTip_ShouldReturnNotFound_WhenTipDoesNotExist()
         {
-            string endpoint = "/api/v1/tips/search?TipId=00000000-0000-0000-0000-000000000000";
+            string endpoint = "/api/v2/tips/search?TipId=00000000-0000-0000-0000-000000000000";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -71,7 +71,7 @@
         [Fact]
         public async Task AddTip_ShouldReturnCreated_WhenTipIsValid()
         {
-            string endpoint = "/api/v1/tips";
+            string endpoint = "/api/v2/tips";
             var tip = new TipsDTO
             {
                 TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
@@ -88,7 +88,7 @@
         [Fact]
         public async Task UpdateTip_ShouldReturnOk_WhenTipIsValid()
         {
-            string endpoint = "/api/v1/tips";
+            string endpoint = "/api/v2/tips";
             var tip = new TipsDTO
             {
                 TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
@@ -106,7 +106,7 @@
         [Fact]
         public async Task UpdateTip_ShouldReturnBadRequest_WhenTipIsInvalid()
         {
-            string endpoint = "/api/v1/tips";
+            string endpoint = "/api/v2/tips";
             var tip = new TipsDTO
             {
                 TipId = Guid.Empty,
@@ -121,7 +121,7 @@
         [Fact]
         public async Task DeleteTip_ShouldReturnOk_WhenTipExists()
         {
-            string endpoint = "/api/v1/tips";
+            string endpoint = "/api/v2/tips";
             Guid tipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6");
 
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
@@ -138,7 +138,7 @@
         [Fact]
         public async Task DeleteTip_ShouldReturnBadRequest_WhenTipDoesNotExist()
         {
-            string endpoint = "/api/v1/tips";
+            string endpoint = "/api/v2/tips";
             Guid tipId = Guid.NewGuid();
 
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)

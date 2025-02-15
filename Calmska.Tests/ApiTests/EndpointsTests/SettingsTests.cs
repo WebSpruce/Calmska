@@ -10,7 +10,7 @@
         [Fact]
         public async Task GetAllSettings_ShouldReturnOk_WhenSettingsExist()
         {
-            string endpoint = "/api/v1/settings";
+            string endpoint = "/api/v2/settings";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -24,7 +24,7 @@
         [Fact]
         public async Task GetSettingsBySearch_ShouldReturnOk_WhenSettingMatchesSearchCriteria()
         {
-            string endpoint = "/api/v1/settings/search?Color=Red";
+            string endpoint = "/api/v2/settings/search?Color=Red";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -38,7 +38,7 @@
         [Fact]
         public async Task GetSettingsBySearch_ShouldReturnNotFound_WhenSettingDoesNotExist()
         {
-            string endpoint = "/api/v1/settings/search?SettingsId=00000000-0000-0000-0000-000000000000";
+            string endpoint = "/api/v2/settings/search?SettingsId=00000000-0000-0000-0000-000000000000";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -48,7 +48,7 @@
         [Fact]
         public async Task GetSettingsList_ShouldReturnOk_WhenMatchingSettingsExist()
         {
-            string endpoint = "/api/v1/settings/searchList?PomodoroTimer=25";
+            string endpoint = "/api/v2/settings/searchList?PomodoroTimer=25";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -62,14 +62,14 @@
         [Fact]
         public async Task AddSetting_ShouldReturnCreated_WhenSettingIsValid()
         {
-            string endpoint = "/api/v1/settings";
+            string endpoint = "/api/v2/settings";
             var setting = new SettingsDTO
             {
                 SettingsId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 UserId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                 Color = "Green",
-                PomodoroTimer = 25,
-                PomodoroBreak = 5
+                PomodoroTimer = "25",
+                PomodoroBreak = "5"
             };
 
             var response = await _client.PostAsJsonAsync(endpoint, setting);
@@ -83,14 +83,14 @@
         [Fact]
         public async Task UpdateSetting_ShouldReturnOk_WhenSettingIsUpdated()
         {
-            string endpoint = "/api/v1/settings";
+            string endpoint = "/api/v2/settings";
             var setting = new SettingsDTO
             {
                 SettingsId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 UserId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                 Color = "Red",
-                PomodoroTimer = 30,
-                PomodoroBreak = 10
+                PomodoroTimer = "30",
+                PomodoroBreak = "10"
             };
 
             var response = await _client.PutAsJsonAsync(endpoint, setting);
@@ -101,7 +101,7 @@
         [Fact]
         public async Task DeleteSetting_ShouldReturnOk_WhenSettingExists()
         {
-            string endpoint = "/api/v1/settings";
+            string endpoint = "/api/v2/settings";
 
             var settingsId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6");
             var response = await _client.SendAsync(new HttpRequestMessage

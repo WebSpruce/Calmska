@@ -10,7 +10,7 @@
         [Fact]
         public async Task GetAllAccounts_ShouldReturnOk_WhenAccountsExist()
         {
-            string endpoint = "/api/v1/accounts";
+            string endpoint = "/api/v2/accounts";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -23,7 +23,7 @@
         [Fact]
         public async Task GetAccountBySearch_ShouldReturnNotFound_WhenAccountDoesNotExist()
         {
-            string endpoint = "/api/v1/accounts/search?UserId=00000000-0000-0000-0000-000000000000";
+            string endpoint = "/api/v2/accounts/search?UserId=00000000-0000-0000-0000-000000000000";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -32,7 +32,7 @@
         [Fact]
         public async Task Login_ShouldReturnOk_WhenAccountExist()
         {
-            string endpoint = "/api/v1/accounts/login?Email=test@test.com&PasswordHashed=mypass";
+            string endpoint = "/api/v2/accounts/login?Email=test@test.com&PasswordHashed=mypass";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -41,7 +41,7 @@
         [Fact]
         public async Task AddAccount_ShouldReturnCreated_WhenAccountIsValid()
         {
-            string endpoint = "/api/v1/accounts";
+            string endpoint = "/api/v2/accounts";
             var account = new Account { UserId = Guid.Parse("e14fa9ac-1cd3-4d2e-8e39-6217d8cb1ded"), UserName = "TestUser", Email = "test@test.com", PasswordHashed = "mypass" };
 
             var response = await _client.PostAsJsonAsync<Account>(endpoint, account);
@@ -53,7 +53,7 @@
         [Fact]
         public async Task UpdateAccount_ShouldReturnOk_WhenAccountIsUpdated()
         {
-            string endpoint = "/api/v1/accounts";
+            string endpoint = "/api/v2/accounts";
             var account = new
             {
                 UserId = Guid.Parse("e14fa9ac-1cd3-4d2e-8e39-6217d8cb1ded"),
@@ -69,7 +69,7 @@
         [Fact]
         public async Task DeleteAccount_ShouldReturnOk_WhenAccountExists()
         {
-            string endpoint = "/api/v1/accounts?accountId=e14fa9ac-1cd3-4d2e-8e39-6217d8cb1ded";
+            string endpoint = "/api/v2/accounts?accountId=e14fa9ac-1cd3-4d2e-8e39-6217d8cb1ded";
 
             var response = await _client.DeleteAsync(endpoint);
 

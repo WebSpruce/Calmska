@@ -34,8 +34,8 @@
         {
             var expectedData = new List<SettingsDTO?>
             {
-                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreak = 5, PomodoroTimer = 25, UserId = Guid.NewGuid() },
-                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Red", PomodoroBreak = 10, PomodoroTimer = 30, UserId = Guid.NewGuid() }
+                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreakFloat = 5, PomodoroTimerFloat = 25, UserId = Guid.NewGuid() },
+                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Red", PomodoroBreakFloat = 10, PomodoroTimerFloat = 30, UserId = Guid.NewGuid() }
             };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
@@ -69,7 +69,7 @@
                 {
                     new List<SettingsDTO?>
                     {
-                        new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreak = 5, PomodoroTimer = 25, UserId = Guid.NewGuid() }
+                        new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreakFloat = 5, PomodoroTimerFloat = 25, UserId = Guid.NewGuid() }
                     }
                 },
                 TotalCount = 1
@@ -89,7 +89,7 @@
         public async Task GetByArgumentAsync_ShouldReturnSettings_WhenRequestIsSuccessful()
         {
             var settingsCriteria = new SettingsDTO { SettingsId = Guid.NewGuid() };
-            var expectedSettings = new SettingsDTO { SettingsId = settingsCriteria.SettingsId, Color = "Green", PomodoroBreak = 10, PomodoroTimer = 30, UserId = Guid.NewGuid() };
+            var expectedSettings = new SettingsDTO { SettingsId = settingsCriteria.SettingsId, Color = "Green", PomodoroBreakFloat = 10, PomodoroTimerFloat = 30, UserId = Guid.NewGuid() };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedSettings));
 
@@ -104,7 +104,7 @@
         [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var newSettings = new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Yellow", PomodoroBreak = 5, PomodoroTimer = 25, UserId = Guid.NewGuid() };
+            var newSettings = new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Yellow", PomodoroBreakFloat = 5, PomodoroTimerFloat = 25, UserId = Guid.NewGuid() };
 
             SetupHttpResponse(HttpStatusCode.Created);
 
@@ -118,7 +118,7 @@
         [Fact]
         public async Task UpdateAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var updatedSettings = new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Purple", PomodoroBreak = 15, PomodoroTimer = 40, UserId = Guid.NewGuid() };
+            var updatedSettings = new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Purple", PomodoroBreakFloat = 15, PomodoroTimerFloat = 40, UserId = Guid.NewGuid() };
 
             SetupHttpResponse(HttpStatusCode.OK);
 

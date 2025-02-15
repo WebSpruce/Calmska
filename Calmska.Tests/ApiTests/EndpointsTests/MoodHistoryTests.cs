@@ -12,7 +12,7 @@
         [Fact]
         public async Task GetAllMoodHistory_ShouldReturnOk_WhenMoodHistoryExists()
         {
-            string endpoint = "/api/v1/moodhistory";
+            string endpoint = "/api/v2/moodhistory";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -25,7 +25,7 @@
         [Fact]
         public async Task SearchMoodHistory_ShouldReturnBadRequest_WhenDateFormatIsInvalid()
         {
-            string endpoint = "/api/v1/moodhistory/search?Date=invalid-date";
+            string endpoint = "/api/v2/moodhistory/search?Date=invalid-date";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -35,7 +35,7 @@
         [Fact]
         public async Task SearchMoodHistory_ShouldReturnOk_WhenMoodHistoryExists()
         {
-            string endpoint = "/api/v1/moodhistory/search?MoodHistoryId=532af909-6d0e-4d6e-b5e9-f1f49d577a9f";
+            string endpoint = "/api/v2/moodhistory/search?MoodHistoryId=532af909-6d0e-4d6e-b5e9-f1f49d577a9f";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -48,7 +48,7 @@
         [Fact]
         public async Task AddMoodHistory_ShouldReturnCreated_WhenMoodHistoryIsValid()
         {
-            string endpoint = "/api/v1/moodhistory";
+            string endpoint = "/api/v2/moodhistory";
             var moodHistory = new MoodHistoryDTO
             {
                 MoodHistoryId = Guid.NewGuid(),
@@ -67,7 +67,7 @@
         [Fact]
         public async Task UpdateMoodHistory_ShouldReturnOk_WhenMoodHistoryIsValid()
         {
-            string endpoint = "/api/v1/moodhistory";
+            string endpoint = "/api/v2/moodhistory";
             var moodHistory = new MoodHistoryDTO
             {
                 MoodHistoryId = Guid.Parse("532af909-6d0e-4d6e-b5e9-f1f49d577a9f"),
@@ -84,7 +84,7 @@
         [Fact]
         public async Task DeleteMoodHistory_ShouldReturnOk_WhenMoodHistoryExists()
         {
-            string endpoint = "/api/v1/moodhistory";
+            string endpoint = "/api/v2/moodhistory";
             Guid moodHistoryId = Guid.Parse("532af909-6d0e-4d6e-b5e9-f1f49d577a9f");
 
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
@@ -99,7 +99,7 @@
         [Fact]
         public async Task DeleteMoodHistory_ShouldReturnBadRequest_WhenMoodHistoryDoesNotExist()
         {
-            string endpoint = "/api/v1/moodhistory";
+            string endpoint = "/api/v2/moodhistory";
             Guid moodHistoryId = Guid.NewGuid();
 
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
