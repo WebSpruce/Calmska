@@ -24,15 +24,13 @@ namespace Calmska.Api.Repository
 
         public async Task<PaginatedResult<Settings>> GetAllByArgumentAsync(SettingsDTO settings, int? pageNumber, int? pageSize)
         {
-            string PomodoroTimer = settings.PomodoroTimer.ToString() ?? string.Empty;
-            string PomodoroBreak = settings.PomodoroBreak.ToString() ?? string.Empty;
             var query = await Task.Run(_context.SettingsDb
                 .Where(item =>
-                    (settings.SettingsId == Guid.Empty || !settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
-                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
-                    (string.IsNullOrEmpty(PomodoroTimer) || item.Color.ToLower().Contains(PomodoroTimer.ToLower())) &&
-                    (string.IsNullOrEmpty(PomodoroBreak) || item.Color.ToLower().Contains(PomodoroBreak.ToLower())) &&
-                    (settings.UserId == Guid.Empty || !settings.UserId.HasValue || item.UserId == settings.UserId))
+                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
+                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroTimer) || item.PomodoroTimer.ToLower().Contains(settings.PomodoroTimer.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroBreak) || item.PomodoroBreak.ToLower().Contains(settings.PomodoroBreak.ToLower())) &&
+                    (!settings.UserId.HasValue || item.UserId == settings.UserId)
                 )
                 .AsQueryable);
 
@@ -41,15 +39,13 @@ namespace Calmska.Api.Repository
 
         public async Task<Settings?> GetByArgumentAsync(SettingsDTO settings)
         {
-            string PomodoroTimer = settings.PomodoroTimer.ToString() ?? string.Empty;
-            string PomodoroBreak = settings.PomodoroBreak.ToString() ?? string.Empty;
             return await _context.SettingsDb
                 .Where(item =>
                     (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
-                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower()) &&
-                    (string.IsNullOrEmpty(PomodoroTimer) || item.Color.ToLower().Contains(PomodoroTimer.ToLower())) &&
-                    (string.IsNullOrEmpty(PomodoroBreak) || item.Color.ToLower().Contains(PomodoroBreak.ToLower())) &&
-                    (!settings.UserId.HasValue || item.UserId == settings.UserId))
+                    (string.IsNullOrEmpty(settings.Color) || item.Color.ToLower().Contains(settings.Color.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroTimer) || item.PomodoroTimer.ToLower().Contains(settings.PomodoroTimer.ToLower())) &&
+                    (string.IsNullOrEmpty(settings.PomodoroBreak) || item.PomodoroBreak.ToLower().Contains(settings.PomodoroBreak.ToLower())) &&
+                    (!settings.UserId.HasValue || item.UserId == settings.UserId)
                 )
                 .FirstOrDefaultAsync();
         }

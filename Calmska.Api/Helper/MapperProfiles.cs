@@ -30,8 +30,8 @@ namespace Calmska.Api.Helper
             .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)));
 
             CreateMap<SettingsDTO, Settings>()
-                .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => src.PomodoroTimer.HasValue ? src.PomodoroTimer.Value.ToString() : string.Empty))
-                .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => src.PomodoroBreak.HasValue ? src.PomodoroBreak.Value.ToString() : string.Empty));
+                .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PomodoroTimer) ? src.PomodoroTimer : string.Empty))
+                .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PomodoroBreak) ? src.PomodoroBreak : string.Empty));
         }
         private static float? ConvertToFloat(string value)
         {

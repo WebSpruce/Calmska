@@ -54,6 +54,10 @@ namespace Calmska
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
+            builder.Services.AddHttpClient<IService<SettingsDTO>, SettingsService>(client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
 
             return builder.Build();
         }

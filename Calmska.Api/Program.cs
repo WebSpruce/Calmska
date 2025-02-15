@@ -66,7 +66,7 @@ namespace Calmska.Api
             //endpoints
             #region Accounts
             var accounts = app
-                .MapGroup("/api/v1/accounts")
+                .MapGroup("/api/v2/accounts")
                 .WithTags("Accounts");
             accounts.MapGet("/", async (IRepository<Account, AccountDTO> accountRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
@@ -133,7 +133,7 @@ namespace Calmska.Api
             #endregion Accounts
             #region Settings
             var settings = app
-                .MapGroup("/api/v1/settings")
+                .MapGroup("/api/v2/settings")
                 .WithTags("Settings");
             settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
@@ -148,8 +148,8 @@ namespace Calmska.Api
                 {
                     SettingsId = SettingsId,
                     Color = Color,
-                    PomodoroBreak = PomodoroBreak,
-                    PomodoroTimer = PomodoroTimer,
+                    PomodoroBreak = PomodoroBreak.ToString(),
+                    PomodoroTimer = PomodoroTimer.ToString(),
                     UserId = UserId,
                 };
                 var result = await settingsRepository.GetAllByArgumentAsync(settingsDTO, pageNumber, pageSize);
@@ -162,8 +162,8 @@ namespace Calmska.Api
                 {
                     SettingsId = SettingsId,
                     Color = Color,
-                    PomodoroBreak = PomodoroBreak,
-                    PomodoroTimer = PomodoroTimer,
+                    PomodoroBreak = PomodoroBreak.ToString(),
+                    PomodoroTimer = PomodoroTimer.ToString(),
                     UserId = UserId,
                 };
                 var result = await settingsRepository.GetByArgumentAsync(settingsDTO);
@@ -173,7 +173,7 @@ namespace Calmska.Api
                 [FromBody] SettingsDTO settingsDTO) =>
             {
                 var result = await settingsRepository.AddAsync(settingsDTO);
-                return result.Result ? Results.Created($"/api/v1/settings/{settingsDTO.SettingsId}", settingsDTO) : Results.BadRequest(result.Error);
+                return result.Result ? Results.Created($"/api/v2/settings/{settingsDTO.SettingsId}", settingsDTO) : Results.BadRequest(result.Error);
             });
             settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
                 [FromBody] SettingsDTO settingsDTO) =>
@@ -189,7 +189,7 @@ namespace Calmska.Api
             #endregion Settings
             #region Mood
             var mood = app
-                .MapGroup("/api/v1/moods")
+                .MapGroup("/api/v2/moods")
                 .WithTags("Moods");
             mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
@@ -240,7 +240,7 @@ namespace Calmska.Api
             #endregion Mood
             #region MoodHistory
             var moodHistory = app
-                .MapGroup("/api/v1/moodhistory")
+                .MapGroup("/api/v2/moodhistory")
                 .WithTags("MoodHistory");
             moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
@@ -334,7 +334,7 @@ namespace Calmska.Api
             #endregion MoodHistory
             #region Tips
             var tips = app
-                .MapGroup("/api/v1/tips")
+                .MapGroup("/api/v2/tips")
                 .WithTags("Tips");
             tips.MapGet("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {

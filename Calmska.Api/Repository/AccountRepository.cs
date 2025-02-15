@@ -33,7 +33,7 @@ namespace Calmska.Api.Repository
                 (!account.UserId.HasValue || item.UserId == account.UserId) &&
                 (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                 (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
-                (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
+                (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed == account.PasswordHashed)
             )
             .AsQueryable);
 
@@ -47,7 +47,7 @@ namespace Calmska.Api.Repository
                     (!account.UserId.HasValue || item.UserId == account.UserId) &&
                     (string.IsNullOrEmpty(account.UserName) || item.UserName.ToLower().Contains(account.UserName.ToLower())) &&
                     (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
-                    (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed.ToLower().Contains(account.PasswordHashed.ToLower()))
+                    (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed == account.PasswordHashed)
                 )
                 .FirstOrDefaultAsync();
         }
