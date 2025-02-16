@@ -1,4 +1,5 @@
 ﻿using Calmska.Models.DTO;
+using Calmska.Models.Models;
 using Calmska.Services.Interfaces;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
@@ -37,6 +38,7 @@ namespace Calmska.ViewModels
         public SettingsViewModel(IService<SettingsDTO> settingsService, IAccountService accountService)
         {
             _settingsService = settingsService;
+            _accountService = accountService;
             string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
             _accountLogged = JsonSerializer.Deserialize<AccountDTO>(userJson);
             if (_accountLogged == null)
@@ -60,9 +62,10 @@ namespace Calmska.ViewModels
 
             AccountDTO accountToUpdate = _accountLogged;
             accountToUpdate.UserName = EUserName;
+            accountToUpdate.PasswordHashed = string.Empty;
 
-            var isUpdated = _accountService.UpdateAsync(accountToUpdate);
-            if (isUpdated != null && isUpdated.Result.Error == string.Empty && isUpdated.Result.Result)
+            OperationResultT<bool> isUpdated = await _accountService.UpdateAsync(accountToUpdate);
+            if (isUpdated != null && isUpdated.Result)
             {
 #if ANDROID
                 await Toast.Make($"Username saved.", ToastDuration.Short, 14).Show();
@@ -72,11 +75,11 @@ namespace Calmska.ViewModels
                 {
                     var userJson = JsonSerializer.Serialize(accountToUpdate);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
-                    OnPropertyChanged(nameof(EUserName));
+                    LUserName = EUserName;
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Warning.", "The username is saved, but to see the updated data, please relaunch the app.", "Close")
+                    await Shell.Current.DisplayAlert("Warning.", "The username is saved, but to see the updated data, please relaunch the app.", "Close");
                 }
             }
             else
@@ -97,8 +100,9 @@ namespace Calmska.ViewModels
                 int workInSeconds = ConvertToSeconds(int.Parse(EWorkingTimeHours), int.Parse(EWorkingTimeMinutes), int.Parse(EWorkingTimeSeconds));
                 int breakInSeconds = ConvertToSeconds(int.Parse(EBreakTimeHours), int.Parse(EBreakTimeMinutes), int.Parse(EBreakTimeSeconds));
 
-                usersSettingsToUpdate.Result.PomodoroBreakFloat = workInSeconds;
-                usersSettingsToUpdate.Result.PomodoroTimerFloat = breakInSeconds;
+                usersSettingsToUpdate.Result.PomodoroBreakFloat = breakInSeconds;
+                usersSettingsToUpdate.Result.PomodoroTimerFloat = workInSeconds;
+                if (string.IsNullOrEmpty(usersSettingsToUpdate.Result.Color)) { usersSettingsToUpdate.Result.Color = null; }
                 var isUpdated = await _settingsService.UpdateAsync(usersSettingsToUpdate.Result);
                 if (isUpdated != null && isUpdated.Error == string.Empty && isUpdated.Result)
                 {
@@ -132,8 +136,8 @@ namespace Calmska.ViewModels
                     SettingsDTO newSettings = new SettingsDTO
                     {
                         UserId = user.UserId,
-                        PomodoroTimerFloat = 300f,
-                        PomodoroBreakFloat = 2700f
+                        PomodoroTimerFloat = 2700f,
+                        PomodoroBreakFloat = 300f
                     };
                     var isAdded = await _settingsService.AddAsync(newSettings);
                     if(isAdded != null && isAdded.Error == string.Empty && isAdded.Result)

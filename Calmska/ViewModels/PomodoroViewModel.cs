@@ -1,5 +1,5 @@
 ﻿using Calmska.Models.DTO;
-using Calmska.Views;
+using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
@@ -19,17 +19,22 @@ namespace Calmska.ViewModels
         private static int _timeRemaining;
         public string TimeRemaining => $"{_timeRemaining / 60:D2}:{_timeRemaining % 60:D2}";
 
-        private const int WorkTime = 10;
-        private const int BreakTime = 5;
+        [ObservableProperty]
+        private int _workTime = 10;
+        [ObservableProperty]
+        private int _breakTime = 5;
         private bool _isRunning;
         private static bool _isWorkSession = true;
         private CancellationTokenSource _cancellationTokenSource;
-        public PomodoroViewModel()
+        private readonly IService<SettingsDTO> _settingsService;
+        public PomodoroViewModel(IService<SettingsDTO> settingsService)
         {
+            _settingsService = settingsService;
             string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
             var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
-            _timeRemaining = WorkTime;
             NavBarTitle = user != null ? (user.UserName ?? string.Empty) : string.Empty;
+
+            Task.Run(async () => await LoadTimeSettings(user));
         }
         [RelayCommand]
         private async void PlayPause()
@@ -102,6 +107,20 @@ namespace Calmska.ViewModels
                 Debug.WriteLine($"Timer Error: {ex.Message}");
                 await Shell.Current.DisplayAlert("Warning!", $"Error occurs:\n{ex.Message}", "Close");
             }
+        }
+
+        private async Task LoadTimeSettings(AccountDTO user)
+        {
+            if (user == null)
+                return;
+
+            var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
+            if (usersSettings != null && string.IsNullOrEmpty(usersSettings.Error) && usersSettings.Result != null)
+            {
+                WorkTime = int.Parse(usersSettings.Result.PomodoroTimer);
+                BreakTime = int.Parse(usersSettings.Result.PomodoroBreak);
+            }
+            _timeRemaining = WorkTime;
         }
     }
 }
