@@ -28,7 +28,7 @@ namespace Calmska.Api.Repository
                 .Where(item =>
                     (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
                     (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
-                    (string.IsNullOrEmpty(moodDTO.Type) || item.Type.ToLower().Contains(moodDTO.Type.ToLower()))
+                    (moodDTO.MoodTypeId == null || moodDTO.MoodTypeId == 0 || item.MoodTypeId == moodDTO.MoodTypeId)
                 )
                 .AsQueryable);
 
@@ -41,7 +41,7 @@ namespace Calmska.Api.Repository
                .Where(item =>
                    (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
                    (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
-                   (string.IsNullOrEmpty(moodDTO.Type) || item.Type.ToLower().Contains(moodDTO.Type.ToLower()))
+                   (moodDTO.MoodTypeId == null || moodDTO.MoodTypeId == 0 || item.MoodTypeId == moodDTO.MoodTypeId)
                )
                .FirstOrDefaultAsync();
         }
@@ -77,7 +77,7 @@ namespace Calmska.Api.Repository
                     return new OperationResult { Result = false, Error = "Didn't find any mood with the provided moodId." };
 
                 existingMood.MoodName = moodDto.MoodName ?? string.Empty;
-                existingMood.Type = moodDto.Type ?? string.Empty;
+                existingMood.MoodTypeId = moodDto.MoodTypeId;
 
                 var result = await _context.SaveChangesAsync();
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };

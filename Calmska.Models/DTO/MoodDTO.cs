@@ -12,7 +12,7 @@ namespace Calmska.Models.DTO
         public Guid? MoodId { get; set; }
         [JsonPropertyName("moodname")]
         public string? MoodName { get; set; } = string.Empty;
-        [JsonPropertyName("type")]
-        public string? Type { get; set; } = string.Empty;
+        [JsonPropertyName("moodtypeid")]
+        public int MoodTypeId { get; set; } = 0;
     }
 }

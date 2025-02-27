@@ -82,7 +82,7 @@ namespace Calmska.Api.Repository
 
                 MoodHistory? existingMoodHistory = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == moodHistoryDTO.MoodHistoryId);
                 if (existingMoodHistory == null)
-                    return new OperationResult { Result = false, Error = "Didn't find any account with the provided userId." };
+                    return new OperationResult { Result = false, Error = "Didn't find any mood with the provided userId." };
 
                 existingMoodHistory.Date = DateTime.UtcNow;
                 existingMoodHistory.UserId = moodHistoryDTO.UserId ?? Guid.Empty;

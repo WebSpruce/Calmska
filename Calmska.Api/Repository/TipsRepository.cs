@@ -28,7 +28,7 @@ namespace Calmska.Api.Repository
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
-                    (string.IsNullOrEmpty(tips.Type) || item.Type.ToLower().Contains(tips.Type.ToLower()))
+                    (tips.TipsTypeId == null || tips.TipsTypeId <= 0 || item.TipsTypeId == tips.TipsTypeId)
                 )
                 .AsQueryable);
 
@@ -41,7 +41,7 @@ namespace Calmska.Api.Repository
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
-                    (string.IsNullOrEmpty(tips.Type) || item.Type.ToLower().Contains(tips.Type.ToLower()))
+                    (tips.TipsTypeId == null || tips.TipsTypeId <= 0 || item.TipsTypeId == tips.TipsTypeId)
                 )
                 .FirstOrDefaultAsync();
         }
@@ -70,14 +70,14 @@ namespace Calmska.Api.Repository
             try
             {
                 if (tips == null)
-                    return new OperationResult { Result = false, Error = "The provided Account object is null." };
+                    return new OperationResult { Result = false, Error = "The provided Tip object is null." };
 
                 Tips? existingTip = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == tips.TipId);
                 if (existingTip == null)
                     return new OperationResult { Result = false, Error = "Didn't find any tip with the provided tipsId." };
 
                 existingTip.Content = tips.Content ?? string.Empty;
-                existingTip.Type = tips.Type ?? string.Empty;
+                existingTip.TipsTypeId = tips.TipsTypeId ?? 0;
 
                 var result = await _context.SaveChangesAsync();
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };

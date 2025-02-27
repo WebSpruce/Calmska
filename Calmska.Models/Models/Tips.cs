@@ -12,8 +12,8 @@ namespace Calmska.Models.Models
         public Guid TipId { get; set; }
         [JsonPropertyName("content")]
         public required string Content { get; set; } = string.Empty;
-        [JsonPropertyName("type")]
-        public required string Type { get; set; } = string.Empty;
+        [JsonPropertyName("typeid")]
+        public required int TipsTypeId { get; set; } = 0;
         public Tips()
         {
             TipId = Guid.NewGuid();
