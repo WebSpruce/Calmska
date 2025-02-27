@@ -76,7 +76,7 @@
             {
                 TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 Content = "Drink water regularly.",
-                Type = "health"
+                TipsTypeId = 3
             };
 
             var response = await _client.PostAsJsonAsync(endpoint, tip);
@@ -93,7 +93,7 @@
             {
                 TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 Content = "Updated tip content.",
-                Type = "updated-type"
+                TipsTypeId = 4
             };
 
             var response = await _client.PutAsJsonAsync(endpoint, tip);
@@ -111,7 +111,7 @@
             {
                 TipId = Guid.Empty,
                 Content = string.Empty, 
-                Type = string.Empty 
+                TipsTypeId = null
             };
 
             var response = await _client.PutAsJsonAsync(endpoint, tip);

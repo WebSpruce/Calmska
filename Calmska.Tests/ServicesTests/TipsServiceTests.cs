@@ -10,6 +10,9 @@
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+            var apiBaseUrl = "https://calmska.onrender.com/api/v2";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
             _tipsService = new TipsService(_httpClient);
         }
 
@@ -32,10 +35,16 @@
         [Fact]
         public async Task GetAllAsync_ShouldReturnTips_WhenRequestIsSuccessful()
         {
-            var expectedData = new List<TipsDTO?>
-            {
-                new TipsDTO { TipId = Guid.NewGuid(), Content = "Stay hydrated", Type = "Health" },
-                new TipsDTO { TipId = Guid.NewGuid(), Content = "Take breaks", Type = "Work" }
+            var expectedData = new PaginatedResult<TipsDTO?> { 
+                Items = new List<TipsDTO?>
+                {
+                    new TipsDTO { TipId = Guid.NewGuid(), Content = "Stay hydrated", TipsTypeId = 1 },
+                    new TipsDTO { TipId = Guid.NewGuid(), Content = "Take breaks", TipsTypeId = 2 }
+                },
+                error = string.Empty,
+                PageNumber = 1,
+                PageSize = 2,
+                TotalCount = 2
             };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
@@ -43,7 +52,7 @@
             var result = await _tipsService.GetAllAsync(null, null);
 
             Assert.NotNull(result);
-            Assert.True(result.Result != null && result.Result.Any());
+            Assert.True(result.Result != null && result.Result.Items != null && result.Result.Items.Any());
             Assert.Equal(string.Empty, result.Error);
         }
 
@@ -69,7 +78,7 @@
                 {
                     new List<TipsDTO?>
                     {
-                        new TipsDTO { TipId = Guid.NewGuid(), Content = "Stay hydrated", Type = "Health" }
+                        new TipsDTO { TipId = Guid.NewGuid(), Content = "Stay hydrated", TipsTypeId = 1 }
                     }
                 },
                 TotalCount = 1
@@ -89,7 +98,7 @@
         public async Task GetByArgumentAsync_ShouldReturnTip_WhenRequestIsSuccessful()
         {
             var tipsCriteria = new TipsDTO { TipId = Guid.NewGuid() };
-            var expectedTip = new TipsDTO { TipId = tipsCriteria.TipId, Content = "Take breaks", Type = "Work" };
+            var expectedTip = new TipsDTO { TipId = tipsCriteria.TipId, Content = "Take breaks", TipsTypeId = 3 };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedTip));
 
@@ -104,7 +113,7 @@
         [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var newTip = new TipsDTO { TipId = Guid.NewGuid(), Content = "Exercise daily", Type = "Health" };
+            var newTip = new TipsDTO { TipId = Guid.NewGuid(), Content = "Exercise daily", TipsTypeId = 1 };
 
             SetupHttpResponse(HttpStatusCode.Created);
 
@@ -118,7 +127,7 @@
         [Fact]
         public async Task UpdateAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var updatedTip = new TipsDTO { TipId = Guid.NewGuid(), Content = "Drink water", Type = "Health" };
+            var updatedTip = new TipsDTO { TipId = Guid.NewGuid(), Content = "Drink water", TipsTypeId = 1 };
 
             SetupHttpResponse(HttpStatusCode.OK);
 

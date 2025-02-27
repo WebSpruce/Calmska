@@ -9,6 +9,9 @@
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+            var apiBaseUrl = "https://calmska.onrender.com/api/v2";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
             _moodHistoryService = new MoodHistoryService(_httpClient);
         }
 
@@ -30,9 +33,15 @@
         [Fact]
         public async Task GetAllAsync_ShouldReturnMoodHistoryList_WhenRequestIsSuccessful()
         {
-            var expectedData = new List<MoodHistoryDTO?>
-            {
-                new MoodHistoryDTO { MoodHistoryId = Guid.NewGuid(), UserId = Guid.NewGuid(), MoodId = Guid.NewGuid() }
+            var expectedData = new PaginatedResult<MoodHistoryDTO?> { 
+                Items = new List<MoodHistoryDTO?>
+                {
+                    new MoodHistoryDTO { MoodHistoryId = Guid.NewGuid(), UserId = Guid.NewGuid(), MoodId = Guid.NewGuid() }
+                },
+                error = string.Empty,
+                PageNumber = 1,
+                PageSize = 1,
+                TotalCount = 1
             };
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
 
@@ -40,7 +49,7 @@
 
             Assert.NotNull(result);
             Assert.NotNull(result.Result);
-            Assert.Single(result.Result);
+            Assert.Single(result.Result.Items);
             Assert.Equal(string.Empty, result.Error);
         }
         [Fact]

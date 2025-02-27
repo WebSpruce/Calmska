@@ -22,8 +22,8 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             _context.TipsDb.AddRange(new List<Tips>
             {
-                new Tips { TipId = Guid.NewGuid(), Content = "Tip 1", Type = "General" },
-                new Tips { TipId = Guid.NewGuid(), Content = "Tip 2", Type = "Specific" },
+                new Tips { TipId = Guid.NewGuid(), Content = "Tip 1", TipsTypeId = 4 },
+                new Tips { TipId = Guid.NewGuid(), Content = "Tip 2", TipsTypeId = 3 },
             });
             await _context.SaveChangesAsync();
 
@@ -38,24 +38,24 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             _context.TipsDb.AddRange(new List<Tips>
             {
-                new Tips { TipId = Guid.NewGuid(), Content = "Tip A", Type = "General" },
-                new Tips { TipId = Guid.NewGuid(), Content = "Tip B", Type = "Specific" },
+                new Tips { TipId = Guid.NewGuid(), Content = "Tip A", TipsTypeId = 3 },
+                new Tips { TipId = Guid.NewGuid(), Content = "Tip B", TipsTypeId = 4 },
             });
             await _context.SaveChangesAsync();
 
-            var tipsDto = new TipsDTO { Type = "General" };
+            var tipsDto = new TipsDTO { TipsTypeId = 3 };
 
             var result = await _repository.GetAllByArgumentAsync(tipsDto, 1, 2);
 
             result.Items.Should().HaveCount(1);
-            result.Items.First().Type.Should().Be("General");
+            result.Items.First().TipsTypeId.Should().Be(3);
             result.TotalCount.Should().Be(1);
         }
         [Fact]
         public async Task GetByArgumentAsync_ShouldReturnMatchingTip()
         {
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
-            var tip = new Tips { TipId = Guid.NewGuid(), Content = "Find Me", Type = "Target" };
+            var tip = new Tips { TipId = Guid.NewGuid(), Content = "Find Me", TipsTypeId = 4 };
             _context.TipsDb.Add(tip);
             await _context.SaveChangesAsync();
 
@@ -65,7 +65,7 @@
 
             result.Should().NotBeNull();
             result!.Content.Should().Be("Find Me");
-            result.Type.Should().Be("Target");
+            result.TipsTypeId.Should().Be(4);
         }
         [Fact]
         public async Task AddAsync_ShouldReturnError_WhenTipsDtoIsNull()
@@ -82,15 +82,15 @@
         public async Task AddAsync_ShouldReturnSuccess_WhenTipIsAdded()
         {
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
-            var tipsDto = new TipsDTO { Content = "Sample Tip", Type = "General" };
+            var tipsDto = new TipsDTO { Content = "Sample Tip", TipsTypeId = 3 };
             _mapper.Setup(m => m.Map<Tips>(It.IsAny<TipsDTO>()))
-                       .Returns(new Tips { Content = tipsDto.Content, Type = tipsDto.Type });
+                       .Returns(new Tips { Content = tipsDto.Content, TipsTypeId = (int)tipsDto.TipsTypeId });
 
             var result = await _repository.AddAsync(tipsDto);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
-            _context.TipsDb.Should().ContainSingle(t => t.Content == tipsDto.Content && t.Type == tipsDto.Type);
+            _context.TipsDb.Should().ContainSingle(t => t.Content == tipsDto.Content && t.TipsTypeId == tipsDto.TipsTypeId);
         }
         [Fact]
         public async Task UpdateAsync_ShouldReturnError_WhenTipsDtoIsNull()
@@ -118,11 +118,11 @@
         public async Task UpdateAsync_ShouldReturnSuccess_WhenTipIsUpdated()
         {
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
-            var existingTip = new Tips { TipId = Guid.NewGuid(), Content = "Old Tip", Type = "General" };
+            var existingTip = new Tips { TipId = Guid.NewGuid(), Content = "Old Tip", TipsTypeId = 3 };
             _context.TipsDb.Add(existingTip);
             await _context.SaveChangesAsync();
 
-            var tipsDto = new TipsDTO { TipId = existingTip.TipId, Content = "Updated Tip", Type = "Specific" };
+            var tipsDto = new TipsDTO { TipId = existingTip.TipId, Content = "Updated Tip", TipsTypeId = 4 };
             var result = await _repository.UpdateAsync(tipsDto);
 
             result.Result.Should().BeTrue();
@@ -131,7 +131,7 @@
             var updatedTip = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == existingTip.TipId);
             updatedTip.Should().NotBeNull();
             updatedTip!.Content.Should().Be("Updated Tip");
-            updatedTip.Type.Should().Be("Specific");
+            updatedTip.TipsTypeId.Should().Be(4);
         }
         [Fact]
         public async Task DeleteAsync_ShouldReturnError_WhenTipsIdIsEmpty()
@@ -159,7 +159,7 @@
         public async Task DeleteAsync_ShouldReturnSuccess_WhenTipIsDeleted()
         {
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
-            var existingTip = new Tips { TipId = Guid.NewGuid(), Content = "Tip to Delete", Type = "Sample" };
+            var existingTip = new Tips { TipId = Guid.NewGuid(), Content = "Tip to Delete", TipsTypeId = 1 };
             _context.TipsDb.Add(existingTip);
             await _context.SaveChangesAsync();
 

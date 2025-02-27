@@ -9,6 +9,9 @@
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+            var apiBaseUrl = "https://calmska.onrender.com/api/v2";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
             _accountsService = new AccountsService(_httpClient);
         }
 
@@ -31,10 +34,16 @@
         [Fact]
         public async Task GetAllAsync_ShouldReturnAccounts_WhenRequestIsSuccessful()
         {
-            var expectedData = new List<AccountDTO?>
-            {
-                new AccountDTO { UserId = Guid.NewGuid(), UserName = "User1", Email = "user1@example.com" },
-                new AccountDTO { UserId = Guid.NewGuid(), UserName = "User2", Email = "user2@example.com" }
+            var expectedData = new PaginatedResult<AccountDTO?> { 
+                Items = new List<AccountDTO?>
+                {
+                    new AccountDTO { UserId = Guid.NewGuid(), UserName = "User1", Email = "user1@example.com" },
+                    new AccountDTO { UserId = Guid.NewGuid(), UserName = "User2", Email = "user2@example.com" }
+                },
+                error = string.Empty,
+                PageNumber = 1,
+                PageSize = 2,
+                TotalCount = 2
             };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
@@ -42,7 +51,7 @@
             var result = await _accountsService.GetAllAsync(null, null);
 
             Assert.NotNull(result);
-            Assert.True(result.Result != null && result.Result.Any());
+            Assert.True(result.Result != null && result.Result.Items != null && result.Result.Items.Any());
             Assert.Equal(string.Empty, result.Error);
         }
 

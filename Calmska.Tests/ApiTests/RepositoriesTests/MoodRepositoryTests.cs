@@ -22,8 +22,8 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             _context.Moods.AddRange(new List<Mood>
             {
-                new Mood { MoodId = Guid.NewGuid(), MoodName = "Happy", Type = "Positive" },
-                new Mood { MoodId = Guid.NewGuid(), MoodName = "Sad", Type = "Negative" },
+                new Mood { MoodId = Guid.NewGuid(), MoodName = "Happy", MoodTypeId = 1 },
+                new Mood { MoodId = Guid.NewGuid(), MoodName = "Sad", MoodTypeId = 2 },
             });
             await _context.SaveChangesAsync();
 
@@ -38,8 +38,8 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             _context.Moods.AddRange(new List<Mood>
             {
-                new Mood { MoodId = Guid.NewGuid(), MoodName = "Happy", Type = "Positive" },
-                new Mood { MoodId = Guid.NewGuid(), MoodName = "Sad", Type = "Negative" },
+                new Mood { MoodId = Guid.NewGuid(), MoodName = "Happy", MoodTypeId = 1 },
+                new Mood { MoodId = Guid.NewGuid(), MoodName = "Sad", MoodTypeId = 2 },
             });
             await _context.SaveChangesAsync();
 
@@ -55,7 +55,7 @@
         public async Task GetByArgumentAsync_ShouldReturnMatchingMood()
         {
             _context.Moods.RemoveRange(_context.Moods.ToList());
-            var mood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Excited", Type = "Positive" };
+            var mood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Excited", MoodTypeId = 1 };
             _context.Moods.Add(mood);
             await _context.SaveChangesAsync();
 
@@ -81,15 +81,15 @@
         public async Task AddAsync_ShouldReturnSuccess_WhenMoodIsAdded()
         {
             _context.Moods.RemoveRange(_context.Moods.ToList());
-            var moodDTO = new MoodDTO { MoodName = "Happy", Type = "Positive" };
+            var moodDTO = new MoodDTO { MoodName = "Happy", MoodTypeId = 1 };
             _mapper.Setup(m => m.Map<Mood>(It.IsAny<MoodDTO>()))
-                       .Returns(new Mood { MoodName = moodDTO.MoodName, Type = moodDTO.Type });
+                       .Returns(new Mood { MoodName = moodDTO.MoodName, MoodTypeId = moodDTO.MoodTypeId });
 
             var result = await _repository.AddAsync(moodDTO);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
-            _context.Moods.Should().ContainSingle(m => m.MoodName == moodDTO.MoodName && m.Type == moodDTO.Type);
+            _context.Moods.Should().ContainSingle(m => m.MoodName == moodDTO.MoodName && m.MoodTypeId == moodDTO.MoodTypeId);
         }
         [Fact]
         public async Task UpdateAsync_ShouldReturnError_WhenMoodDtoIsNull()
@@ -106,7 +106,7 @@
         public async Task UpdateAsync_ShouldReturnError_WhenMoodNotFound()
         {
             _context.Moods.RemoveRange(_context.Moods.ToList());
-            var moodDTO = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Calm", Type = "Neutral" };
+            var moodDTO = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Calm", MoodTypeId = 3 };
 
             var result = await _repository.UpdateAsync(moodDTO);
 
@@ -117,11 +117,11 @@
         public async Task UpdateAsync_ShouldReturnSuccess_WhenMoodIsUpdated()
         {
             _context.Moods.RemoveRange(_context.Moods.ToList());
-            var existingMood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Anxious", Type = "Negative" };
+            var existingMood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Anxious", MoodTypeId = 2 };
             _context.Moods.Add(existingMood);
             await _context.SaveChangesAsync();
 
-            var moodDTO = new MoodDTO { MoodId = existingMood.MoodId, MoodName = "Relaxed", Type = "Positive" };
+            var moodDTO = new MoodDTO { MoodId = existingMood.MoodId, MoodName = "Relaxed", MoodTypeId = 1 };
             var result = await _repository.UpdateAsync(moodDTO);
 
             result.Result.Should().BeTrue();
@@ -130,7 +130,7 @@
             var updatedMood = await _context.Moods.FirstOrDefaultAsync(m => m.MoodId == existingMood.MoodId);
             updatedMood.Should().NotBeNull();
             updatedMood!.MoodName.Should().Be("Relaxed");
-            updatedMood.Type.Should().Be("Positive");
+            updatedMood.MoodTypeId.Should().Be(1);
         }
         [Fact]
         public async Task DeleteAsync_ShouldReturnError_WhenMoodIdIsEmpty()
@@ -158,7 +158,7 @@
         public async Task DeleteAsync_ShouldReturnSuccess_WhenMoodIsDeleted()
         {
             _context.Moods.RemoveRange(_context.Moods.ToList());
-            var existingMood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Joyful", Type = "Positive" };
+            var existingMood = new Mood { MoodId = Guid.NewGuid(), MoodName = "Joyful", MoodTypeId = 1 };
             _context.Moods.Add(existingMood);
             await _context.SaveChangesAsync();
 

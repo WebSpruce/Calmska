@@ -10,6 +10,9 @@
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+            var apiBaseUrl = "https://calmska.onrender.com/api/v2";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
             _settingsService = new SettingsService(_httpClient);
         }
 
@@ -32,10 +35,17 @@
         [Fact]
         public async Task GetAllAsync_ShouldReturnSettings_WhenRequestIsSuccessful()
         {
-            var expectedData = new List<SettingsDTO?>
+            var expectedData = new PaginatedResult<SettingsDTO?>
             {
-                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreakFloat = 5, PomodoroTimerFloat = 25, UserId = Guid.NewGuid() },
-                new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Red", PomodoroBreakFloat = 10, PomodoroTimerFloat = 30, UserId = Guid.NewGuid() }
+                Items = new List<SettingsDTO?>
+                {
+                    new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Blue", PomodoroBreakFloat = 5, PomodoroTimerFloat = 25, UserId = Guid.NewGuid() },
+                    new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Red", PomodoroBreakFloat = 10, PomodoroTimerFloat = 30, UserId = Guid.NewGuid() }
+                },
+                error = string.Empty,
+                PageNumber = 1,
+                PageSize = 2,
+                TotalCount = 2
             };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
@@ -43,7 +53,7 @@
             var result = await _settingsService.GetAllAsync(null, null);
 
             Assert.NotNull(result);
-            Assert.True(result.Result != null && result.Result.Any());
+            Assert.True(result.Result != null && result.Result.Items.Any());
             Assert.Equal(string.Empty, result.Error);
         }
 

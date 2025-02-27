@@ -16,6 +16,9 @@ namespace Calmska.Tests.ServicesTests
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+
+            var apiBaseUrl = "https://calmska.onrender.com/api/v2";
+            _httpClient.BaseAddress = new Uri(apiBaseUrl);
             _moodService = new MoodService(_httpClient);
         }
         private void SetupHttpResponse(HttpStatusCode statusCode, string content = "")
@@ -36,11 +39,18 @@ namespace Calmska.Tests.ServicesTests
         [Fact]
         public async Task GetAllAsync_ShouldReturnMoods_WhenRequestIsSuccessful()
         {
-            var expectedData = new List<MoodDTO?>
-        {
-            new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Happy", Type = "Positive" },
-            new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Sad", Type = "Negative" }
-        };
+            var expectedData = new PaginatedResult<MoodDTO?>
+            {
+                Items = new List<MoodDTO?>
+                {
+                    new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Happy", MoodTypeId = 1 },
+                    new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Sad", MoodTypeId = 2 }
+                },
+                error = string.Empty,
+                PageNumber = 1,
+                PageSize = 2,
+                TotalCount = 2
+            };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedData));
 
@@ -48,7 +58,7 @@ namespace Calmska.Tests.ServicesTests
 
             Assert.NotNull(result);
             Assert.NotNull(result.Result);
-            Assert.True(result.Result.Any());
+            Assert.True(result.Result.Items.Any());
             Assert.Equal(string.Empty, result.Error);
         }
 
@@ -74,7 +84,7 @@ namespace Calmska.Tests.ServicesTests
                 {
                     new List<MoodDTO?>
                     {
-                        new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Happy", Type = "Positive" }
+                        new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Happy", MoodTypeId = 1 }
                     }
                 },
                 TotalCount = 1
@@ -95,7 +105,7 @@ namespace Calmska.Tests.ServicesTests
         public async Task GetByArgumentAsync_ShouldReturnMood_WhenRequestIsSuccessful()
         {
             var moodCriteria = new MoodDTO { MoodId = Guid.NewGuid() };
-            var expectedMood = new MoodDTO { MoodId = moodCriteria.MoodId, MoodName = "Calm", Type = "Neutral" };
+            var expectedMood = new MoodDTO { MoodId = moodCriteria.MoodId, MoodName = "Calm", MoodTypeId = 3 };
 
             SetupHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expectedMood));
 
@@ -110,7 +120,7 @@ namespace Calmska.Tests.ServicesTests
         [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var newMood = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Excited", Type = "Positive" };
+            var newMood = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Excited", MoodTypeId = 1 };
 
             SetupHttpResponse(HttpStatusCode.Created);
 
@@ -124,7 +134,7 @@ namespace Calmska.Tests.ServicesTests
         [Fact]
         public async Task UpdateAsync_ShouldReturnSuccess_WhenRequestIsSuccessful()
         {
-            var updatedMood = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "UpdatedMood", Type = "Neutral" };
+            var updatedMood = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "UpdatedMood", MoodTypeId = 3 };
 
             SetupHttpResponse(HttpStatusCode.OK);
 

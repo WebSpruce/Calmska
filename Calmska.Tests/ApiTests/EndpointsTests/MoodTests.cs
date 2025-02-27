@@ -55,7 +55,7 @@
             {
                 MoodId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 MoodName = "Happy",
-                Type = "Positive"
+                MoodTypeId = 3
             };
 
             var response = await _client.PostAsJsonAsync(endpoint, mood);
@@ -74,7 +74,7 @@
             {
                 MoodId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
                 MoodName = "Excited",
-                Type = "Positive"
+                MoodTypeId = 1
             };
 
             var response = await _client.PutAsJsonAsync(endpoint, mood);
