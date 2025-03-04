@@ -24,6 +24,12 @@ namespace Calmska.Api.Helper
 
             CreateMap<TipsDTO, Tips>();
             CreateMap<Tips, TipsDTO>();
+            
+            CreateMap<Types_TipsDTO, Types_Tips>();
+            CreateMap<Types_Tips, Types_TipsDTO>();
+
+            CreateMap<Types_MoodDTO, Types_Mood>();
+            CreateMap<Types_Mood, Types_MoodDTO>();
 
             CreateMap<Settings, SettingsDTO>()
             .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))

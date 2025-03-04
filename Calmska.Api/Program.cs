@@ -438,12 +438,12 @@ namespace Calmska.Api
             var types_mood = app
                 .MapGroup("/api/v2/types_moods")
                 .WithTags("Types_Moods");
-            types_tips.MapGet("/", async ([FromServices] ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            types_mood.MapGet("/", async ([FromServices] ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var result = await typesRepository.GetAllAsync(pageNumber, pageSize);
                 return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Types not found: {result?.error}");
             });
-            types_tips.MapGet("/searchList", async ([FromServices]ITypesRepository<Types_Tips, Types_MoodDTO> typesRepository, [FromQuery] int? TypeId, [FromQuery] string? Type,
+            types_mood.MapGet("/searchList", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? TypeId, [FromQuery] string? Type,
                 [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
             {
                 var types_MoodDTO = new Types_MoodDTO()
@@ -454,7 +454,7 @@ namespace Calmska.Api
                 var result = await typesRepository.GetAllByArgumentAsync(types_MoodDTO, pageNumber, pageSize);
                 return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Types not found: {result?.error}");
             });
-            types_tips.MapGet("/search", async ([FromServices]ITypesRepository<Types_Tips, Types_MoodDTO> typesRepository,
+            types_mood.MapGet("/search", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
                 [FromQuery] int? TypeId, [FromQuery] string? Type) =>
             {
                 var types_MoodDTO = new Types_MoodDTO()
@@ -465,19 +465,19 @@ namespace Calmska.Api
                 var result = await typesRepository.GetByArgumentAsync(types_MoodDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Types not found");
             });
-            types_tips.MapPost("/", async ([FromServices]ITypesRepository<Types_Tips, Types_MoodDTO> typesRepository,
+            types_mood.MapPost("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
                 [FromBody] Types_MoodDTO types_MoodDTO) =>
             {
                 var result = await typesRepository.AddAsync(types_MoodDTO);
                 return result.Result ? Results.Created($"/{types_MoodDTO.TypeId}", types_MoodDTO) : Results.BadRequest(result.Error);
             });
-            types_tips.MapPut("/", async ([FromServices]ITypesRepository<Types_Tips, Types_MoodDTO> typesRepository,
+            types_mood.MapPut("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
                 [FromBody] Types_MoodDTO types_MoodDTO) =>
             {
                 var result = await typesRepository.UpdateAsync(types_MoodDTO);
                 return result.Result ? Results.Ok("Type updated successfully") : Results.BadRequest(result.Error);
             });
-            types_tips.MapDelete("/", async ([FromServices]ITypesRepository<Types_Tips, Types_MoodDTO> typesRepository, [FromBody] int typeId) =>
+            types_mood.MapDelete("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromBody] int typeId) =>
             {
                 var result = await typesRepository.DeleteAsync(typeId);
                 return result.Result ? Results.Ok("Type deleted successfully") : Results.BadRequest(result.Error);

@@ -51,7 +51,14 @@ namespace Calmska.Api.Repository
                 if (Types_TipsDTO == null)
                     return new OperationResult { Result = false, Error = "The provided Type_Tip object is null." };
 
+                int maxTypeId = 0;
+                if (await _context.Types_TipsDb.AnyAsync())
+                {
+                    maxTypeId = _context.Types_TipsDb.ToList().MaxBy(t => t.TypeId).TypeId;
+                }
+
                 var typeTip = _mapper.Map<Types_Tips>(Types_TipsDTO);
+                typeTip.TypeId = maxTypeId + 1;
                 await _context.Types_TipsDb.AddAsync(typeTip);
 
                 var result = await _context.SaveChangesAsync();
