@@ -3,11 +3,59 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.TipsPage"
              xmlns:controls="clr-namespace:Calmska.Controls"
-             Title="TipsPage">
+             xmlns:converters="clr-namespace:Calmska.Helper"
+             xmlns:calmska="clr-namespace:Calmska"
+             BackgroundColor="#344E41"
+             HideSoftInputOnTapped="True"
+             Shell.TabBarIsVisible="False">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:IndexToColorConverter x:Key="IndexToColorConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid RowDefinitions="*, Auto">
-        <ContentView>
-            <Label Text="something 2"/>
+        <ContentView Grid.Row="0" BackgroundColor="#344E41" Padding="5">
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout>
+                    <CollectionView x:Name="TypesTipsCollection" ItemsSource="{Binding Types}" Margin="0,0,0,0"
+                                    SelectionMode="Single" SelectedItem="{Binding SelectedType}"
+                                    SelectionChangedCommand="{Binding TypeSelectedCommand}"
+                                    VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="2"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
+                                    Padding="10" Margin="5" WidthRequest="195" HeightRequest="195"
+                                    BackgroundColor="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
+                                    Stroke="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
+                                    >
+                                    <Grid>
+                                        <Label Text="{Binding IconName}" Style="{x:StaticResource MaterialIcons}"
+                                            FontSize="60" TextColor="White" VerticalOptions="Start"/>
+                                        <Label Text="{Binding Type}" TextColor="White" FontFamily="CanelaBlack" FontSize="27" VerticalOptions="End"/>
+                                    </Grid>
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup Name="CommonStates">
+                                            <VisualState Name="Normal"/>
+                                            <VisualState Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <BoxView HeightRequest="130" BackgroundColor="Transparent" />
+                </VerticalStackLayout>
+            </ScrollView>
         </ContentView>
-        <controls:CustomTabBar Grid.Row="1"/>
+        <controls:CustomTabBar Grid.Row="1" Margin="20,-130,20,20"/>
     </Grid>
 </ContentPage>

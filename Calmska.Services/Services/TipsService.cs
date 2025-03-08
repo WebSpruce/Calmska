@@ -13,9 +13,9 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<TipsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<IEnumerable<TipsDTO?>>(_httpClient, "/accounts");
+            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, "/tips");
         }
 
         public async Task<OperationResultT<PaginatedResult<IEnumerable<TipsDTO?>>>> SearchAllByArgumentAsync(TipsDTO tipsCriteria, int? pageNumber, int? pageSize)
@@ -33,9 +33,9 @@ namespace Calmska.Services.Services
                 {
                     endpointParameters.Add($"Content={Uri.EscapeDataString(tipsCriteria.Content)}");
                 }
-                if (!string.IsNullOrEmpty(tipsCriteria.Type))
+                if (tipsCriteria.TipsTypeId != null)
                 {
-                    endpointParameters.Add($"Type={Uri.EscapeDataString(tipsCriteria.Type)}");
+                    endpointParameters.Add($"Type={tipsCriteria.TipsTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
                 endpoint = $"/tips/searchList?{queryString}";
@@ -59,9 +59,9 @@ namespace Calmska.Services.Services
                 {
                     endpointParameters.Add($"Content={Uri.EscapeDataString(tipsCriteria.Content)}");
                 }
-                if (!string.IsNullOrEmpty(tipsCriteria.Type))
+                if (tipsCriteria.TipsTypeId != null)
                 {
-                    endpointParameters.Add($"Type={Uri.EscapeDataString(tipsCriteria.Type)}");
+                    endpointParameters.Add($"Type={tipsCriteria.TipsTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
                 endpoint = $"/tips/search?{queryString}";

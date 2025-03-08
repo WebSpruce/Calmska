@@ -13,9 +13,9 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<MoodHistoryDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<MoodHistoryDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<IEnumerable<MoodHistoryDTO?>>(_httpClient, "/moodhistory");
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodHistoryDTO?>>(_httpClient, "/moodhistory");
         }
 
         public async Task<OperationResultT<PaginatedResult<IEnumerable<MoodHistoryDTO?>>>> SearchAllByArgumentAsync(MoodHistoryDTO moodHistoryCriteria, int? pageNumber, int? pageSize)

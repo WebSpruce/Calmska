@@ -13,9 +13,9 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<IEnumerable<MoodDTO?>>(_httpClient, "/moods");
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "/moods");
         }
 
         public async Task<OperationResultT<PaginatedResult<IEnumerable<MoodDTO?>>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize)
@@ -33,9 +33,9 @@ namespace Calmska.Services.Services
                 {
                     endpointParameters.Add($"MoodName={Uri.EscapeDataString(moodCriteria.MoodName)}");
                 }
-                if (!string.IsNullOrEmpty(moodCriteria.Type))
+                if (moodCriteria.MoodTypeId != null)
                 {
-                    endpointParameters.Add($"Type={Uri.EscapeDataString(moodCriteria.Type)}");
+                    endpointParameters.Add($"Type={moodCriteria.MoodTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
                 endpoint = $"/moods/searchList?{queryString}";
@@ -59,9 +59,9 @@ namespace Calmska.Services.Services
                 {
                     endpointParameters.Add($"MoodName={Uri.EscapeDataString(moodCriteria.MoodName)}");
                 }
-                if (!string.IsNullOrEmpty(moodCriteria.Type))
+                if (moodCriteria.MoodTypeId != null)
                 {
-                    endpointParameters.Add($"Type={Uri.EscapeDataString(moodCriteria.Type)}");
+                    endpointParameters.Add($"Type={moodCriteria.MoodTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
                 endpoint = $"/moods/search?{queryString}";

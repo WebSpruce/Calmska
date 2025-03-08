@@ -13,9 +13,9 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<IEnumerable<AccountDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<AccountDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<IEnumerable<AccountDTO?>>(_httpClient, "/accounts");
+            return await HttpClientHelper.GetAsync<PaginatedResult<AccountDTO?>>(_httpClient, "/accounts");
         }
 
         public async Task<OperationResultT<PaginatedResult<IEnumerable<AccountDTO?>>>> SearchAllByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)

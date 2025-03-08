@@ -2,7 +2,7 @@
 
 namespace Calmska.Services.Interfaces
 {
-    public interface IService<T>
+    public interface ITypesService<T>
     {
         /// <summary>
         /// Get all objects with optional pagination.
@@ -47,6 +47,6 @@ namespace Calmska.Services.Interfaces
         /// </summary>
         /// <param name="objectId">The unique identifier of the object to delete.</param>
         /// <returns>The result of the delete operation.</returns>
-        Task<OperationResultT<bool>> DeleteAsync(Guid objectId);
+        Task<OperationResultT<bool>> DeleteAsync(int objectId);
     }
 }

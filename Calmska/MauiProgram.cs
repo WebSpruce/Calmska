@@ -58,6 +58,14 @@ namespace Calmska
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
+            builder.Services.AddHttpClient<IService<TipsDTO>, TipsService>(client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
+            builder.Services.AddHttpClient<ITypesService<Types_TipsDTO>, TypesTipsService>(client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
 
             return builder.Build();
         }
