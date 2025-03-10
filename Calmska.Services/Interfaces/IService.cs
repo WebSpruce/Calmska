@@ -19,7 +19,7 @@ namespace Calmska.Services.Interfaces
         /// <param name="pageNumber">The page number for pagination.</param>
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A paginated result containing matched objects.</returns>
-        Task<OperationResultT<PaginatedResult<IEnumerable<T?>>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize);
+        Task<OperationResultT<PaginatedResult<T?>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize);
 
         /// <summary>
         /// Get a specific object by an argument.

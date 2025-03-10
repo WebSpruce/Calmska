@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calmska.Views.TipsListPage"
+             BackgroundColor="#344E41"
+             HideSoftInputOnTapped="True"
+             Shell.TabBarIsVisible="False"
+             Shell.NavBarIsVisible="True"
+             >
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True"/>
+    </Shell.BackButtonBehavior>
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout>
+            <CollectionView ItemsSource="{Binding Tips}" Margin="0,0,0,0"
+                        SelectionMode="Single" SelectedItem="{Binding SelectedTip}"
+                        VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="1"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
+                            Padding="10" Margin="5" 
+                            HeightRequest="{Binding BorderHeight}"
+                            BackgroundColor="{Binding BorderBGColor}"
+                            Stroke="{Binding BorderBGColor}"
+                            >
+                            <Grid>
+                                <Label IsVisible="{Binding IsDefaultTextVisible}"
+                                    Text="{Binding Data.Content, Converter={StaticResource TextTruncateConverter}, ConverterParameter=50}"
+                                    LineBreakMode="TailTruncation" TextColor="White" FontFamily="MADEINFINITYMedium" FontSize="25" VerticalOptions="Center"/>
+                                <Label IsVisible="{Binding IsExpanded}"
+                                    Text="{Binding Data.Content}"
+                                    TextColor="White" FontFamily="MADEINFINITYMedium" FontSize="25" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

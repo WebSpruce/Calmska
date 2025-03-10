@@ -18,7 +18,7 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, "/tips");
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<TipsDTO?>>>> SearchAllByArgumentAsync(TipsDTO tipsCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> SearchAllByArgumentAsync(TipsDTO tipsCriteria, int? pageNumber, int? pageSize)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -41,7 +41,7 @@ namespace Calmska.Services.Services
                 endpoint = $"/tips/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<TipsDTO?>>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, endpoint);
         }
 
         public async Task<OperationResultT<TipsDTO?>> GetByArgumentAsync(TipsDTO tipsCriteria)

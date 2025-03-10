@@ -40,6 +40,7 @@ namespace Calmska
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<TipsPage, TipsViewModel>(ServiceLifetime.Transient);
             builder.Services.AddView<SettingsPage, SettingsViewModel>(ServiceLifetime.Transient);
+            builder.Services.AddView<TipsListPage, TipsListViewModel>(ServiceLifetime.Transient);
 
             builder.Services.AddTransient<PomodoroPage>();
             builder.Services.AddSingleton<CustomTabBar>();

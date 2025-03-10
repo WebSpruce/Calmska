@@ -18,7 +18,7 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "/moods");
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<MoodDTO?>>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -41,7 +41,7 @@ namespace Calmska.Services.Services
                 endpoint = $"/moods/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<MoodDTO?>>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, endpoint);
         }
 
         public async Task<OperationResultT<MoodDTO?>> GetByArgumentAsync(MoodDTO moodCriteria)

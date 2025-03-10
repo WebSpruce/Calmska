@@ -18,7 +18,7 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<PaginatedResult<AccountDTO?>>(_httpClient, "/accounts");
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<AccountDTO?>>>> SearchAllByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<AccountDTO?>>> SearchAllByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -45,7 +45,7 @@ namespace Calmska.Services.Services
                 endpoint = $"/accounts/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<AccountDTO?>>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<AccountDTO?>>(_httpClient, endpoint);
         }
 
         public async Task<OperationResultT<AccountDTO?>> GetByArgumentAsync(AccountDTO accountCriteria)

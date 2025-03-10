@@ -18,7 +18,7 @@ namespace Calmska.Services.Services
             return await HttpClientHelper.GetAsync<PaginatedResult<SettingsDTO?>>(_httpClient, "/settings");
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<SettingsDTO?>>>> SearchAllByArgumentAsync(SettingsDTO settingsCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<SettingsDTO?>>> SearchAllByArgumentAsync(SettingsDTO settingsCriteria, int? pageNumber, int? pageSize)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -49,7 +49,7 @@ namespace Calmska.Services.Services
                 endpoint = $"/settings/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<SettingsDTO?>>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<SettingsDTO?>>(_httpClient, endpoint);
         }
 
         public async Task<OperationResultT<SettingsDTO?>> GetByArgumentAsync(SettingsDTO settingsCriteria)
