@@ -12,7 +12,7 @@ namespace Calmska.Models.Models
         public Guid TipId { get; set; }
         [JsonPropertyName("content")]
         public required string Content { get; set; } = string.Empty;
-        [JsonPropertyName("typeid")]
+        [JsonPropertyName("tipstypeid")]
         public required int TipsTypeId { get; set; } = 0;
         public Tips()
         {

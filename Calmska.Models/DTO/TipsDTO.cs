@@ -12,7 +12,7 @@ namespace Calmska.Models.DTO
         public Guid? TipId { get; set; }
         [JsonPropertyName("content")]
         public string? Content { get; set; }
-        [JsonPropertyName("type")]
+        [JsonPropertyName("tipstypeid")]
         public int? TipsTypeId { get; set; }
     }
 }
