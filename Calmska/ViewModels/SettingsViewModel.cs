@@ -1,6 +1,7 @@
 ﻿using Calmska.Models.DTO;
 using Calmska.Models.Models;
 using Calmska.Services.Interfaces;
+using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -125,7 +126,13 @@ namespace Calmska.ViewModels
                 return;
             }
         }
-
+        [RelayCommand]
+        private async Task Logout()
+        {
+            bool isRemoved = SecureStorage.Default.Remove("user_info");
+            await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
+            Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+        }
         private async Task LoadSettingsElseCreate(AccountDTO user)
         {
             var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
