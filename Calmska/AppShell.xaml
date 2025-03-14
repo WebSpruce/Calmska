@@ -4,11 +4,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Calmska.Views"
+    xmlns:calmska="clr-namespace:Calmska"
     Shell.FlyoutBehavior="Disabled"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False"
-    Shell.BackgroundColor="{DynamicResource MainGreen}"
-    Title="Calmska">
+    Shell.BackgroundColor="{DynamicResource MainGreen}">
 
     <ShellContent
         Title="Home"
@@ -25,5 +25,20 @@
             <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}"/>
         </Tab>
     </TabBar>
+
+    <Shell.TitleView>
+        <Grid BackgroundColor="{DynamicResource MainGreen}" Padding="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Text="{x:Static calmska:IconFont.Arrow_back}" Style="{x:StaticResource MaterialIcons}"
+                    Command="{Binding GoBackCommand}" TextColor="White" WidthRequest="50" HeightRequest="50" FontSize="30" Margin="-10,0,0,0"/>
+            <Label Grid.Column="1" x:Name="Title"
+                   TextColor="White" FontFamily="MADEINFINITYMedium" FontAttributes="Bold" FontSize="20" Margin="30,0,0,0"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+    </Shell.TitleView>
 
 </Shell>

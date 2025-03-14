@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Windows.Input;
 
 namespace Calmska.ViewModels
 {
@@ -18,6 +17,14 @@ namespace Calmska.ViewModels
         public CustomTabBarViewModel()
         {
             UpdateButtonColors();
+            Shell.Current.Navigated += (s, e) =>
+            {
+                if (Shell.Current.CurrentPage != null)
+                {
+                    string? currentPage = Shell.Current.CurrentPage.GetType().Name;
+                    UpdateSelectedTab(currentPage);
+                }
+            };
         }
         [RelayCommand]
         private async void Navigate(string route)
@@ -42,6 +49,17 @@ namespace Calmska.ViewModels
             PomodoroButtonColor = _selectedTab == "PomodoroPage" ? "#344E41" : "#EA7649";
             TipsButtonColor = _selectedTab == "TipsPage" ? "#344E41" : "#EA7649";
             SettingsButtonColor = _selectedTab == "SettingsPage" ? "#344E41" : "#EA7649";
+        }
+        private void UpdateSelectedTab(string currentPage)
+        {
+            _selectedTab = currentPage switch
+            {
+                "PomodoroPage" => "PomodoroPage",
+                "TipsPage" => "TipsPage",
+                "SettingsPage" => "SettingsPage",
+                _ => _selectedTab
+            };
+            UpdateButtonColors();
         }
     }
 }

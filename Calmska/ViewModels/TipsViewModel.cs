@@ -55,6 +55,7 @@ namespace Calmska.ViewModels
                         var type_tip = new Types_TipsFrontendDTO { Type = type.Type, TypeId = type.TypeId, IconName = icon };
                         typesTemp.Add(type_tip);
                     }
+                    typesTemp = typesTemp.OrderBy(t => t.Type).ToList();
                     Types = typesTemp;
                 }
             }
@@ -73,7 +74,7 @@ namespace Calmska.ViewModels
                 {
                     await Shell.Current.GoToAsync($"{nameof(TipsListPage)}", new Dictionary<string, object>
                     {
-                        { "tipType", SelectedType.TypeId ?? -1 },
+                        { "tipType", SelectedType ?? new Types_TipsFrontendDTO() },
                     });
                 }
             }

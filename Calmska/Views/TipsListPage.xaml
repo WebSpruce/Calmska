@@ -6,11 +6,13 @@
              HideSoftInputOnTapped="True"
              Shell.TabBarIsVisible="False"
              Shell.NavBarIsVisible="True"
+             Title="{Binding Title}"
              >
 
     <Shell.BackButtonBehavior>
-        <BackButtonBehavior IsVisible="True"/>
+        <BackButtonBehavior IsVisible="False"/>
     </Shell.BackButtonBehavior>
+
     <ScrollView VerticalScrollBarVisibility="Never">
         <VerticalStackLayout>
             <CollectionView ItemsSource="{Binding Tips}" Margin="0,0,0,0"
@@ -21,15 +23,14 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 10,10,10,10"     
                             Padding="10" Margin="5" 
                             HeightRequest="{Binding BorderHeight}"
                             BackgroundColor="{Binding BorderBGColor}"
-                            Stroke="{Binding BorderBGColor}"
                             >
                             <Grid>
                                 <Label IsVisible="{Binding IsDefaultTextVisible}"
-                                    Text="{Binding Data.Content, Converter={StaticResource TextTruncateConverter}, ConverterParameter=50}"
+                                    Text="{Binding Data.Content}"
                                     LineBreakMode="TailTruncation" TextColor="White" FontFamily="MADEINFINITYMedium" FontSize="25" VerticalOptions="Center"/>
                                 <Label IsVisible="{Binding IsExpanded}"
                                     Text="{Binding Data.Content}"

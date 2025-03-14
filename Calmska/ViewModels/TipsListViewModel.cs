@@ -9,6 +9,8 @@ namespace Calmska.ViewModels
     {
         [ObservableProperty]
         private List<ExpandableItem<TipsDTO?>> _tips;
+        [ObservableProperty]
+        private string _title = string.Empty;
         private ExpandableItem<TipsDTO> _previouslyExpandedItem;
         private ExpandableItem<TipsDTO?> _selectedTip = new();
         public ExpandableItem<TipsDTO?> SelectedTip
@@ -50,7 +52,7 @@ namespace Calmska.ViewModels
             }
         }
 
-        private int? _tipTypeId = -1;
+        private Types_TipsFrontendDTO? _tipType = null;
         private readonly IService<TipsDTO> _tipsService;
 
         public TipsListViewModel(IService<TipsDTO> tipsService)
@@ -61,12 +63,13 @@ namespace Calmska.ViewModels
         {
             try
             {
-                if (_tipTypeId <= 0)
+                if (_tipType == null || _tipType?.TypeId <= 0)
                 {
                     await Shell.Current.DisplayAlert("Warning", $"Couldn't find tips for the provided type.", "Close");
                     return;
                 }
-                var tips = await _tipsService.SearchAllByArgumentAsync(new TipsDTO { TipsTypeId = _tipTypeId, Content = null }, null, null);
+                Title = _tipType?.Type;
+                var tips = await _tipsService.SearchAllByArgumentAsync(new TipsDTO { TipsTypeId = _tipType?.TypeId, Content = null }, null, null);
                 if (tips != null && string.IsNullOrEmpty(tips.Error) && tips.Result != null)
                 {
                     List<ExpandableItem<TipsDTO?>> tempTips = new();
@@ -94,8 +97,9 @@ namespace Calmska.ViewModels
             {
                 if (query.ContainsKey("tipType"))
                 {
-                    _tipTypeId = (int?)query["tipType"];
-                    await LoadTips();
+                    _tipType = (Types_TipsFrontendDTO?)query["tipType"];
+                    if(_tipType != null && _tipType.TypeId > 0)
+                        await LoadTips();
                 }
             }catch(Exception ex)
             {
