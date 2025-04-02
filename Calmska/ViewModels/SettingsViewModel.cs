@@ -6,8 +6,13 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls.PlatformConfiguration;
+using Microsoft.Maui;
 using System.Text.Json;
-
+#if ANDROID
+using Android.Content;
+using Calmska.Platforms.Android.ForegroundServices;
+#endif
 
 namespace Calmska.ViewModels
 {
@@ -30,9 +35,33 @@ namespace Calmska.ViewModels
         private string _eBreakTimeMinutes = string.Empty;
         [ObservableProperty]
         private string _eBreakTimeSeconds = string.Empty;
+        [ObservableProperty]
+        private bool _notificationsEnabled;
+        private TimeSpan _selectedNotificationTime;
+        public TimeSpan SelectedNotificationTime
+        {
+            get => _selectedNotificationTime;
+            set
+            {
+                if (_selectedNotificationTime != value)
+                {
+                    _selectedNotificationTime = value;
+                    //ToggleNotifications();
+                    Preferences.Default.Set("NotificationHour", _selectedNotificationTime.Hours);
+                    Preferences.Default.Set("NotificationMinute", _selectedNotificationTime.Minutes);
+
+#if ANDROID
+                    var intent = new Intent(Android.App.Application.Context, typeof(MoodNotificationService));
+                    Android.App.Application.Context.StopService(intent);
+                    Android.App.Application.Context.StartForegroundService(intent);
+#endif
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private AccountDTO? _accountLogged;
-
+        private const string NotificationServiceKey = "MoodNotificationsEnabled";
 
         private readonly IService<SettingsDTO> _settingsService;
         private readonly IAccountService _accountService;
@@ -133,6 +162,41 @@ namespace Calmska.ViewModels
             await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
             Shell.Current.Items.Remove(Shell.Current.CurrentItem);
         }
+        private void ToggleNotifications()
+        {
+            Preferences.Default.Set(NotificationServiceKey, NotificationsEnabled);
+            if (NotificationsEnabled)
+            {
+                StartMoodNotificationService();
+            }
+            else
+            {
+                StopMoodNotificationService();
+            }
+        }
+        private void StartMoodNotificationService()
+        {
+#if ANDROID
+        var context = Android.App.Application.Context;
+        var intent = new Intent(context, typeof(Calmska.Platforms.Android.ForegroundServices.MoodNotificationService));
+        context.StartForegroundService(intent);
+#endif
+        }
+
+        private void StopMoodNotificationService()
+        {
+#if ANDROID
+        var context = Android.App.Application.Context;
+        var intent = new Intent(context, typeof(Calmska.Platforms.Android.ForegroundServices.MoodNotificationService));
+        context.StopService(intent);
+#endif
+        }
+        //partial void OnSelectedNotificationTimeChanged(TimeSpan value)
+        //{
+        //    Preferences.Default.Set("MoodNotificationHour", value.Hours);
+        //    StopMoodNotificationService();
+        //    StartMoodNotificationService();
+        //}
         private async Task LoadSettingsElseCreate(AccountDTO user)
         {
             var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });

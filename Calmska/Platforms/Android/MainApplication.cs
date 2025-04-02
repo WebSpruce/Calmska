@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.OS;
 using Android.Runtime;
 using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 
@@ -11,7 +12,25 @@ namespace Calmska
             : base(handle, ownership)
         {
         }
-
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            CreateNotificationChannel();
+        }
+        private void CreateNotificationChannel()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                var channelId = "foreground_channel";
+                var channelName = "Foreground Service";
+                var channel = new NotificationChannel(channelId, channelName, NotificationImportance.Default)
+                {
+                    Description = "Channel for foreground service notifications"
+                };
+                var notificationManager = (NotificationManager)GetSystemService(Android.Content.Context.NotificationService);
+                notificationManager.CreateNotificationChannel(channel);
+            }
+        }
         protected override MauiApp CreateMauiApp()
         {
             Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (h, v) =>

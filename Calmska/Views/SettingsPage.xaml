@@ -104,7 +104,24 @@
                 <Button Text="SAVE TIMER" Command="{Binding SaveSettingsCommand}" CornerRadius="100"
                     BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
                     WidthRequest="150" Margin="0,10,0,30"/>
-                
+
+
+                <Border BackgroundColor="{DynamicResource SecondGreen}" Padding="20" Margin="10">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label Text="Enable Mood Notifications" />
+                            <Switch IsToggled="{Binding NotificationsEnabled, Mode=TwoWay}"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label Text="Select Notification Time:" />
+                            <TimePicker Time="{Binding SelectedNotificationTime, Mode=TwoWay}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
             </VerticalStackLayout>
         </ContentView>
         <controls:CustomTabBar Grid.Row="1"/>
