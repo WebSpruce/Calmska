@@ -19,7 +19,12 @@ namespace Calmska.Api
             var builder = WebApplication.CreateBuilder(args);
 
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+#if !DEBUG
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+#endif
+#if DEBUG
             builder.WebHost.UseUrls($"http://localhost:{port}");
+#endif
 
             BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
