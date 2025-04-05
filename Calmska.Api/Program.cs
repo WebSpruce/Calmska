@@ -6,6 +6,9 @@ using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 
 namespace Calmska.Api
 {
@@ -16,7 +19,9 @@ namespace Calmska.Api
             var builder = WebApplication.CreateBuilder(args);
 
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+            builder.WebHost.UseUrls($"http://localhost:{port}");
+
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
             string atlasURI = Environment.GetEnvironmentVariable("mongoDbUri") ?? string.Empty;
             string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
@@ -205,7 +210,7 @@ namespace Calmska.Api
                 {
                     MoodId = MoodId,
                     MoodName = MoodName,
-                    MoodTypeId = (int)Type,
+                    MoodTypeId = Type != null ? (int)Type : 0,
                 };
                 var result = await moodRepository.GetAllByArgumentAsync(moodDTO, pageNumber, pageSize);
                 return result != null && result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Moods not found: {result?.error}");
@@ -217,7 +222,7 @@ namespace Calmska.Api
                 {
                     MoodId = MoodId,
                     MoodName = MoodName,
-                    MoodTypeId = (int)Type,
+                    MoodTypeId = Type != null ? (int)Type : 0,
                 };
                 var result = await moodRepository.GetByArgumentAsync(moodDTO);
                 return result != null ? Results.Ok(result) : Results.NotFound("Mood not found");
