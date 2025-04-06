@@ -68,6 +68,12 @@ namespace Calmska
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
+            builder.Services.AddHttpClient<IService<MoodDTO>, MoodService>(client =>
+                client.BaseAddress = new Uri(apiBaseUrl)
+            );
+            builder.Services.AddHttpClient<IService<MoodHistoryDTO>, MoodHistoryService>(client =>
+                client.BaseAddress = new Uri(apiBaseUrl)
+            );
 
             return builder.Build();
         }

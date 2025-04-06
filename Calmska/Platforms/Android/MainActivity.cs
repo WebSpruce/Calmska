@@ -31,6 +31,18 @@ namespace Calmska
         {
             base.OnCreate(savedInstanceState);
             CheckPostNotificationPermission();
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
+            {
+                var alarmManager = (AlarmManager)GetSystemService(Context.AlarmService);
+                if (!alarmManager.CanScheduleExactAlarms())
+                {
+                    var intent = new Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
+                    intent.SetFlags(ActivityFlags.NewTask);
+                    StartActivity(intent);
+                }
+            }
+
+
             CreateNotificationChannel();
             Android.Util.Log.Debug("MainActivity", "OnCreate called");
 
@@ -62,6 +74,8 @@ namespace Calmska
                     RequestPermissions(new string[] { Android.Manifest.Permission.PostNotifications }, 0);
                 }
             }
+
+            
         }
 
         private void NavigateToPage(string page)

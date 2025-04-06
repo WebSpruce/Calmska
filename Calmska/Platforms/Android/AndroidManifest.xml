@@ -6,10 +6,15 @@
 			android:resource="@drawable/calmska"
 			/>
 
-		<receiver android:name=".MoodNotificationReceiver" android:exported="false">
+		<receiver android:name=".MoodNotificationReceiver" android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<action android:name="com.myapp.NOTIFICATION_CLICKED" />
+			</intent-filter>
+		</receiver>
+		<receiver android:name=".BootReceiver" android:enabled="true" android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 			</intent-filter>
 		</receiver>
 		<service android:name=".MoodNotificationService" android:foregroundServiceType="dataSync" />

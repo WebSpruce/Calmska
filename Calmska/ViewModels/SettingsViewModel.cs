@@ -9,9 +9,14 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using Microsoft.Maui;
 using System.Text.Json;
+
 #if ANDROID
 using Android.Content;
+using Android.App;
+using Android.OS;
 using Calmska.Platforms.Android.ForegroundServices;
+using Calmska.Platforms.Android.BroadcastReceivers;
+using Calmska.Platforms.Android;
 #endif
 
 namespace Calmska.ViewModels
@@ -35,9 +40,26 @@ namespace Calmska.ViewModels
         private string _eBreakTimeMinutes = string.Empty;
         [ObservableProperty]
         private string _eBreakTimeSeconds = string.Empty;
-        [ObservableProperty]
-        private bool _notificationsEnabled;
-        private TimeSpan _selectedNotificationTime;
+        private bool _notificationsEnabled = true;
+        public bool NotificationsEnabled
+        {
+            get => _notificationsEnabled;
+            set
+            {
+                if (_notificationsEnabled != value)
+                {
+                    _notificationsEnabled = value;
+                    Preferences.Default.Set("IsNotificationEnabled", value);
+                    int hour = Preferences.Default.Get("NotificationHour", SelectedNotificationTime.Hours);
+                    int minute = Preferences.Default.Get("NotificationMinute", SelectedNotificationTime.Minutes);
+#if ANDROID
+                    UpdateNotification();
+#endif
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private TimeSpan _selectedNotificationTime = new TimeSpan(8, 0, 0);
         public TimeSpan SelectedNotificationTime
         {
             get => _selectedNotificationTime;
@@ -46,14 +68,11 @@ namespace Calmska.ViewModels
                 if (_selectedNotificationTime != value)
                 {
                     _selectedNotificationTime = value;
-                    //ToggleNotifications();
-                    Preferences.Default.Set("NotificationHour", _selectedNotificationTime.Hours);
-                    Preferences.Default.Set("NotificationMinute", _selectedNotificationTime.Minutes);
+                    Preferences.Default.Set("NotificationHour", value.Hours);
+                    Preferences.Default.Set("NotificationMinute", value.Minutes);
 
 #if ANDROID
-                    var intent = new Intent(Android.App.Application.Context, typeof(MoodNotificationService));
-                    Android.App.Application.Context.StopService(intent);
-                    Android.App.Application.Context.StartForegroundService(intent);
+                    UpdateNotification();
 #endif
                     OnPropertyChanged();
                 }
@@ -82,6 +101,10 @@ namespace Calmska.ViewModels
             EUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
 
             LoadSettingsElseCreate(_accountLogged ?? new AccountDTO());
+
+            NotificationsEnabled = Preferences.Get("NotificationsEnabled", false);
+            var timeString = Preferences.Get("NotificationTime", "08:00:00");
+            SelectedNotificationTime = TimeSpan.Parse(timeString);
         }
 
         [RelayCommand]
@@ -162,41 +185,25 @@ namespace Calmska.ViewModels
             await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
             Shell.Current.Items.Remove(Shell.Current.CurrentItem);
         }
-        private void ToggleNotifications()
+#if ANDROID
+        private void UpdateNotification()
         {
-            Preferences.Default.Set(NotificationServiceKey, NotificationsEnabled);
+            var context = Android.App.Application.Context;
+
             if (NotificationsEnabled)
             {
-                StartMoodNotificationService();
+                var intent = new Intent(context, typeof(MoodNotificationService));
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+                    context.StartForegroundService(intent);
+                else
+                    context.StartService(intent);
             }
             else
             {
-                StopMoodNotificationService();
+                NotificationScheduler.CancelNotification(context);
             }
         }
-        private void StartMoodNotificationService()
-        {
-#if ANDROID
-        var context = Android.App.Application.Context;
-        var intent = new Intent(context, typeof(Calmska.Platforms.Android.ForegroundServices.MoodNotificationService));
-        context.StartForegroundService(intent);
 #endif
-        }
-
-        private void StopMoodNotificationService()
-        {
-#if ANDROID
-        var context = Android.App.Application.Context;
-        var intent = new Intent(context, typeof(Calmska.Platforms.Android.ForegroundServices.MoodNotificationService));
-        context.StopService(intent);
-#endif
-        }
-        //partial void OnSelectedNotificationTimeChanged(TimeSpan value)
-        //{
-        //    Preferences.Default.Set("MoodNotificationHour", value.Hours);
-        //    StopMoodNotificationService();
-        //    StartMoodNotificationService();
-        //}
         private async Task LoadSettingsElseCreate(AccountDTO user)
         {
             var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
