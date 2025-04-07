@@ -3,8 +3,10 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Util;
+using Calmska.Models.DTO;
 using Calmska.Platforms.Android;
 using Calmska.Platforms.Android.BroadcastReceivers;
+using System.Text.Json;
 
 namespace Calmska
 {
@@ -17,12 +19,17 @@ namespace Calmska
 
             if (intent?.HasExtra("NavigateTo") == true)
             {
-                string page = intent.GetStringExtra("NavigateTo");
-
-                if (!string.IsNullOrEmpty(page))
+                string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                bool isLoggedIn = !string.IsNullOrEmpty(userJson);
+                if (isLoggedIn)
                 {
-                    Preferences.Default.Set("NavigateTo", page);
-                    NavigateToPage(page);
+                    string page = intent.GetStringExtra("NavigateTo");
+
+                    if (!string.IsNullOrEmpty(page))
+                    {
+                        Preferences.Default.Set("NavigateTo", page);
+                        NavigateToPage(page);
+                    }
                 }
             }
         }

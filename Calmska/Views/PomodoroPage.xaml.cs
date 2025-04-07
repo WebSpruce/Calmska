@@ -22,4 +22,12 @@ public partial class PomodoroPage : ContentPage
             }
         };
     }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        if(BindingContext is  PomodoroViewModel vm)
+        {
+            await vm.OnAppearing();
+        }
+    }
 }

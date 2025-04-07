@@ -30,11 +30,21 @@ namespace Calmska.ViewModels
         public PomodoroViewModel(IService<SettingsDTO> settingsService)
         {
             _settingsService = settingsService;
-            string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-            var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
-            NavBarTitle = user != null ? (user.UserName ?? string.Empty) : string.Empty;
+        }
+        internal async Task OnAppearing()
+        {
+            try
+            {
+                string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
+                NavBarTitle = user != null ? (user.UserName ?? string.Empty) : string.Empty;
 
-            Task.Run(async () => await LoadTimeSettings(user));
+                await LoadTimeSettings(user);
+            }
+            catch(Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", "Error occurs while loading user's settings.\nPlease try again.", "Close");
+            }
         }
         [RelayCommand]
         private async void PlayPause()
