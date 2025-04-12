@@ -19,7 +19,8 @@ namespace Calmska.Platforms.Android.BroadcastReceivers
             if (context == null) return;
 
             var notificationIntent = new Intent(context, typeof(MainActivity));
-            notificationIntent.PutExtra("NavigateTo", "MoodEntryPage");
+            //notificationIntent.PutExtra("OpenFromNotification", true);
+            notificationIntent.PutExtra("NavigateTo", "moodentrypage");
             notificationIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
 
             var pendingIntent = PendingIntent.GetActivity(

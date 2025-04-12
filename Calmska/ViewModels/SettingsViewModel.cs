@@ -81,11 +81,13 @@ namespace Calmska.ViewModels
 
         private AccountDTO? _accountLogged;
         private const string NotificationServiceKey = "MoodNotificationsEnabled";
+        internal static SettingsViewModel _instance;
 
         private readonly IService<SettingsDTO> _settingsService;
         private readonly IAccountService _accountService;
         public SettingsViewModel(IService<SettingsDTO> settingsService, IAccountService accountService)
         {
+            _instance = this;
             _settingsService = settingsService;
             _accountService = accountService;
             string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
@@ -102,11 +104,19 @@ namespace Calmska.ViewModels
 
             LoadSettingsElseCreate(_accountLogged ?? new AccountDTO());
 
-            NotificationsEnabled = Preferences.Get("NotificationsEnabled", false);
-            var timeString = Preferences.Get("NotificationTime", "08:00:00");
-            SelectedNotificationTime = TimeSpan.Parse(timeString);
+            //NotificationsEnabled = Preferences.Get("NotificationsEnabled", false);
+            //var timeString = Preferences.Get("NotificationTime", "08:00:00");
+            //SelectedNotificationTime = TimeSpan.Parse(timeString);
         }
+        internal void OnAppearing()
+        {
+            bool isEnabled = Preferences.Default.Get("IsNotificationEnabled", false);
+            int hour = Preferences.Default.Get("NotificationHour", 8);
+            int minute = Preferences.Default.Get("NotificationMinute", 0);
 
+            NotificationsEnabled = isEnabled;
+            SelectedNotificationTime = new TimeSpan(hour, minute, 0);
+        }
         [RelayCommand]
         private async Task SaveUsername()
         {

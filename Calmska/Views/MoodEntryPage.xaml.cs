@@ -10,7 +10,7 @@ public partial class MoodEntryPage : ContentPage
     {
         base.OnAppearing();
 
-        var userJson = await SecureStorage.Default.GetAsync("user_info");
+        string? userJson = await SecureStorage.Default.GetAsync("user_info");
         if (string.IsNullOrEmpty(userJson))
         {
             if (Shell.Current.Items.Count > 0)
@@ -29,7 +29,7 @@ public partial class MoodEntryPage : ContentPage
                             {
 
                             }
-                            await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+                            await Shell.Current.GoToAsync($"//loginpage");
                         }
                     }
                 }

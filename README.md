@@ -38,7 +38,16 @@
 
 - Notifications
 - Customisation settings
+- AI mood analizer:
+	1. Request to the Fine-Tuned llm to recognize emotion from the provided text.
+	2. Save emotion in the database.
+	3. Get emotions from the database from last week.
+	4. Request second llm to the advices based on the provided emotions.
+	5. Show the advices to the user.
 
 [🖌 Project Design](https://www.figma.com/design/mdhVEHFrAAc71qLnXgYBFo/Calmska?node-id=0-1&t=RiXjXKAvAoGOzCzG-1) 
 
 [💿 Database Schema](https://www.figma.com/design/KHtrSLFCdqJfANaMcqE7qa/Relational-Database-Diagram---Component-Kit-(Community)?node-id=3-728&t=izB1EdeXBzwRAZs7-1)
+
+##### 📝Todo
+- Mood history list

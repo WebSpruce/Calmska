@@ -6,7 +6,10 @@ using Android.Util;
 using Calmska.Models.DTO;
 using Calmska.Platforms.Android;
 using Calmska.Platforms.Android.BroadcastReceivers;
+using Calmska.Views;
 using System.Text.Json;
+using static Microsoft.Maui.ApplicationModel.Platform;
+using Intent = Android.Content.Intent;
 
 namespace Calmska
 {
@@ -19,17 +22,13 @@ namespace Calmska
 
             if (intent?.HasExtra("NavigateTo") == true)
             {
-                string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                string? userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
                 bool isLoggedIn = !string.IsNullOrEmpty(userJson);
-                if (isLoggedIn)
-                {
-                    string page = intent.GetStringExtra("NavigateTo");
+                string page = intent.GetStringExtra("NavigateTo") ?? string.Empty;
 
-                    if (!string.IsNullOrEmpty(page))
-                    {
-                        Preferences.Default.Set("NavigateTo", page);
-                        NavigateToPage(page);
-                    }
+                if (!string.IsNullOrEmpty(page))
+                {
+                    Preferences.Default.Set("NavigateTo", isLoggedIn ? page : "loginpage");
                 }
             }
         }
@@ -49,17 +48,18 @@ namespace Calmska
                 }
             }
 
-
             CreateNotificationChannel();
             Android.Util.Log.Debug("MainActivity", "OnCreate called");
 
             if (Intent?.HasExtra("NavigateTo") == true)
             {
-                string page = Intent.GetStringExtra("NavigateTo");
+                string? userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                bool isLoggedIn = !string.IsNullOrEmpty(userJson);
+                string page = Intent.GetStringExtra("NavigateTo") ?? string.Empty;
+
                 if (!string.IsNullOrEmpty(page))
                 {
-                    Preferences.Default.Set("NavigateTo", page);
-                    NavigateToPage(page);
+                    Preferences.Default.Set("NavigateTo", isLoggedIn ? page : "loginpage");
                 }
             }
         }

@@ -13,12 +13,15 @@ public partial class LoginPage : ContentPage
     {
         base.OnAppearing();
 
-        string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-        var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
-        if (!string.IsNullOrEmpty(userJson) && user != null && !string.IsNullOrEmpty(user.Email))
+        string? userJson = SecureStorage.Default.GetAsync("user_info").Result;
+        if (!string.IsNullOrEmpty(userJson))
         {
-            await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
-            Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+            var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
+            if (user != null && !string.IsNullOrEmpty(user.Email))
+            {
+                await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+            }
         }
     }
 }
