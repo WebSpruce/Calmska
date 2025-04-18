@@ -1,11 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Content.PM;
-using Android.OS;
 using Android.Util;
-using Android.Widget;
 using AndroidX.Core.App;
-using AndroidX.Core.Content;
 
 namespace Calmska.Platforms.Android.BroadcastReceivers
 {
@@ -14,14 +10,17 @@ namespace Calmska.Platforms.Android.BroadcastReceivers
     public class MoodNotificationReceiver : BroadcastReceiver
     {
         private const string CHANNEL_ID = "MoodNotificationChannel";
+
         public override void OnReceive(Context? context, Intent? intent)
         {
             if (context == null) return;
 
+            // Create an intent to launch MainActivity
             var notificationIntent = new Intent(context, typeof(MainActivity));
-            //notificationIntent.PutExtra("OpenFromNotification", true);
             notificationIntent.PutExtra("NavigateTo", "moodentrypage");
-            notificationIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
+
+            // These flags ensure the app launches properly whether it's closed or in background
+            notificationIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop | ActivityFlags.NewTask);
 
             var pendingIntent = PendingIntent.GetActivity(
                 context, 0, notificationIntent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
@@ -36,7 +35,14 @@ namespace Calmska.Platforms.Android.BroadcastReceivers
                 .Build();
 
             var notificationManager = NotificationManagerCompat.From(context);
-            notificationManager.Notify(1002, notification);
+            try
+            {
+                notificationManager.Notify(1002, notification);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("NotificationDebug", $"Failed to show notification: {ex.Message}");
+            }
         }
     }
 }

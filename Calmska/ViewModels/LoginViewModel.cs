@@ -27,6 +27,7 @@ namespace Calmska.ViewModels
         private bool _isActivityIndicatorRunning = false;
 
         private readonly IAccountService _accountService;
+
         public LoginViewModel(IAccountService accountService)
         {
             _accountService = accountService;
@@ -41,6 +42,7 @@ namespace Calmska.ViewModels
             else
                 PasswordBtnIcon = "eye_hidden.svg";
         }
+
         [RelayCommand]
         internal async void Login()
         {
@@ -55,7 +57,9 @@ namespace Calmska.ViewModels
 #endif
                     return;
                 }
-                OperationResultT<bool> isLoggedIn = await _accountService.LoginAsync(new AccountDTO { Email = EEmail.ToLower(), PasswordHashed = EPassword });
+
+                OperationResultT<bool> isLoggedIn = await _accountService.LoginAsync(new AccountDTO
+                    { Email = EEmail.ToLower(), PasswordHashed = EPassword });
                 if (isLoggedIn.Result)
                 {
 #if ANDROID
@@ -64,8 +68,26 @@ namespace Calmska.ViewModels
                     var user = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() });
                     var userJson = JsonSerializer.Serialize(user.Result);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
-                    await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
-                    Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+
+                    // Check if it has a pending navigation from notification
+                    string navigateAfterLogin = Preferences.Default.Get("NavigateAfterLogin", string.Empty);
+                    Preferences.Default.Remove("NavigateAfterLogin");
+
+                    if (!string.IsNullOrEmpty(navigateAfterLogin))
+                    {
+#if ANDROID
+                        Android.Util.Log.Debug("NavigationDebug", $"Navigating after login to: {navigateAfterLogin}");
+#endif
+                        await Shell.Current.GoToAsync($"{navigateAfterLogin}", new Dictionary<string, object>
+                        {
+                            ["navigationAfterLogin"] = true
+                        });
+                    }
+                    else
+                    {
+                        await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                    }
+
                 }
                 else
                 {
@@ -73,9 +95,13 @@ namespace Calmska.ViewModels
                     await Toast.Make("Invalid email or password. Please try again.", ToastDuration.Short, 14).Show();
 #endif
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Warning", "Something is wrong. Try again.", "Close");
+#if ANDROID
+                Android.Util.Log.Error("LoginDebug", $"Login error: {ex.Message}");
+#endif
             }
             finally
             {

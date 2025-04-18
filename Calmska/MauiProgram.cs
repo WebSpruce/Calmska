@@ -6,7 +6,6 @@ using Calmska.ViewModels;
 using Calmska.Views;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 

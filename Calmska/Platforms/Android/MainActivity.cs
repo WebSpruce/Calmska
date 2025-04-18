@@ -3,12 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Util;
-using Calmska.Models.DTO;
-using Calmska.Platforms.Android;
 using Calmska.Platforms.Android.BroadcastReceivers;
-using Calmska.Views;
-using System.Text.Json;
-using static Microsoft.Maui.ApplicationModel.Platform;
 using Intent = Android.Content.Intent;
 
 namespace Calmska
@@ -20,17 +15,8 @@ namespace Calmska
         {
             base.OnNewIntent(intent);
 
-            if (intent?.HasExtra("NavigateTo") == true)
-            {
-                string? userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-                bool isLoggedIn = !string.IsNullOrEmpty(userJson);
-                string page = intent.GetStringExtra("NavigateTo") ?? string.Empty;
-
-                if (!string.IsNullOrEmpty(page))
-                {
-                    Preferences.Default.Set("NavigateTo", isLoggedIn ? page : "loginpage");
-                }
-            }
+            Intent = intent;
+            ProcessNotificationIntent(intent);
         }
         private MoodNotificationReceiver _receiver;
         protected override void OnCreate(Bundle? savedInstanceState)
@@ -49,19 +35,8 @@ namespace Calmska
             }
 
             CreateNotificationChannel();
-            Android.Util.Log.Debug("MainActivity", "OnCreate called");
-
-            if (Intent?.HasExtra("NavigateTo") == true)
-            {
-                string? userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-                bool isLoggedIn = !string.IsNullOrEmpty(userJson);
-                string page = Intent.GetStringExtra("NavigateTo") ?? string.Empty;
-
-                if (!string.IsNullOrEmpty(page))
-                {
-                    Preferences.Default.Set("NavigateTo", isLoggedIn ? page : "loginpage");
-                }
-            }
+            Log.Debug("MainActivity", "OnCreate called");
+            ProcessNotificationIntent(Intent);
         }
         protected override void OnDestroy()
         {
@@ -81,16 +56,57 @@ namespace Calmska
                     RequestPermissions(new string[] { Android.Manifest.Permission.PostNotifications }, 0);
                 }
             }
-
-            
         }
-
-        private void NavigateToPage(string page)
+        private void ProcessNotificationIntent(Intent? intent)
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (intent?.HasExtra("NavigateTo") == true)
             {
-                await Shell.Current.GoToAsync($"{page}");
-            });
+                Log.Debug("NavigationDebug", "Processing notification intent");
+                string? userJson = null;
+            
+                try {
+                    userJson = SecureStorage.Default.GetAsync("user_info").Result;
+                } catch (Exception ex) {
+                    Log.Error("NavigationDebug", $"Error accessing secure storage: {ex.Message}");
+                }
+            
+                bool isLoggedIn = !string.IsNullOrEmpty(userJson);
+                string page = intent.GetStringExtra("NavigateTo") ?? string.Empty;
+            
+                if (!string.IsNullOrEmpty(page))
+                {
+                    string targetPage = isLoggedIn ? page : "loginpage";
+                    Log.Debug("NavigationDebug", $"Setting navigation preference to: {targetPage}");
+                    
+                    Preferences.Default.Set("NavigateTo", targetPage);
+                    if (!isLoggedIn)
+                        Preferences.Default.Set("NavigateAfterLogin", page);
+                    
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        try {
+                            await Task.Delay(500);
+                            await Shell.Current.GoToAsync(targetPage);
+                            Log.Debug("NavigationDebug", $"Immediate navigation attempted to: {targetPage}");
+                        } catch (Exception ex) {
+                            Log.Error("NavigationDebug", $"Navigation error: {ex.Message}");
+                        }
+                    });
+                }
+            }
+        }
+        private async Task<bool> IsUserLoggedInAsync()
+        {
+            try
+            {
+                string? userJson = await SecureStorage.Default.GetAsync("user_info");
+                return !string.IsNullOrEmpty(userJson);
+            }
+            catch (Exception ex)
+            {
+                Android.Util.Log.Error("AuthDebug", $"Error checking login state: {ex.Message}");
+                return false;
+            }
         }
         private void CreateNotificationChannel()
         {

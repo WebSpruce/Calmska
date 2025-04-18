@@ -1,6 +1,5 @@
 ﻿using Calmska.Views;
 using Calmska.ViewModels;
-using Microsoft.Maui.Controls.PlatformConfiguration;
 #if ANDROID
 using Android.Util;
 #endif
@@ -27,20 +26,39 @@ namespace Calmska
         }
         private async void CheckForNotificationNavigation()
         {
-            await Task.Delay(500); // Small delay to allow initialization
+            await Task.Delay(1000);
 
-            if (Preferences.Default.ContainsKey("NavigateTo"))
-            {
-                string page = Preferences.Default.Get("NavigateTo", string.Empty);
-                Preferences.Default.Remove("NavigateTo");
+            try {
+                if (Preferences.Default.ContainsKey("NavigateTo"))
+                {
+                    string page = Preferences.Default.Get("NavigateTo", string.Empty);
+                    Preferences.Default.Remove("NavigateTo");
 #if ANDROID
-                Android.Util.Log.Debug("NavigationDebug", $"Navigating to: {page}");
+                    Log.Debug("NavigationDebug", $"AppShell navigating to: {page}");
 #endif
 
-                if (!string.IsNullOrEmpty(page))
-                {
-                    await Shell.Current.GoToAsync($"{page}");
+                    if (!string.IsNullOrEmpty(page))
+                    {
+                        try {
+                            await Shell.Current.GoToAsync($"{page}");
+                        } catch (Exception ex) {
+#if ANDROID
+                            Log.Error("NavigationDebug", $"Navigation error with //: {ex.Message}");
+#endif
+                            try {
+                                await Shell.Current.GoToAsync($"{page}");
+                            } catch (Exception innerEx) {
+#if ANDROID
+                                Log.Error("NavigationDebug", $"Alternative navigation error: {innerEx.Message}");
+#endif
+                            }
+                        }
+                    }
                 }
+            } catch (Exception ex) {
+#if ANDROID
+                Log.Error("NavigationDebug", $"Error in CheckForNotificationNavigation: {ex.Message}");
+#endif
             }
         }
     }

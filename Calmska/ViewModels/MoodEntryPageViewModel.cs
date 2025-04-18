@@ -11,26 +11,35 @@ using System.Data;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using Calmska.Views;
 
 #if ANDROID
 using Android.App;
 using Android.Content;
+using Android.Util;
 #endif
 namespace Calmska.ViewModels
 {
-    public partial class MoodEntryPageViewModel : ObservableObject
+    public partial class MoodEntryPageViewModel : ObservableObject, IQueryAttributable
     {
         [ObservableProperty]
         private string _moodText;
 
+        private bool _navigationAfterLogin = false;
         private const int NOTIFICATION_ID = 1002;
         private readonly IService<MoodHistoryDTO> _moodhistoryService;
         private readonly IService<MoodDTO> _moodService;
+        private IQueryAttributable _queryAttributableImplementation;
+
         public MoodEntryPageViewModel(IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService)
         {
             _moodhistoryService = moodHistoryService;
             MoodText = string.Empty;
             _moodService = moodService;
+            
+#if ANDROID
+            Log.Debug("MoodEntryPageViewModel", "Constructor");
+#endif
         }
 
         [RelayCommand]
@@ -90,7 +99,11 @@ namespace Calmska.ViewModels
 #endif
                 }
 
-                await Shell.Current.GoToAsync("..");
+                if(_navigationAfterLogin)
+                    await Shell.Current.GoToAsync(nameof(PomodoroPage));
+                else
+                    await Shell.Current.GoToAsync("..");
+                    
             }
             catch(Exception ex)
             {
@@ -139,6 +152,21 @@ namespace Calmska.ViewModels
             {
                 await Shell.Current.DisplayAlert("Warning", $"Send prompt request error.", "Close");
                 return string.Empty;
+            }
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            try
+            {
+                if (query.ContainsKey("navigationAfterLogin"))
+                {
+                    _navigationAfterLogin = Convert.ToBoolean(query["navigationAfterLogin"]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Shell.Current.DisplayAlert("Error", "Error while loading data.", "Close");
             }
         }
     }
