@@ -39,7 +39,7 @@ namespace Calmska.Api.Repository
         {
             return await _context.Moods
                .Where(item =>
-                   (!moodDTO.MoodId.HasValue || item.MoodId == moodDTO.MoodId) &&
+                   (!moodDTO.MoodId.HasValue || item.MoodId.ToString() == moodDTO.MoodId.ToString()) &&
                    (string.IsNullOrEmpty(moodDTO.MoodName) || item.MoodName.ToLower().Contains(moodDTO.MoodName.ToLower())) &&
                    (moodDTO.MoodTypeId == null || moodDTO.MoodTypeId == 0 || item.MoodTypeId == moodDTO.MoodTypeId)
                )
