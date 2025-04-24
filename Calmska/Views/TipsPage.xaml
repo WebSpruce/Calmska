@@ -19,6 +19,19 @@
         <ContentView Grid.Row="0" BackgroundColor="#344E41" Padding="5">
             <ScrollView VerticalScrollBarVisibility="Never">
                 <VerticalStackLayout>
+                    <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,20,0,0">
+                        <Label Text="Feel Hygge" 
+                               FontSize="48" FontFamily="CanelaBlack" HorizontalOptions="Center" TextColor="White" FontAttributes="Bold"/>
+                        <Label Text="{x:Static calmska:IconFont.Info}"  Style="{x:StaticResource MaterialIcons}"
+                               FontSize="40" TextColor="White" VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding HyggeInfoCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                    <Button Text="ANALIZE MY MOOD" Command="{Binding AnalizeCommand}" CornerRadius="100"
+                            BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
+                            WidthRequest="200" Margin="0,20"/>
                     <CollectionView x:Name="TypesTipsCollection" ItemsSource="{Binding Types}" Margin="0,0,0,0"
                                     SelectionMode="Single" SelectedItem="{Binding SelectedType}"
                                     SelectionChangedCommand="{Binding TypeSelectedCommand}"

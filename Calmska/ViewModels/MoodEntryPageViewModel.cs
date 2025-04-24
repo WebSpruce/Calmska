@@ -11,6 +11,7 @@ using System.Data;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using Calmska.Helper;
 using Calmska.Views;
 
 #if ANDROID
@@ -56,10 +57,8 @@ namespace Calmska.ViewModels
                 var notificationManager = (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
                 notificationManager.Cancel(NOTIFICATION_ID);
 #endif
-                
-
                 string prompt = $"User's description of their current mood: \"{MoodText}\". Based on the user's description of their current mood, select the most appropriate mood name from the following list: 'Inspired, Grateful, Curious, Worried, Anxious, Lonely, Bored, Indifferent, Accepting, Resentful, Determined, Peaceful, Overwhelmed, Content, Pensive, Reserved, Reflective, Hopeless, Calm, Confident, Proud, Frustrated, Insecure, Tranquil, Nostalgic, Ecstatic, Cheerful, Energized, Jealous, Irritated, Guilty, Serene, Disappointed, Melancholic, Neutral.' Respond with only one word from this list and nothing else.";
-                string llmresponse = await SendPromptRequest(prompt);
+                string llmresponse = await Prompting.SendPromptRequest(prompt);
                 if(string.IsNullOrEmpty(llmresponse))
                 {
                     await Shell.Current.DisplayAlert("Warning", $"Error while getting mood.", "Close");
@@ -111,48 +110,6 @@ namespace Calmska.ViewModels
                 return;
             }
 
-        }
-        private async Task<string> SendPromptRequest(string prompt)
-        {
-            try
-            {
-                var client = new HttpClient();
-                var requestData = new
-                {
-                    messages = new[]
-                    {
-                        new { role = "user", content = prompt }
-                    },
-                    web_access = false
-                };
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri("XXXXXX"),
-                    Headers =
-                    {
-                        { "x-rapidapi-key", "XXXXXX" },
-                        { "x-rapidapi-host", "XXXXXX" },
-                    },
-                    Content = JsonContent.Create(requestData)
-                };
-                using (var response = await client.SendAsync(request))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var body = await response.Content.ReadAsStringAsync();
-                    Debug.WriteLine(body);
-                    var responseObj = JsonSerializer.Deserialize<JsonElement>(body);
-                    string resultValue = responseObj.GetProperty("result").GetString();
-                    if (resultValue.EndsWith("."))
-                        resultValue = resultValue.Replace(".", "");
-                    return resultValue ?? string.Empty;
-                }
-            }
-            catch(Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Warning", $"Send prompt request error.", "Close");
-                return string.Empty;
-            }
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)

@@ -20,6 +20,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+
 		<!-- Display name -->
 		<ApplicationTitle>Calmska</ApplicationTitle>
 
@@ -27,7 +29,7 @@
 		<ApplicationId>com.companyname.calmska</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
