@@ -1,6 +1,6 @@
 ﻿# ✨ Calmska – Find Your Inner Balance
 
-**<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#main-features" >Main Features</a>** - **<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#how-the-ai-mood-analyzer-works" >How the AI Mood Analyzer Works</a>** - **<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#project-layout">Project Layout</a>**
+**<a href="https://github.com/WebSpruce/Calmska#main-features" >Main Features</a>** - **<a href="https://github.com/WebSpruce/Calmska#how-the-ai-mood-analyzer-works" >How the AI Mood Analyzer Works</a>** - **<a href="https://github.com/WebSpruce/Calmska#project-layout">Project Layout</a>**
 
 <img src="https://github.com/WebSpruce/Calmska/blob/main/CALMSKA.gif?raw=true" height="400" alt="Holiday Calendar Screenshot">
 
