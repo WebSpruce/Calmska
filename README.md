@@ -1,5 +1,11 @@
 ﻿# ✨ Calmska – Find Your Inner Balance
 
+<img src="https://github.com/WebSpruce/Calmska/blob/main/CALMSKA.gif?raw=true" height="400" alt="Holiday Calendar Screenshot">
+
+**<a href="https://appetize.io/app/b_dk7gkpbjoov2e7gwt34val33ke" target=”_blank” style="font-size: 20px; color:#99aab5 ;">ONLINE DEMO</a>**
+
+(The app is currently hosted on a free server, so logging in might take a little longer.)
+
 ## 📖 Main Features
 - **Mood Tracker with Smart Notifications & AI Emotion Analyzer**
 - **Pomodoro Timer** with customizable work/break sounds
