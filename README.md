@@ -1,8 +1,13 @@
 ﻿# ✨ Calmska – Find Your Inner Balance
 
+**<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#main-features" >Main Features</a>** - **<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#how-the-ai-mood-analyzer-works" >How the AI Mood Analyzer Works</a>** - **<a href="https://github.com/WebSpruce/HolidayCalendar_Installer#project-layout">Project Layout</a>**
+
 <img src="https://github.com/WebSpruce/Calmska/blob/main/CALMSKA.gif?raw=true" height="400" alt="Holiday Calendar Screenshot">
 
 **<a href="https://appetize.io/app/b_dk7gkpbjoov2e7gwt34val33ke" target=”_blank” style="font-size: 20px; color:#99aab5 ;">ONLINE DEMO</a>**
+
+> [!IMPORTANT]
+> The app is available on android ONLY (tested on Android 12)
 
 (The app is currently hosted on a free server, so logging in might take a little longer.)
 
