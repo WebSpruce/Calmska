@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Controls.CustomTabBar"
              BackgroundColor="Transparent">
-    <Border StrokeShape="RoundRectangle 50,50,50,50" HorizontalOptions="Center" Padding="0" Margin="20">
+    <Border StrokeShape="RoundRectangle 50,50,50,50" HorizontalOptions="Center" Padding="0" Margin="20"
+            Stroke="{DynamicResource AccentOrange}">
         <Grid ColumnDefinitions="*,*,*" 
             BackgroundColor="{DynamicResource AccentOrange}" Padding="5">
 

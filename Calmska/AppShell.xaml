@@ -11,7 +11,7 @@
     Shell.BackgroundColor="{DynamicResource MainGreen}">
 
     <ShellContent
-        Title="Home"
+        Title="Home" Route="LoginPage" FlyoutItemIsVisible="False"
         ContentTemplate="{DataTemplate local:LoginPage}"/>
 
     <TabBar>

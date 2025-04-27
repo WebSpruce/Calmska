@@ -20,8 +20,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<AndroidPackageFormat>aab</AndroidPackageFormat>
-
 		<!-- Display name -->
 		<ApplicationTitle>Calmska</ApplicationTitle>
 
@@ -116,6 +114,7 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="3.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -42,14 +42,14 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
-                                    Padding="10" Margin="5" WidthRequest="195" HeightRequest="195"
+                                    Padding="10" Margin="5"
                                     BackgroundColor="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
                                     Stroke="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
                                     >
-                                    <Grid>
-                                        <Label Text="{Binding IconName}" Style="{x:StaticResource MaterialIcons}"
+                                    <Grid RowDefinitions="*,*" RowSpacing="20">
+                                        <Label Grid.Row="0" Text="{Binding IconName}" Style="{x:StaticResource MaterialIcons}"
                                             FontSize="60" TextColor="White" VerticalOptions="Start"/>
-                                        <Label Text="{Binding Type}" TextColor="White" FontFamily="CanelaBlack" FontSize="27" VerticalOptions="End"/>
+                                        <Label Grid.Row="1" Text="{Binding Type}" TextColor="White" FontFamily="CanelaBlack" FontSize="24" VerticalOptions="End"/>
                                     </Grid>
                                     <VisualStateManager.VisualStateGroups>
                                         <VisualStateGroup Name="CommonStates">
@@ -69,6 +69,6 @@
                 </VerticalStackLayout>
             </ScrollView>
         </ContentView>
-        <controls:CustomTabBar Grid.Row="1" Margin="20,-130,20,20"/>
+        <controls:CustomTabBar Grid.Row="1" Margin="0,-105,0,0" HeightRequest="105"/>
     </Grid>
 </ContentPage>

@@ -8,6 +8,7 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using Plugin.Maui.Audio;
 
 namespace Calmska
 {
@@ -35,6 +36,8 @@ namespace Calmska
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+            builder.Services.AddSingleton(AudioManager.Current);
+            
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<TipsPage, TipsViewModel>(ServiceLifetime.Transient);
@@ -73,7 +76,7 @@ namespace Calmska
             builder.Services.AddHttpClient<IService<MoodHistoryDTO>, MoodHistoryService>(client =>
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
-
+            
             return builder.Build();
         }
         public static void AddView<TView, TViewModel>(

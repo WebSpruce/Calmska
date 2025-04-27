@@ -9,6 +9,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using Microsoft.Maui;
 using System.Text.Json;
+using System.Diagnostics;
+using Application = Microsoft.Maui.Controls.Application;
+using Debug = System.Diagnostics.Debug;
 
 #if ANDROID
 using Android.Content;
@@ -191,9 +194,16 @@ namespace Calmska.ViewModels
         [RelayCommand]
         private async Task Logout()
         {
-            bool isRemoved = SecureStorage.Default.Remove("user_info");
-            await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
-            Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+            try
+            {
+                SecureStorage.Default.Remove("user_info");
+                await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Logout error: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", "Logout failed. Please try again.", "OK");
+            }
         }
 #if ANDROID
         private void UpdateNotification()

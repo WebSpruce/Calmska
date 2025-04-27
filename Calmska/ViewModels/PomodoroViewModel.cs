@@ -4,6 +4,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 using System.Text.Json;
+using Android.Util;
+using Calmska.Views;
+using Plugin.Maui.Audio;
 
 namespace Calmska.ViewModels
 {
@@ -27,15 +30,24 @@ namespace Calmska.ViewModels
         private static bool _isWorkSession = true;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly IService<SettingsDTO> _settingsService;
-        public PomodoroViewModel(IService<SettingsDTO> settingsService)
+        private IAudioManager _audioManager;
+        public PomodoroViewModel(IService<SettingsDTO> settingsService, IAudioManager audioManager)
         {
             _settingsService = settingsService;
+            _audioManager = audioManager;
         }
         internal async Task OnAppearing()
         {
             try
             {
                 string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                if (string.IsNullOrEmpty(userJson))
+                {
+                    await Shell.Current.DisplayAlert("error",
+                        "Unauthorized access to PomodoroPage, redirecting to login", "OK");
+                    await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
+                    return;
+                }
                 var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
                 NavBarTitle = user != null ? (user.UserName ?? string.Empty) : string.Empty;
 
@@ -105,6 +117,22 @@ namespace Calmska.ViewModels
                     {
                         _isWorkSession = !_isWorkSession;
                         _timeRemaining = _isWorkSession ? WorkTime : BreakTime;
+                        string filename = string.Empty;
+                        if (_isWorkSession)
+                            filename = "work.mp3";
+                        else
+                            filename = "break.mp3";
+                        try
+                        {
+                            var player = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync(filename));
+                            player.Play();
+                            // player.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Audio error: {ex.Message}");
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
             }

@@ -24,7 +24,7 @@
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*, Auto">
-        <ContentView>
+        <ScrollView>
             <VerticalStackLayout Padding="10" Spacing="10">
                 <Label Text="{Binding LUserName}"
                     FontSize="42" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
@@ -42,7 +42,8 @@
                     BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
                     WidthRequest="150" Margin="0,10,0,30"/>
 
-                <Border BackgroundColor="{DynamicResource SecondGreen}" Padding="20" Margin="10">
+                <Border BackgroundColor="{DynamicResource SecondGreen}" Stroke="{DynamicResource SecondGreen}" 
+                        Padding="20" Margin="10">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
@@ -106,7 +107,8 @@
                     WidthRequest="150" Margin="0,10,0,30"/>
 
 
-                <Border BackgroundColor="{DynamicResource SecondGreen}" Padding="20" Margin="10">
+                <Border BackgroundColor="{DynamicResource SecondGreen}" Stroke="{DynamicResource SecondGreen}" 
+                        Padding="20" Margin="10">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
@@ -121,9 +123,9 @@
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
-
+                <BoxView HeightRequest="130" BackgroundColor="Transparent" />
             </VerticalStackLayout>
-        </ContentView>
+        </ScrollView>
         <controls:CustomTabBar Grid.Row="1"/>
     </Grid>
 </ContentPage>

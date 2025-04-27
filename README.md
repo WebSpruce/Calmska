@@ -1,9 +1,29 @@
-﻿# Calmska
+﻿# ✨ Calmska – Find Your Inner Balance
 
-## 📖 Main features of the app
-- <strong>Mood tracker</strong>
-- <strong>Pomodoro</strong>
-- <strong>Hygge Tips</strong>
+## 📖 Main Features
+- **Mood Tracker with Smart Notifications & AI Emotion Analyzer**
+- **Pomodoro Timer** with customizable work/break sounds
+- **Hygge Tips** to inspire mindfulness and cozy living
+
+---
+
+## 🚀 Why You'll Love Calmska
+- 📅 **Daily Mood Tracking** — Get reminders at your preferred time to check in with your emotions.
+- 🧠 **AI-Powered Emotion Recognition** — Write a few sentences, and Calmska AI will instantly summarize your mood into a single feeling word.
+- 📝 **Custom Mood Entries** — Quickly log your emotions with a tap.
+- 🧘 **Hygge Advice** — After saving moods for 5 days, unlock personalized Scandinavian "Hygge" lifestyle tips to boost your well-being.
+- 🔔 **Custom Notifications** — Easily enable/disable notifications and set the exact time you want to receive them.
+- 📊 **Mood Analysis History** — Track how your emotions evolve over time.
+
+---
+
+## ✨ How the AI Mood Analyzer Works
+1. Enter your current feelings or sentences.
+2. LLM (Language Model) analyzes your input and distills it into one emotion.
+3. Your mood is automatically saved in the database.
+4. After logging moods for 5 days, Calmska’s second LLM suggests tailored **Hygge** tips to uplift your daily life.
+
+---
 
 ### 🏗️ Project Layout
 - MAUI
@@ -23,6 +43,7 @@
 	- <strong>Entity Models</strong>: Defines the structure of database tables and entities.
 	- <strong>MongoDbSettings</strong>: Configuration for MongoDB connection and settings.
 
+---
 
 ### 🛠️ Tools
 - <strong>MongoDB</strong>: database for scalable and flexible data storage.
@@ -34,20 +55,12 @@
 - <strong>AutoMapper</strong>: Simplifies object mapping and transformation.
 - <strong>Pagination</strong>: Efficient handling of large datasets in API responses.
 
-#### ➕ Additional Features
+---
 
-- Notifications
-- Customisation settings
-- AI mood analizer:
-	1. Request to the Fine-Tuned llm to recognize emotion from the provided text.
-	2. Save emotion in the database.
-	3. Get emotions from the database from last week.
-	4. Request second llm to the advices based on the provided emotions.
-	5. Show the advices to the user.
+[🖌 View App UI/UX Design](https://www.figma.com/design/mdhVEHFrAAc71qLnXgYBFo/Calmska?node-id=0-1&t=RiXjXKAvAoGOzCzG-1) 
+[💿 View Database Schema](https://www.figma.com/design/KHtrSLFCdqJfANaMcqE7qa/Relational-Database-Diagram---Component-Kit-(Community)?node-id=3-728&t=izB1EdeXBzwRAZs7-1)
 
-[🖌 Project Design](https://www.figma.com/design/mdhVEHFrAAc71qLnXgYBFo/Calmska?node-id=0-1&t=RiXjXKAvAoGOzCzG-1) 
+---
 
-[💿 Database Schema](https://www.figma.com/design/KHtrSLFCdqJfANaMcqE7qa/Relational-Database-Diagram---Component-Kit-(Community)?node-id=3-728&t=izB1EdeXBzwRAZs7-1)
-
-##### 📝Todo
-- Mood history list
+##### 📝 Upcoming Features
+- Mood analises history list

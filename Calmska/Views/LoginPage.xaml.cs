@@ -1,9 +1,9 @@
 using Calmska.Models.DTO;
 using System.Text.Json;
-
 namespace Calmska.Views;
 
 public partial class LoginPage : ContentPage
+
 {
 	public LoginPage()
 	{
@@ -12,16 +12,28 @@ public partial class LoginPage : ContentPage
     protected async override void OnAppearing()
     {
         base.OnAppearing();
-
-        string? userJson = SecureStorage.Default.GetAsync("user_info").Result;
-        if (!string.IsNullOrEmpty(userJson))
+        try
         {
-            var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
-            if (user != null && !string.IsNullOrEmpty(user.Email))
+            string? userJson = await SecureStorage.Default.GetAsync("user_info");
+            if (string.IsNullOrEmpty(userJson))
             {
-                await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
-                Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+                return;
             }
+        
+            var user = JsonSerializer.Deserialize<AccountDTO>(userJson ?? string.Empty);
+            if (user != null)
+            {
+                if (!string.IsNullOrEmpty(user.Email))
+                {
+                    await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                    Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", 
+                "Error checking authentication status.", "OK");
         }
     }
 }
