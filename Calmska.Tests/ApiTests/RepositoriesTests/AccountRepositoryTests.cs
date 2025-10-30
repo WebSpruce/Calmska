@@ -8,7 +8,8 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         private readonly AccountRepository _repository;
         private readonly Mock<IMapper> _mockMapper;
         private readonly CalmskaDbContext _context;
-        private readonly FirebaseAuthClient _authClient;
+        private readonly Mock<IFirebaseAuthClient> _authClient;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public AccountRepositoryTests()
         {
@@ -18,15 +19,9 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             _context = new CalmskaDbContext(options);
             _mockMapper = new Mock<IMapper>();
-            _authClient = new FirebaseAuthClient(new FirebaseAuthConfig {
-                ApiKey = "AIzaSyC9n7fMCBsCILljwozMJcDhpdTEEBQfe98",
-                AuthDomain = "calmska.firebaseapp.com",
-                Providers = new FirebaseAuthProvider[]
-                {
-                    new EmailProvider()
-                }
-            });
-            _repository = new AccountRepository(_context, _mockMapper.Object, _authClient);
+            _authClient = new Mock<IFirebaseAuthClient>();
+            _repository = new AccountRepository(_context, _mockMapper.Object, _authClient.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResults()
@@ -36,7 +31,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.Add(new Account { UserId = Guid.NewGuid(), Email = "test2@example.com", UserName = "user2", PasswordHashed = "hashed2" });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 1);
+            var result = await _repository.GetAllAsync(1, 1, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.PageNumber.Should().Be(1);
@@ -52,7 +47,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             var accountDto = new AccountDTO { Email = "test1@example.com" };
-            var result = await _repository.GetAllByArgumentAsync(accountDto, 1, 1);
+            var result = await _repository.GetAllByArgumentAsync(accountDto, 1, 1, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().Email.Should().Be("test1@example.com");
@@ -69,7 +64,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             var accountDto = new AccountDTO { Email = "test@example.com" };
-            var result = await _repository.GetByArgumentAsync(accountDto);
+            var result = await _repository.GetByArgumentAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result.Email.Should().Be("test@example.com");
@@ -82,7 +77,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.LoginAsync(new AccountDTO { Email = "test@test.com", PasswordHashed = "mypass" });
+            var result = await _repository.LoginAsync(new AccountDTO { Email = "test@test.com", PasswordHashed = "mypass" }, _cancellationTokenSource.Token);
 
             result.Should().BeTrue();
         }
@@ -92,7 +87,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.RemoveRange(_context.Accounts.ToList());
             var accountDto = new AccountDTO { Email = "nonexistent@example.com" };
 
-            var result = await _repository.GetByArgumentAsync(accountDto);
+            var result = await _repository.GetByArgumentAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Should().BeNull();
         }
@@ -102,7 +97,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.RemoveRange(_context.Accounts.ToList());
             AccountDTO accountDto = null;
 
-            var result = await _repository.AddAsync(accountDto);
+            var result = await _repository.AddAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Account object is null.");
@@ -115,9 +110,9 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.Add(existingAccount);
             await _context.SaveChangesAsync();
 
-            var accountDto = new AccountDTO{ Email = "test@example.com", UserName = "newuser", PasswordHashed = "newpassword" };
+            var accountDto = new AccountDTO{ Email = "test@example.com", UserName = "newuser", PasswordHashed = "newpassword", UserId = null};
 
-            var result = await _repository.AddAsync(accountDto);
+            var result = await _repository.AddAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The user with provided email exists.");
@@ -130,7 +125,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             _mockMapper.Setup(m => m.Map<Account>(It.IsAny<AccountDTO>()))
                        .Returns(new Account { Email = accountDto.Email, UserName = accountDto.UserName ?? string.Empty, PasswordHashed = accountDto.PasswordHashed ?? string.Empty });
-            var result = await _repository.AddAsync(accountDto);
+            var result = await _repository.AddAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -140,7 +135,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             AccountDTO accountDto = null;
 
-            var result = await _repository.UpdateAsync(accountDto);
+            var result = await _repository.UpdateAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Account object is null.");
@@ -150,7 +145,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var accountDto = new AccountDTO { UserId = Guid.NewGuid(), UserName = "nonexistentuser" };
 
-            var result = await _repository.UpdateAsync(accountDto);
+            var result = await _repository.UpdateAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("Didn't find any account with the provided userId.");
@@ -165,7 +160,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             var accountDto = new AccountDTO { UserId = existingAccount.UserId, UserName = "updateduser", Email = "updated@example.com", PasswordHashed = "newpassword" };
 
-            var result = await _repository.UpdateAsync(accountDto);
+            var result = await _repository.UpdateAsync(accountDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -181,7 +176,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var accountId = Guid.Empty;
 
-            var result = await _repository.DeleteAsync(accountId);
+            var result = await _repository.DeleteAsync(accountId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided AccountId is null.");
@@ -191,7 +186,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var accountId = Guid.NewGuid();
 
-            var result = await _repository.DeleteAsync(accountId);
+            var result = await _repository.DeleteAsync(accountId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("There is no settings with provided id.");
@@ -203,7 +198,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.Accounts.Add(existingAccount);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingAccount.UserId);
+            var result = await _repository.DeleteAsync(existingAccount.UserId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();

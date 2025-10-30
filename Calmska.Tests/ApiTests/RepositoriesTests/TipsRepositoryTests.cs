@@ -5,6 +5,7 @@
         private readonly TipsRepository _repository;
         private readonly Mock<IMapper> _mapper;
         private readonly CalmskaDbContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public TipsRepositoryTests()
         {
@@ -15,6 +16,7 @@
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
             _repository = new TipsRepository(_context, _mapper.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResult()
@@ -27,7 +29,7 @@
             });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 2);
+            var result = await _repository.GetAllAsync(1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
@@ -45,7 +47,7 @@
 
             var tipsDto = new TipsDTO { TipsTypeId = 3 };
 
-            var result = await _repository.GetAllByArgumentAsync(tipsDto, 1, 2);
+            var result = await _repository.GetAllByArgumentAsync(tipsDto, 1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().TipsTypeId.Should().Be(3);
@@ -61,7 +63,7 @@
 
             var tipsDto = new TipsDTO { TipId = tip.TipId };
 
-            var result = await _repository.GetByArgumentAsync(tipsDto);
+            var result = await _repository.GetByArgumentAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result!.Content.Should().Be("Find Me");
@@ -73,7 +75,7 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             TipsDTO tipsDto = null;
 
-            var result = await _repository.AddAsync(tipsDto);
+            var result = await _repository.AddAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Tips object is null.");
@@ -86,7 +88,7 @@
             _mapper.Setup(m => m.Map<Tips>(It.IsAny<TipsDTO>()))
                        .Returns(new Tips { Content = tipsDto.Content, TipsTypeId = (int)tipsDto.TipsTypeId });
 
-            var result = await _repository.AddAsync(tipsDto);
+            var result = await _repository.AddAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -98,10 +100,10 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             TipsDTO tipsDto = null;
 
-            var result = await _repository.UpdateAsync(tipsDto);
+            var result = await _repository.UpdateAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
-            result.Error.Should().Be("The provided Account object is null.");
+            result.Error.Should().Be("The provided Tip object is null.");
         }
         [Fact]
         public async Task UpdateAsync_ShouldReturnError_WhenTipNotFound()
@@ -109,7 +111,7 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             var tipsDto = new TipsDTO { TipId = Guid.NewGuid(), Content = "Updated Tip" };
 
-            var result = await _repository.UpdateAsync(tipsDto);
+            var result = await _repository.UpdateAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("Didn't find any tip with the provided tipsId.");
@@ -123,7 +125,7 @@
             await _context.SaveChangesAsync();
 
             var tipsDto = new TipsDTO { TipId = existingTip.TipId, Content = "Updated Tip", TipsTypeId = 4 };
-            var result = await _repository.UpdateAsync(tipsDto);
+            var result = await _repository.UpdateAsync(tipsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -139,7 +141,7 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             var tipsId = Guid.Empty;
 
-            var result = await _repository.DeleteAsync(tipsId);
+            var result = await _repository.DeleteAsync(tipsId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided TipsId is null.");
@@ -150,7 +152,7 @@
             _context.TipsDb.RemoveRange(_context.TipsDb.ToList());
             var tipsId = Guid.NewGuid();
 
-            var result = await _repository.DeleteAsync(tipsId);
+            var result = await _repository.DeleteAsync(tipsId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("There is no tip with provided id.");
@@ -163,7 +165,7 @@
             _context.TipsDb.Add(existingTip);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingTip.TipId);
+            var result = await _repository.DeleteAsync(existingTip.TipId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();

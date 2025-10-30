@@ -5,6 +5,7 @@
         private readonly MoodRepository _repository;
         private readonly Mock<IMapper> _mapper;
         private readonly CalmskaDbContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public MoodRepositoryTests()
         {
@@ -15,6 +16,7 @@
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
             _repository = new MoodRepository(_context, _mapper.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResult()
@@ -27,7 +29,7 @@
             });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 2);
+            var result = await _repository.GetAllAsync(1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
@@ -45,7 +47,7 @@
 
             var moodDTO = new MoodDTO { MoodName = "Happy" };
 
-            var result = await _repository.GetAllByArgumentAsync(moodDTO, 1, 2);
+            var result = await _repository.GetAllByArgumentAsync(moodDTO, 1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().MoodName.Should().Be("Happy");
@@ -61,7 +63,7 @@
 
             var moodDTO = new MoodDTO { MoodId = mood.MoodId };
 
-            var result = await _repository.GetByArgumentAsync(moodDTO);
+            var result = await _repository.GetByArgumentAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result!.MoodName.Should().Be("Excited");
@@ -72,7 +74,7 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             MoodDTO moodDTO = null;
 
-            var result = await _repository.AddAsync(moodDTO);
+            var result = await _repository.AddAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Mood object is null.");
@@ -85,7 +87,7 @@
             _mapper.Setup(m => m.Map<Mood>(It.IsAny<MoodDTO>()))
                        .Returns(new Mood { MoodName = moodDTO.MoodName, MoodTypeId = moodDTO.MoodTypeId });
 
-            var result = await _repository.AddAsync(moodDTO);
+            var result = await _repository.AddAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -97,7 +99,7 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             MoodDTO moodDTO = null;
 
-            var result = await _repository.UpdateAsync(moodDTO);
+            var result = await _repository.UpdateAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Mood object is null.");
@@ -108,7 +110,7 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             var moodDTO = new MoodDTO { MoodId = Guid.NewGuid(), MoodName = "Calm", MoodTypeId = 3 };
 
-            var result = await _repository.UpdateAsync(moodDTO);
+            var result = await _repository.UpdateAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("Didn't find any mood with the provided moodId.");
@@ -122,7 +124,7 @@
             await _context.SaveChangesAsync();
 
             var moodDTO = new MoodDTO { MoodId = existingMood.MoodId, MoodName = "Relaxed", MoodTypeId = 1 };
-            var result = await _repository.UpdateAsync(moodDTO);
+            var result = await _repository.UpdateAsync(moodDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -138,7 +140,7 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             var moodId = Guid.Empty;
 
-            var result = await _repository.DeleteAsync(moodId);
+            var result = await _repository.DeleteAsync(moodId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided MoodId is null.");
@@ -149,7 +151,7 @@
             _context.Moods.RemoveRange(_context.Moods.ToList());
             var moodId = Guid.NewGuid();
 
-            var result = await _repository.DeleteAsync(moodId);
+            var result = await _repository.DeleteAsync(moodId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("There is no mood with provided id.");
@@ -162,7 +164,7 @@
             _context.Moods.Add(existingMood);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingMood.MoodId);
+            var result = await _repository.DeleteAsync(existingMood.MoodId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();

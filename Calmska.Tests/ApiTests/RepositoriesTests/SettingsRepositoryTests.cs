@@ -5,6 +5,7 @@
         private readonly SettingsRepository _repository;
         private readonly Mock<IMapper> _mapper;
         private readonly CalmskaDbContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public SettingsRepositoryTests()
         {
@@ -15,6 +16,7 @@
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
             _repository = new SettingsRepository(_context, _mapper.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResult()
@@ -27,7 +29,7 @@
             });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 2);
+            var result = await _repository.GetAllAsync(1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
@@ -45,7 +47,7 @@
 
             var settingsDTO = new SettingsDTO { Color = "Blue", PomodoroBreak = null, PomodoroTimer = null };
 
-            var result = await _repository.GetAllByArgumentAsync(settingsDTO, 1, 2);
+            var result = await _repository.GetAllByArgumentAsync(settingsDTO, 1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().Color.Should().Be("Blue");
@@ -61,7 +63,7 @@
 
             var settingsDTO = new SettingsDTO { SettingsId = settings.SettingsId };
 
-            var result = await _repository.GetByArgumentAsync(settingsDTO);
+            var result = await _repository.GetByArgumentAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result!.Color.Should().Be("Yellow");
@@ -73,7 +75,7 @@
             _context.RemoveRange(_context.SettingsDb.ToList());
             SettingsDTO settingsDTO = null;
 
-            var result = await _repository.AddAsync(settingsDTO);
+            var result = await _repository.AddAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Settings object is null.");
@@ -88,7 +90,7 @@
 
             var settingsDTO = new SettingsDTO { UserId = existingSettings.UserId, Color = "Red" };
 
-            var result = await _repository.AddAsync(settingsDTO);
+            var result = await _repository.AddAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Contain("The settings object exists for the user with id:");
@@ -101,7 +103,7 @@
             _mapper.Setup(m => m.Map<Settings>(It.IsAny<SettingsDTO>()))
                        .Returns(new Settings { UserId = settingsDTO.UserId ?? Guid.Empty, Color = settingsDTO.Color, PomodoroBreak = "5", PomodoroTimer = "45" });
 
-            var result = await _repository.AddAsync(settingsDTO);
+            var result = await _repository.AddAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -113,7 +115,7 @@
             _context.RemoveRange(_context.SettingsDb.ToList());
             SettingsDTO settingsDTO = null;
 
-            var result = await _repository.UpdateAsync(settingsDTO);
+            var result = await _repository.UpdateAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Settings object is null.");
@@ -124,7 +126,7 @@
             _context.RemoveRange(_context.SettingsDb.ToList());
             var settingsDTO = new SettingsDTO { SettingsId = Guid.NewGuid(), Color = "Yellow" };
 
-            var result = await _repository.UpdateAsync(settingsDTO);
+            var result = await _repository.UpdateAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("Didn't find any settings with the provided settingsId.");
@@ -139,7 +141,7 @@
 
             var settingsDTO = new SettingsDTO { SettingsId = existingSettings.SettingsId, Color = "Green" };
 
-            var result = await _repository.UpdateAsync(settingsDTO);
+            var result = await _repository.UpdateAsync(settingsDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -154,7 +156,7 @@
             _context.RemoveRange(_context.SettingsDb.ToList());
             var settingsId = Guid.Empty;
 
-            var result = await _repository.DeleteAsync(settingsId);
+            var result = await _repository.DeleteAsync(settingsId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided SettingsId is null.");
@@ -165,7 +167,7 @@
             _context.RemoveRange(_context.SettingsDb.ToList());
             var settingsId = Guid.NewGuid();
 
-            var result = await _repository.DeleteAsync(settingsId);
+            var result = await _repository.DeleteAsync(settingsId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("There is no settings with provided id.");
@@ -178,7 +180,7 @@
             _context.SettingsDb.Add(existingSettings);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingSettings.SettingsId);
+            var result = await _repository.DeleteAsync(existingSettings.SettingsId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();

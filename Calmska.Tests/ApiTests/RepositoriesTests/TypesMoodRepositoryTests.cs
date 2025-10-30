@@ -5,6 +5,7 @@
         private readonly Types_MoodRepository _repository;
         private readonly Mock<IMapper> _mapper;
         private readonly CalmskaDbContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public TypesMoodRepositoryTests()
         {
@@ -15,6 +16,7 @@
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
             _repository = new Types_MoodRepository(_context, _mapper.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         [Fact]
@@ -28,7 +30,7 @@
             });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 2);
+            var result = await _repository.GetAllAsync(1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(2);
             result.TotalCount.Should().Be(2);
@@ -46,7 +48,7 @@
             await _context.SaveChangesAsync();
 
             var moodsDto = new Types_MoodDTO { Type = "Calm" };
-            var result = await _repository.GetAllByArgumentAsync(moodsDto, 1, 2);
+            var result = await _repository.GetAllByArgumentAsync(moodsDto, 1, 2, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().Type.Should().Be("Calm");
@@ -62,7 +64,7 @@
             await _context.SaveChangesAsync();
 
             var moodsDto = new Types_MoodDTO { TypeId = 3 };
-            var result = await _repository.GetByArgumentAsync(moodsDto);
+            var result = await _repository.GetByArgumentAsync(moodsDto, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result!.Type.Should().Be("Relaxed");
@@ -72,7 +74,7 @@
         public async Task AddAsync_ShouldReturnError_WhenMoodDtoIsNull()
         {
             Types_MoodDTO moodsDto = null;
-            var result = await _repository.AddAsync(moodsDto);
+            var result = await _repository.AddAsync(moodsDto, _cancellationTokenSource.Token);
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Type_mood object is null.");
         }
@@ -84,7 +86,7 @@
             _mapper.Setup(m => m.Map<Types_Mood>(It.IsAny<Types_MoodDTO>()))
                    .Returns(new Types_Mood { Type = moodsDto.Type });
 
-            var result = await _repository.AddAsync(moodsDto);
+            var result = await _repository.AddAsync(moodsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -95,7 +97,7 @@
         public async Task UpdateAsync_ShouldReturnError_WhenMoodDtoIsNull()
         {
             Types_MoodDTO moodsDto = null;
-            var result = await _repository.UpdateAsync(moodsDto);
+            var result = await _repository.UpdateAsync(moodsDto, _cancellationTokenSource.Token);
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided Type_mood object is null.");
         }
@@ -108,7 +110,7 @@
             await _context.SaveChangesAsync();
 
             var moodsDto = new Types_MoodDTO { TypeId = 4, Type = "Excited" };
-            var result = await _repository.UpdateAsync(moodsDto);
+            var result = await _repository.UpdateAsync(moodsDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -121,7 +123,7 @@
         [Fact]
         public async Task DeleteAsync_ShouldReturnError_WhenMoodIdIsInvalid()
         {
-            var result = await _repository.DeleteAsync(0);
+            var result = await _repository.DeleteAsync(0, _cancellationTokenSource.Token);
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided type_moodId is <= 0.");
         }
@@ -133,7 +135,7 @@
             _context.Types_MoodDb.Add(existingMood);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingMood.TypeId);
+            var result = await _repository.DeleteAsync(existingMood.TypeId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();

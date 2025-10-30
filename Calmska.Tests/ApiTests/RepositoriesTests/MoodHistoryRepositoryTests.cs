@@ -10,6 +10,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         private readonly MoodHistoryRepository _repository;
         private readonly Mock<IMapper> _mapper;
         private readonly CalmskaDbContext _context;
+        private readonly CancellationTokenSource _cancellationTokenSource;
         public MoodHistoryRepositoryTests()
         {
             var options = new DbContextOptionsBuilder<CalmskaDbContext>()
@@ -19,6 +20,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
             _repository = new MoodHistoryRepository(_context, _mapper.Object);
+            _cancellationTokenSource = new CancellationTokenSource();
         }
         [Fact]
         public async Task GetAllAsync_ShouldReturnPaginatedResults()
@@ -28,7 +30,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.MoodHistoryDb.Add(new MoodHistory { MoodHistoryId = Guid.NewGuid(), MoodId = Guid.NewGuid(), UserId = Guid.NewGuid(), Date = DateTime.UtcNow });
             await _context.SaveChangesAsync();
 
-            var result = await _repository.GetAllAsync(1, 1);
+            var result = await _repository.GetAllAsync(1, 1, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.PageNumber.Should().Be(1);
@@ -45,7 +47,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             var moodHistoryDto = new MoodHistoryDTO { MoodHistoryId = guid };
-            var result = await _repository.GetAllByArgumentAsync(moodHistoryDto, 1, 1);
+            var result = await _repository.GetAllByArgumentAsync(moodHistoryDto, 1, 1, _cancellationTokenSource.Token);
 
             result.Items.Should().HaveCount(1);
             result.Items.First().MoodHistoryId.Should().Be(guid);
@@ -63,7 +65,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             var moodHistoryDto = new MoodHistoryDTO { MoodHistoryId = guid };
-            var result = await _repository.GetByArgumentAsync(moodHistoryDto);
+            var result = await _repository.GetByArgumentAsync(moodHistoryDto, _cancellationTokenSource.Token);
 
             result.Should().NotBeNull();
             result.MoodHistoryId.Should().Be(guid);
@@ -74,7 +76,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.MoodHistoryDb.RemoveRange(_context.MoodHistoryDb.ToList());
             var moodHistoryDTO = new MoodHistoryDTO { MoodHistoryId = Guid.NewGuid() };
 
-            var result = await _repository.GetByArgumentAsync(moodHistoryDTO);
+            var result = await _repository.GetByArgumentAsync(moodHistoryDTO, _cancellationTokenSource.Token);
 
             result.Should().BeNull();
         }
@@ -84,7 +86,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.MoodHistoryDb.RemoveRange(_context.MoodHistoryDb.ToList());
             MoodHistoryDTO moodHistoryDTO = null;
 
-            var result = await _repository.AddAsync(moodHistoryDTO);
+            var result = await _repository.AddAsync(moodHistoryDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided MoodHistory object is null.");
@@ -98,9 +100,9 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.MoodHistoryDb.Add(existingMoodHistory);
             await _context.SaveChangesAsync();
 
-            var moodHistoryDto = new MoodHistoryDTO { UserId = guid, Date = DateTime.UtcNow, MoodId = Guid.NewGuid(), MoodHistoryId = Guid.NewGuid() };
+            var moodHistoryDto = new MoodHistoryDTO { UserId = guid, Date = DateTime.UtcNow, MoodId = Guid.NewGuid(), MoodHistoryId = null };
 
-            var result = await _repository.AddAsync(moodHistoryDto);
+            var result = await _repository.AddAsync(moodHistoryDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The moodHistory for provided UserId already exists.");
@@ -113,7 +115,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             _mapper.Setup(m => m.Map<MoodHistory>(It.IsAny<MoodHistoryDTO>()))
                        .Returns(new MoodHistory { MoodHistoryId = moodHistoryDto.MoodHistoryId ?? Guid.Empty, MoodId = moodHistoryDto.MoodId ?? Guid.Empty, UserId = moodHistoryDto.UserId ?? Guid.Empty, Date = moodHistoryDto.Date ?? DateTime.UtcNow });
-            var result = await _repository.AddAsync(moodHistoryDto);
+            var result = await _repository.AddAsync(moodHistoryDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -123,7 +125,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             MoodHistoryDTO moodHistoryDTO = null;
 
-            var result = await _repository.UpdateAsync(moodHistoryDTO);
+            var result = await _repository.UpdateAsync(moodHistoryDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided MoodHistory object is null.");
@@ -133,10 +135,10 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var moodHistoryDTO = new MoodHistoryDTO { MoodHistoryId = Guid.NewGuid(), UserId = Guid.NewGuid(), MoodId = Guid.NewGuid() };
 
-            var result = await _repository.UpdateAsync(moodHistoryDTO);
+            var result = await _repository.UpdateAsync(moodHistoryDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
-            result.Error.Should().Be("Didn't find any account with the provided userId.");
+            result.Error.Should().Be("Didn't find any mood with the provided userId.");
         }
         [Fact]
         public async Task UpdateAsync_ShouldReturnSuccess_WhenMoodHistoryIsUpdated()
@@ -147,7 +149,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             var moodHistoryDTO = new MoodHistoryDTO { MoodHistoryId = existingMoodHistory.MoodHistoryId, UserId = Guid.NewGuid(), MoodId = Guid.NewGuid() };
 
-            var result = await _repository.UpdateAsync(moodHistoryDTO);
+            var result = await _repository.UpdateAsync(moodHistoryDTO, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
@@ -163,7 +165,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var moodHistoryId = Guid.Empty;
 
-            var result = await _repository.DeleteAsync(moodHistoryId);
+            var result = await _repository.DeleteAsync(moodHistoryId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("The provided MoodHistoryId is null.");
@@ -173,7 +175,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         {
             var moodHistoryId = Guid.NewGuid();
 
-            var result = await _repository.DeleteAsync(moodHistoryId);
+            var result = await _repository.DeleteAsync(moodHistoryId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeFalse();
             result.Error.Should().Be("There is no moodHistory with provided id.");
@@ -185,7 +187,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             _context.MoodHistoryDb.Add(existingMoodHistory);
             await _context.SaveChangesAsync();
 
-            var result = await _repository.DeleteAsync(existingMoodHistory.MoodHistoryId);
+            var result = await _repository.DeleteAsync(existingMoodHistory.MoodHistoryId, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();
             result.Error.Should().BeEmpty();
