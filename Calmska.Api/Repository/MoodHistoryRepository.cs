@@ -16,14 +16,17 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<PaginatedResult<MoodHistory>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<MoodHistory>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            var query = await Task.Run(_context.MoodHistoryDb.AsQueryable);
+            token.ThrowIfCancellationRequested();
+            var query = await Task.Run(_context.MoodHistoryDb.AsQueryable, token);
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<PaginatedResult<MoodHistory>> GetAllByArgumentAsync(MoodHistoryDTO moodHistoryDTO, int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<MoodHistory>> GetAllByArgumentAsync(MoodHistoryDTO moodHistoryDTO, int? pageNumber, int? pageSize,
+            CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             var query = await Task.Run(_context.MoodHistoryDb
                 .Where(item =>
                     (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
@@ -31,13 +34,14 @@ namespace Calmska.Api.Repository
                     (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
                     (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
-                .AsQueryable);
+                .AsQueryable, token);
 
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<MoodHistory?> GetByArgumentAsync(MoodHistoryDTO moodHistoryDTO)
+        public async Task<MoodHistory?> GetByArgumentAsync(MoodHistoryDTO moodHistoryDTO, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             return await _context.MoodHistoryDb
                 .Where(item =>
                     (!moodHistoryDTO.MoodHistoryId.HasValue || item.MoodHistoryId == moodHistoryDTO.MoodHistoryId) &&
@@ -45,26 +49,27 @@ namespace Calmska.Api.Repository
                     (!moodHistoryDTO.UserId.HasValue || item.UserId == moodHistoryDTO.UserId) &&
                     (!moodHistoryDTO.MoodId.HasValue || item.MoodId == moodHistoryDTO.MoodId)
                 )
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(token);
         }
 
-        public async Task<OperationResult> AddAsync(MoodHistoryDTO moodHistoryDTO)
+        public async Task<OperationResult> AddAsync(MoodHistoryDTO moodHistoryDTO, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (moodHistoryDTO == null)
                     return new OperationResult { Result = false, Error = "The provided MoodHistory object is null." };
 
-                var userByEmail = GetByArgumentAsync(new MoodHistoryDTO { UserId = moodHistoryDTO.UserId, MoodId = Guid.Empty, Date = null, MoodHistoryId = Guid.Empty });
+                var userByEmail = GetByArgumentAsync(new MoodHistoryDTO { UserId = moodHistoryDTO.UserId, MoodId = null, Date = null, MoodHistoryId = null }, token);
                 if (userByEmail.Result != null)
                     return new OperationResult { Result = false, Error = "The moodHistory for provided UserId already exists." };
 
                 moodHistoryDTO.Date = DateTime.UtcNow;
 
                 var moodHistory = _mapper.Map<MoodHistory>(moodHistoryDTO);
-                await _context.MoodHistoryDb.AddAsync(moodHistory);
+                await _context.MoodHistoryDb.AddAsync(moodHistory, token);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)
@@ -73,14 +78,15 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(MoodHistoryDTO moodHistoryDTO)
+        public async Task<OperationResult> UpdateAsync(MoodHistoryDTO moodHistoryDTO, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (moodHistoryDTO == null)
                     return new OperationResult { Result = false, Error = "The provided MoodHistory object is null." };
 
-                MoodHistory? existingMoodHistory = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == moodHistoryDTO.MoodHistoryId);
+                MoodHistory? existingMoodHistory = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == moodHistoryDTO.MoodHistoryId, token);
                 if (existingMoodHistory == null)
                     return new OperationResult { Result = false, Error = "Didn't find any mood with the provided userId." };
 
@@ -88,7 +94,7 @@ namespace Calmska.Api.Repository
                 existingMoodHistory.UserId = moodHistoryDTO.UserId ?? Guid.Empty;
                 existingMoodHistory.MoodId = moodHistoryDTO.MoodId ?? Guid.Empty;
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)
@@ -97,20 +103,21 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(Guid moodHistoryId)
+        public async Task<OperationResult> DeleteAsync(Guid moodHistoryId, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (moodHistoryId == Guid.Empty)
                     return new OperationResult { Result = false, Error = "The provided MoodHistoryId is null." };
 
-                var moodHistoryObject = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == moodHistoryId);
+                var moodHistoryObject = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == moodHistoryId, token);
                 if (moodHistoryObject == null)
                     return new OperationResult { Result = false, Error = "There is no moodHistory with provided id." };
 
                 _context.MoodHistoryDb.Remove(moodHistoryObject);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)

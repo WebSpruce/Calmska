@@ -16,47 +16,51 @@ namespace Calmska.Api.Repository
             _context = context;
             _mapper = mapper;
         }
-        public async Task<PaginatedResult<Tips>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<Tips>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            var query = await Task.Run(_context.TipsDb.AsQueryable);
+            token.ThrowIfCancellationRequested();
+            var query = await Task.Run(_context.TipsDb.AsQueryable, token);
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<PaginatedResult<Tips>> GetAllByArgumentAsync(TipsDTO tips, int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<Tips>> GetAllByArgumentAsync(TipsDTO tips, int? pageNumber, int? pageSize, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             var query = await Task.Run(_context.TipsDb
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
                     (tips.TipsTypeId == null || tips.TipsTypeId <= 0 || item.TipsTypeId == tips.TipsTypeId)
                 )
-                .AsQueryable);
+                .AsQueryable, token);
 
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<Tips?> GetByArgumentAsync(TipsDTO tips)
+        public async Task<Tips?> GetByArgumentAsync(TipsDTO tips, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             return await _context.TipsDb
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || item.Content.ToLower().Contains(tips.Content.ToLower())) &&
                     (tips.TipsTypeId == null || tips.TipsTypeId <= 0 || item.TipsTypeId == tips.TipsTypeId)
                 )
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(token);
         }
 
-        public async Task<OperationResult> AddAsync(TipsDTO tipsDto)
+        public async Task<OperationResult> AddAsync(TipsDTO tipsDto, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (tipsDto == null)
                     return new OperationResult { Result = false, Error = "The provided Tips object is null." };
 
                 var tips = _mapper.Map<Tips>(tipsDto);
-                await _context.TipsDb.AddAsync(tips);
+                await _context.TipsDb.AddAsync(tips, token);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)
@@ -65,21 +69,22 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(TipsDTO tips)
+        public async Task<OperationResult> UpdateAsync(TipsDTO tips, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (tips == null)
                     return new OperationResult { Result = false, Error = "The provided Tip object is null." };
 
-                Tips? existingTip = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == tips.TipId);
+                Tips? existingTip = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == tips.TipId, token);
                 if (existingTip == null)
                     return new OperationResult { Result = false, Error = "Didn't find any tip with the provided tipsId." };
 
                 existingTip.Content = tips.Content ?? string.Empty;
                 existingTip.TipsTypeId = tips.TipsTypeId ?? 0;
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)
@@ -88,20 +93,21 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(Guid tipsId)
+        public async Task<OperationResult> DeleteAsync(Guid tipsId, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (tipsId == Guid.Empty)
                     return new OperationResult { Result = false, Error = "The provided TipsId is null." };
 
-                var tipObject = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == tipsId);
+                var tipObject = await _context.TipsDb.FirstOrDefaultAsync(t => t.TipId == tipsId, token);
                 if (tipObject == null)
                     return new OperationResult { Result = false, Error = "There is no tip with provided id." };
 
                 _context.TipsDb.Remove(tipObject);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)

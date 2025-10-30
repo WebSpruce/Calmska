@@ -5,6 +5,6 @@ namespace Calmska.Api.Interfaces
 {
     public interface IAccountRepository : IRepository<Account, AccountDTO>
     {
-        Task<bool> LoginAsync(AccountDTO filter);
+        Task<bool> LoginAsync(AccountDTO filter, CancellationToken token);
     }
 }

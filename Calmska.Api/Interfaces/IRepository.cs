@@ -4,11 +4,11 @@ namespace Calmska.Api.Interfaces
 {
     public interface IRepository<TEntity, TFilter>
     {
-        Task<PaginatedResult<TEntity>> GetAllAsync(int? pageNumber, int? pageSize);
-        Task<PaginatedResult<TEntity>> GetAllByArgumentAsync(TFilter filter, int? pageNumber, int? pageSize);
-        Task<TEntity?> GetByArgumentAsync(TFilter filter);
-        Task<OperationResult> AddAsync(TFilter entity);
-        Task<OperationResult> UpdateAsync(TFilter entity);
-        Task<OperationResult> DeleteAsync(Guid id);
+        Task<PaginatedResult<TEntity>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token);
+        Task<PaginatedResult<TEntity>> GetAllByArgumentAsync(TFilter filter, int? pageNumber, int? pageSize, CancellationToken token);
+        Task<TEntity?> GetByArgumentAsync(TFilter filter, CancellationToken token);
+        Task<OperationResult> AddAsync(TFilter entity, CancellationToken token);
+        Task<OperationResult> UpdateAsync(TFilter entity, CancellationToken token);
+        Task<OperationResult> DeleteAsync(Guid id, CancellationToken token);
     }
 }

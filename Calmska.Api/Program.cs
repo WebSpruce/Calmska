@@ -1,5 +1,6 @@
 using Calmska.Api.Endpoints;
 using Calmska.Api.Interfaces;
+using Calmska.Api.Middlewares;
 using Calmska.Api.Repository;
 using Calmska.Models.DTO;
 using Calmska.Models.Models;
@@ -33,7 +34,15 @@ namespace Calmska.Api
             string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
             string firebaseApiKey = Environment.GetEnvironmentVariable("calmska_firebaseApiKey") ?? string.Empty;
             builder.Services.AddDbContext<CalmskaDbContext>(options =>
-            options.UseMongoDB(atlasURI, dbName));
+                {
+                    if (string.IsNullOrEmpty(atlasURI))
+                        throw new InvalidOperationException("MongoDB atlasURI is not configured.");
+                    if (string.IsNullOrEmpty(firebaseApiKey))
+                        throw new InvalidOperationException("MongoDB dbName is not configured.");
+                    
+                    options.UseMongoDB(atlasURI, dbName);
+                }
+            );
 
             builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -47,15 +56,21 @@ namespace Calmska.Api
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddAuthorization();
-            builder.Services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig()
+            builder.Services.AddSingleton<IFirebaseAuthClient>(sp =>
             {
-                ApiKey = firebaseApiKey,
-                AuthDomain = "calmska.firebaseapp.com",
-                Providers = new FirebaseAuthProvider[]
+                if (string.IsNullOrEmpty(firebaseApiKey))
+                    throw new InvalidOperationException("Firebase API Key is not configured.");
+                
+                return new FirebaseAuthClient(new FirebaseAuthConfig()
                 {
-                    new EmailProvider()
-                }
-            }));
+                    ApiKey = firebaseApiKey,
+                    AuthDomain = "calmska.firebaseapp.com",
+                    Providers = new FirebaseAuthProvider[]
+                    {
+                        new EmailProvider()
+                    }
+                });
+            });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.RegisterModules();
@@ -63,6 +78,8 @@ namespace Calmska.Api
 
             var app = builder.Build();
 
+            app.UseMiddleware<RequestLoggingMiddleware>();
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -72,7 +89,7 @@ namespace Calmska.Api
             {
                 app.UseForwardedHeaders();
             }
-
+            
             app.UseHttpsRedirection();
             app.UseAuthorization();
             

@@ -12,22 +12,25 @@ namespace Calmska.Api.Repository
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
-        private readonly FirebaseAuthClient _authClient;
-        public AccountRepository(CalmskaDbContext context, IMapper mapper, FirebaseAuthClient authClient) 
+        private readonly IFirebaseAuthClient _authClient;
+        public AccountRepository(CalmskaDbContext context, IMapper mapper, IFirebaseAuthClient authClient) 
         {
             _context = context;
             _mapper = mapper;
             _authClient = authClient;
         }
        
-        public async Task<PaginatedResult<Account>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<Account>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            var query = await Task.Run(_context.Accounts.AsQueryable);
+            token.ThrowIfCancellationRequested();
+            var query = await Task.Run(_context.Accounts.AsQueryable, token);
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<PaginatedResult<Account>> GetAllByArgumentAsync(AccountDTO account, int? pageNumber, int? pageSize)
+        public async Task<PaginatedResult<Account>> GetAllByArgumentAsync(AccountDTO account, int? pageNumber, int? pageSize,
+            CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             var query = await Task.Run(_context.Accounts
             .Where(item =>
                 (!account.UserId.HasValue || item.UserId == account.UserId) &&
@@ -35,13 +38,14 @@ namespace Calmska.Api.Repository
                 (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                 (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed == account.PasswordHashed)
             )
-            .AsQueryable);
+            .AsQueryable, token);
 
             return Pagination.Paginate(query, pageNumber, pageSize);
         }
 
-        public async Task<Account?> GetByArgumentAsync(AccountDTO account)
+        public async Task<Account?> GetByArgumentAsync(AccountDTO account, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
             return await _context.Accounts
                 .Where(item =>
                     (!account.UserId.HasValue || item.UserId == account.UserId) &&
@@ -49,13 +53,14 @@ namespace Calmska.Api.Repository
                     (string.IsNullOrEmpty(account.Email) || item.Email.ToLower().Contains(account.Email.ToLower())) &&
                     (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed == account.PasswordHashed)
                 )
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(token);
         }
-        public async Task<bool> LoginAsync(AccountDTO account)
+        public async Task<bool> LoginAsync(AccountDTO account, CancellationToken token)
         {
             try
             {
-                var userExists = await _context.Accounts.FirstOrDefaultAsync(u => u.Email == account.Email);
+                token.ThrowIfCancellationRequested();
+                var userExists = await _context.Accounts.FirstOrDefaultAsync(u => u.Email == account.Email, token);
                 if (userExists == null)
                 {
                     return false;
@@ -72,14 +77,16 @@ namespace Calmska.Api.Repository
                 return false;
             }
         }
-        public async Task<OperationResult> AddAsync(AccountDTO accountDto)
+        public async Task<OperationResult> AddAsync(AccountDTO accountDto, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
+                
                 if (accountDto == null)
                     return new OperationResult { Result = false, Error = "The provided Account object is null." };
 
-                var userByEmail = await GetByArgumentAsync(new AccountDTO { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = Guid.Empty});
+                var userByEmail = await GetByArgumentAsync(new AccountDTO { Email = accountDto.Email, PasswordHashed = string.Empty, UserName = string.Empty, UserId = null}, token);
                 if (userByEmail != null)
                     return new OperationResult { Result = false, Error = "The user with provided email exists." };
 
@@ -87,9 +94,9 @@ namespace Calmska.Api.Repository
                 accountDto.PasswordHashed = HashPassword.SetHash(accountDto.PasswordHashed);
                 //if firebase fails, it throws an exception
                 var account = _mapper.Map<Account>(accountDto);
-                await _context.Accounts.AddAsync(account);
+                await _context.Accounts.AddAsync(account, token);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 if(result > 0)
                     await _authClient.CreateUserWithEmailAndPasswordAsync(accountDto.Email, accountDto.PasswordHashed);
 
@@ -100,14 +107,15 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(AccountDTO account)
+        public async Task<OperationResult> UpdateAsync(AccountDTO account, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (account == null)
                     return new OperationResult { Result = false, Error = "The provided Account object is null." };
 
-                Account? existingAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == account.UserId);
+                Account? existingAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == account.UserId, token);
                 if(existingAccount == null)
                     return new OperationResult { Result = false, Error = "Didn't find any account with the provided userId." };
 
@@ -116,7 +124,7 @@ namespace Calmska.Api.Repository
                 if (!string.IsNullOrEmpty(account.PasswordHashed))
                     existingAccount.PasswordHashed = BCrypt.Net.BCrypt.HashPassword(account.PasswordHashed);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)
@@ -125,20 +133,21 @@ namespace Calmska.Api.Repository
             }
         }
 
-        public async Task<OperationResult> DeleteAsync(Guid accountId)
+        public async Task<OperationResult> DeleteAsync(Guid accountId, CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 if (accountId == Guid.Empty)
                     return new OperationResult { Result = false, Error = "The provided AccountId is null." };
 
-                var accountObject = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == accountId);
+                var accountObject = await _context.Accounts.FirstOrDefaultAsync(a => a.UserId == accountId, token);
                 if (accountObject == null)
                     return new OperationResult { Result = false, Error = "There is no settings with provided id." };
 
                 _context.Accounts.Remove(accountObject);
 
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(token);
                 return new OperationResult { Result = result > 0 ? true : false, Error = string.Empty };
             }
             catch (Exception ex)

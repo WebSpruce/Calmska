@@ -12,15 +12,21 @@ public class MoodHistoryEndpoints : IModule
         var moodHistory = app
             .MapGroup(ApiRoutes.MoodHistory.GroupName)
             .WithTags("MoodHistory");
-        moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+        moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
+            CancellationToken token) =>
         {
-            var result = await moodHistoryRepository.GetAllAsync(pageNumber, pageSize);
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
+            var result = await moodHistoryRepository.GetAllAsync(pageNumber, pageSize, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"MoodHistory not found: {result?.error}");
         });
         moodHistory.MapGet("/searchList", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
             [FromQuery] Guid? moodHistoryId, [FromQuery] string? date, [FromQuery] Guid? userId, [FromQuery] Guid? moodId,
-            [FromQuery] int? pageNumber, [FromQuery] int? pageSize) =>
+            [FromQuery] int? pageNumber, [FromQuery] int? pageSize, CancellationToken token) =>
         {
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
+            
             DateTime? parsedDate = null;
             if (!string.IsNullOrEmpty(date))
             {
@@ -38,12 +44,16 @@ public class MoodHistoryEndpoints : IModule
                 UserId = userId,
                 MoodId = moodId,
             };
-            var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDto, pageNumber, pageSize);
+            var result = await moodHistoryRepository.GetAllByArgumentAsync(moodHistoryDto, pageNumber, pageSize, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"MoodHistory not found: {result?.error}");
         });
         moodHistory.MapGet("/search", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
-            [FromQuery] Guid? moodHistoryId, [FromQuery] string? date, [FromQuery] Guid? userId, [FromQuery] Guid? moodId) =>
+            [FromQuery] Guid? moodHistoryId, [FromQuery] string? date, [FromQuery] Guid? userId, [FromQuery] Guid? moodId,
+            CancellationToken token) =>
         {
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
+            
             DateTime? parsedDate = null;
             if (!string.IsNullOrEmpty(date))
             {
@@ -61,12 +71,14 @@ public class MoodHistoryEndpoints : IModule
                 UserId = userId,
                 MoodId = moodId,
             };
-            var result = await moodHistoryRepository.GetByArgumentAsync(moodHistoryDto);
+            var result = await moodHistoryRepository.GetByArgumentAsync(moodHistoryDto, token);
             return result != null ? Results.Ok(result) : Results.NotFound("Setting not found");
         });
         moodHistory.MapPost("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
-            [FromBody] MoodHistoryDTO moodHistoryDto) =>
+            [FromBody] MoodHistoryDTO moodHistoryDto, CancellationToken token) =>
         {
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
             DateTime? parsedDate = null;
             if (!string.IsNullOrEmpty(moodHistoryDto.Date.ToString()))
             {
@@ -77,12 +89,14 @@ public class MoodHistoryEndpoints : IModule
                 parsedDate = validDate;
             }
             moodHistoryDto.Date = parsedDate;
-            var result = await moodHistoryRepository.AddAsync(moodHistoryDto);
+            var result = await moodHistoryRepository.AddAsync(moodHistoryDto, token);
             return result.Result ? Results.Created($"/{moodHistoryDto.UserId}", moodHistoryDto) : Results.BadRequest(result.Error);
         });
         moodHistory.MapPut("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository,
-            [FromBody] MoodHistoryDTO moodHistoryDto) =>
+            [FromBody] MoodHistoryDTO moodHistoryDto, CancellationToken token) =>
         {
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
             DateTime? parsedDate = null;
             if (!string.IsNullOrEmpty(moodHistoryDto.Date.ToString()))
             {
@@ -93,12 +107,15 @@ public class MoodHistoryEndpoints : IModule
                 parsedDate = validDate;
             }
             moodHistoryDto.Date = parsedDate;
-            var result = await moodHistoryRepository.UpdateAsync(moodHistoryDto);
+            var result = await moodHistoryRepository.UpdateAsync(moodHistoryDto, token);
             return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
         });
-        moodHistory.MapDelete("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] Guid moodHistoryId) =>
+        moodHistory.MapDelete("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromBody] Guid moodHistoryId,
+            CancellationToken token) =>
         {
-            var result = await moodHistoryRepository.DeleteAsync(moodHistoryId);
+            if (token.IsCancellationRequested)
+                return Results.StatusCode(499);
+            var result = await moodHistoryRepository.DeleteAsync(moodHistoryId, token);
             return result.Result ? Results.Ok("MoodHistory deleted successfully") : Results.BadRequest(result.Error);
         });
     }
