@@ -38,6 +38,20 @@
 
 ### 🏗️ Project Layout
 - MAUI
+  - <strong>Controls:</strong> Custom controls
+  - <strong>Helper:</strong> Converters, icons, prompts for llm
+  - <strong>Platforms:</strong>
+    - <strong>Android:</strong>
+      - <strong>BroadcastReceivers:</strong>
+        - <strong>BootReceiver.cs</strong>: Re-schedules daily notifications after device reboot.
+        - <strong>MoodNotificationReceiver.cs</strong>: Receives alarm broadcasts and displays actual mood reminder notification with navigation capability.
+      - <strong>ForegroundServices:</strong>
+        - <strong>MoodNotificationService.cs</strong>: A foreground service that schedules daily mood notifications and immediately terminates.
+      - <strong>MainActivity.cs</strong>: Main activity handling app lifecycle, permissions, notification channel creation, and deep link navigation from notifications.
+      - <strong>NotificationScheduler.cs</strong>: Manages scheduling and cancellation of daily mood notifications using Android AlarmManager.
+  - <strong>ViewModels:</strong> ViewModels for pages
+  - <strong>Views:</strong> Pages
+  - <strong>MauiProgram.cs</strong> Registering viewmodels and services
 - API
   - <strong>Program.cs</strong>: Configures dependency injection, AutoMapper, and repository setup.
   - <strong>CalmskaDbContext.cs</strong>: Manages database initialization and table definitions.
@@ -71,7 +85,7 @@
 - <strong>DTO (Data Transfer Objects)</strong>: Streamlines communication between layers.
 - <strong>AutoMapper</strong>: Simplifies object mapping and transformation.
 - <strong>Pagination</strong>: Efficient handling of large datasets in API responses.
-
+- <strong>Unit Tests</strong>: Using xUnit, Fluent Assertions and Moq nuggets
 ---
 
 [🖌 View App UI/UX Design](https://www.figma.com/design/mdhVEHFrAAc71qLnXgYBFo/Calmska?node-id=0-1&t=RiXjXKAvAoGOzCzG-1) 
