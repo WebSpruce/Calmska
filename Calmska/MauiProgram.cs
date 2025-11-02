@@ -8,6 +8,7 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using Calmska.Services;
 using Plugin.Maui.Audio;
 
 namespace Calmska
@@ -37,6 +38,7 @@ namespace Calmska
     		builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton(AudioManager.Current);
+            builder.Services.AddSingleton<PomodoroTimerService>();
             
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
@@ -50,6 +52,7 @@ namespace Calmska
 
             builder.Services.AddSingleton<CustomTabBarViewModel>();
             builder.Services.AddTransient<PomodoroViewModel>();
+
 
             builder.AddAppSettings();
 

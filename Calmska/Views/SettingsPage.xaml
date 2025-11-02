@@ -47,13 +47,14 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
-                    <Grid ColumnDefinitions="*,*">
-                        <VerticalStackLayout Grid.Column="0" Spacing="10">
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="0.2*,*,2*">
+                        
                             <Label Text="{x:Static calmska:IconFont.Timer}" Style="{x:StaticResource MaterialIcons}"
-                                FontSize="30" TextColor="White" HorizontalTextAlignment="Center"/>
-                            <Label Text="Working time" TextColor="White"
-                                FontSize="26" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*">
+                                   Grid.Column="0" Grid.Row="0"
+                                FontSize="30" TextColor="White" HorizontalTextAlignment="Center" />
+                            <Label Text="Working time" Grid.Column="0" Grid.Row="1" TextColor="White"
+                                FontSize="22" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Row="2" Grid.Column="0">
                                 <Label Text="Hours:" TextColor="White" Grid.Column="0" Grid.Row="0"
                                     FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
                                 <Entry Placeholder="Hours" Text="{Binding EWorkingTimeHours}" Grid.Column="1" Grid.Row="0" Keyboard="Numeric"
@@ -72,14 +73,13 @@
                                     TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
                                     Margin="5,0" VerticalOptions="Center"/>
                             </Grid>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="1" Spacing="10">
+                            
                             <Label Text="{x:Static calmska:IconFont.Emoji_food_beverage}" Style="{x:StaticResource MaterialIcons}"
+                                   Grid.Column="1" Grid.Row="0"
                                 FontSize="30" TextColor="White" HorizontalTextAlignment="Center"/>
-                            <Label Text="Break time" TextColor="White"
-                                FontSize="26" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*">
+                            <Label Text="Break time" TextColor="White" Grid.Column="1" Grid.Row="1"
+                                FontSize="22" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Column="1" Grid.Row="2">
                                 <Label Text="Hours:" TextColor="White" Grid.Column="0" Grid.Row="0"
                                     FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
                                 <Entry Placeholder="Hours" Text="{Binding EBreakTimeHours}" Grid.Column="1" Grid.Row="0" Keyboard="Numeric"
@@ -98,7 +98,7 @@
                                     TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
                                     Margin="5,0" VerticalOptions="Center"/>
                             </Grid>
-                        </VerticalStackLayout>
+                       
                     </Grid>
                 </Border>
 
@@ -114,12 +114,14 @@
                     </Border.StrokeShape>
                     <VerticalStackLayout>
                         <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                            <Label Text="Enable Mood Notifications" />
-                            <Switch IsToggled="{Binding NotificationsEnabled, Mode=TwoWay}"/>
+                            <Label Text="Enable Mood Notifications  " VerticalTextAlignment="Center"/>
+                            <Switch IsToggled="{Binding NotificationsEnabled, Mode=TwoWay}"
+                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                            <Label Text="Select Notification Time:" />
-                            <TimePicker Time="{Binding SelectedNotificationTime, Mode=TwoWay}" />
+                            <Label Text="Select Notification Time:  " VerticalTextAlignment="Center"/>
+                            <TimePicker Time="{Binding SelectedNotificationTime, Mode=TwoWay}" 
+                                        VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
