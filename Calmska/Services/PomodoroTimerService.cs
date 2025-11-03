@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Android.Content;
+using Calmska.Platforms.Android.ForegroundServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Plugin.Maui.Audio;
 
@@ -51,6 +53,11 @@ public partial class PomodoroTimerService : ObservableObject, IDisposable
             if (IsRunning) return;
 
             IsRunning = true;
+#if ANDROID
+            var intent = new Intent(Android.App.Application.Context, typeof(PomodoroTimeNotificationService));
+            intent.SetAction("START");
+            Android.App.Application.Context.StartForegroundService(intent);
+#endif
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
             _timerTask = RunTimerAsync(_cancellationTokenSource.Token);
@@ -62,6 +69,11 @@ public partial class PomodoroTimerService : ObservableObject, IDisposable
 
             IsRunning = false;
             _cancellationTokenSource?.Cancel();
+#if ANDROID
+            var intent = new Intent(Android.App.Application.Context, typeof(PomodoroTimeNotificationService));
+            intent.SetAction("STOP");
+            Android.App.Application.Context.StartForegroundService(intent);
+#endif
         }
 
         public void Reset()
@@ -78,11 +90,10 @@ public partial class PomodoroTimerService : ObservableObject, IDisposable
                 while (IsRunning && !token.IsCancellationRequested)
                 {
                     await Task.Delay(1000, token);
-
                     if (token.IsCancellationRequested) return;
 
                     TimeRemaining--;
-
+                
                     if (TimeRemaining <= 0)
                     {
                         IsWorkSession = !IsWorkSession;
@@ -91,14 +102,8 @@ public partial class PomodoroTimerService : ObservableObject, IDisposable
                     }
                 }
             }
-            catch (OperationCanceledException)
-            {
-                Debug.WriteLine("Timer task was canceled.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An unexpected error occurred in the timer: {ex.Message}");
-            }
+            catch (OperationCanceledException) {}
+            catch (Exception ex) { Debug.WriteLine($"Timer Error: {ex.Message}"); }
         }
 
         private async Task PlaySoundAsync()

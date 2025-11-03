@@ -18,6 +18,7 @@
 			</intent-filter>
 		</receiver>
 		<service android:name=".MoodNotificationService" android:foregroundServiceType="dataSync" />
+		<service android:name=".PomodoroTimeNotificationService" android:foregroundServiceType="shortService"/>
 		
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

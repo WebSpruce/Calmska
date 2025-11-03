@@ -45,8 +45,24 @@ namespace Calmska.ViewModels
         }
 
         [RelayCommand]
-        private void PlayPause()
+        private async Task PlayPause()
         {
+#if ANDROID
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu) // API 33
+            {
+                var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.PostNotifications>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        await Shell.Current.DisplayAlert("Permission Needed", 
+                            "Notification permission is required to show the timer in the background.", "OK");
+                        return;
+                    }
+                }
+            }
+#endif
             if (_timerService.IsRunning)
             {
                 _timerService.Pause();

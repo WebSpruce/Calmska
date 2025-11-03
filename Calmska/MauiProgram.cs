@@ -15,6 +15,7 @@ namespace Calmska
 {
     public static class MauiProgram
     {
+        public static IServiceProvider Services { get; private set; }
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -80,7 +81,11 @@ namespace Calmska
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
             
-            return builder.Build();
+            var app = builder.Build(); // Build the app
+
+            Services = app.Services; // <-- ASSIGN THE SERVICE PROVIDER
+
+            return app;
         }
         public static void AddView<TView, TViewModel>(
             this IServiceCollection services,
