@@ -77,7 +77,7 @@ namespace Calmska.ViewModels
                     await Shell.Current.DisplayAlert("Warning", "Error while getting user's information.", "Close");
                     return;
                 }
-                var result = await _moodhistoryService.AddAsync(new MoodHistoryDTO { Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId });
+                var result = await _moodhistoryService.AddAsync(new MoodHistoryDTO { Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId, MoodHistoryId = Guid.NewGuid() });
                 if (result == null || result?.Result == null || result.Error != string.Empty)
                 {
                     await Shell.Current.DisplayAlert("Warning", $"Error while getting user's information.\n{result?.Error}", "Close");

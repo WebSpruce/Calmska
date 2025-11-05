@@ -44,7 +44,7 @@ namespace Calmska.ViewModels
         }
 
         [RelayCommand]
-        internal async void Login()
+        internal async Task Login()
         {
             IsActivityIndicatorRunning = true;
             try
@@ -70,22 +70,15 @@ namespace Calmska.ViewModels
                     await SecureStorage.Default.SetAsync("user_info", userJson);
 
                     // Check if it has a pending navigation from notification
+                    Application.Current.MainPage = new AppShell();
+                    
                     string navigateAfterLogin = Preferences.Default.Get("NavigateAfterLogin", string.Empty);
                     Preferences.Default.Remove("NavigateAfterLogin");
 
                     if (!string.IsNullOrEmpty(navigateAfterLogin))
                     {
-#if ANDROID
-                        Android.Util.Log.Debug("NavigationDebug", $"Navigating after login to: {navigateAfterLogin}");
-#endif
-                        await Shell.Current.GoToAsync($"{navigateAfterLogin}", new Dictionary<string, object>
-                        {
-                            ["navigationAfterLogin"] = true
-                        });
-                    }
-                    else
-                    {
-                        await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                        await Task.Delay(100); 
+                        await Shell.Current.GoToAsync($"//{navigateAfterLogin}");
                     }
 
                 }
@@ -98,7 +91,7 @@ namespace Calmska.ViewModels
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", "Something is wrong. Try again.", "Close");
+                await Application.Current.MainPage.DisplayAlert("Warning", "Something is wrong. Try again.", "Close");
 #if ANDROID
                 Android.Util.Log.Error("LoginDebug", $"Login error: {ex.Message}");
 #endif
@@ -111,7 +104,15 @@ namespace Calmska.ViewModels
         [RelayCommand]
         internal async Task GoToRegister()
         {
-            await Shell.Current.GoToAsync($"{nameof(RegisterPage)}");
+            try
+            {
+                var registerPage = MauiProgram.Services.GetRequiredService<RegisterPage>();
+                await Application.Current.MainPage.Navigation.PushAsync(registerPage);
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Could not open the registration page.", "OK");
+            }
         }
     }
 }

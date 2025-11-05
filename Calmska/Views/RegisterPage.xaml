@@ -3,7 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.RegisterPage"
              BackgroundColor="#344E41"
-             HideSoftInputOnTapped="True">
+             HideSoftInputOnTapped="True"
+             Shell.FlyoutItemIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
+             >
     <Grid>
         <Image Source="{Binding BackgroundImageSource}" 
                Aspect="AspectFill" Opacity="0.4" ScaleX="-1.2" ScaleY="1.2" Margin="0,-100,-160,0" VerticalOptions="Start" HorizontalOptions="End"/>

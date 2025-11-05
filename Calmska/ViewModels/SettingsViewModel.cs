@@ -192,17 +192,19 @@ namespace Calmska.ViewModels
             }
         }
         [RelayCommand]
-        private async Task Logout()
+        private void Logout()
         {
             try
             {
                 SecureStorage.Default.Remove("user_info");
-                await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+                Preferences.Default.Clear(); 
+                var loginPage = MauiProgram.Services.GetRequiredService<LoginPage>();
+                Application.Current.MainPage = new NavigationPage(loginPage);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Logout error: {ex.Message}");
-                await Shell.Current.DisplayAlert("Error", "Logout failed. Please try again.", "OK");
+                Application.Current.MainPage.DisplayAlert("Error", "Logout failed. Please try again.", "OK");
             }
         }
 #if ANDROID

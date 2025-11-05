@@ -102,7 +102,7 @@ namespace Calmska.ViewModels
         [RelayCommand]
         internal async Task GoToLogin()
         {
-            await Shell.Current.GoToAsync($"..");
+            await Application.Current.MainPage.Navigation.PopAsync();
         }
     }
 }

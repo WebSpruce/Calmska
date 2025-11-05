@@ -3,26 +3,29 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Calmska.ViewModels
 {
-    internal partial class CustomTabBarViewModel : ObservableObject
+    public partial class CustomTabBarViewModel : ObservableObject
     {
-        private static string _selectedTab = "PomodoroPage";
-        private static bool _isColorSelectedItem = App.Current.Resources.TryGetValue("Primary01", out var colorSelectedItem);
         [ObservableProperty]
-        private string _pomodoroButtonColor;
+        private string _selectedTab = "PomodoroPage";
         [ObservableProperty]
-        private string _tipsButtonColor;
+        private Color _pomodoroButtonColor;
         [ObservableProperty]
-        private string _settingsButtonColor;
+        private Color _tipsButtonColor;
+        [ObservableProperty]
+        private Color _settingsButtonColor;
+        
+        private readonly Color _selectedColor = Color.FromArgb("#344E41");
+        private readonly Color _defaultColor = Color.FromArgb("#EA7649");
 
         public CustomTabBarViewModel()
         {
             UpdateButtonColors();
             Shell.Current.Navigated += (s, e) =>
             {
-                if (Shell.Current.CurrentPage != null)
+                string currentPageName = Shell.Current.CurrentPage?.GetType().Name;
+                if (!string.IsNullOrEmpty(currentPageName) && SelectedTab != currentPageName)
                 {
-                    string? currentPage = Shell.Current.CurrentPage.GetType().Name;
-                    UpdateSelectedTab(currentPage);
+                    SelectedTab = currentPageName;
                 }
             };
         }
@@ -31,35 +34,26 @@ namespace Calmska.ViewModels
         {
             try
             {
-                if (_selectedTab != route)
+                if (Shell.Current.CurrentPage?.GetType().Name != route)
                 {
-                    _selectedTab = route;
-                    UpdateButtonColors();
-                    await Shell.Current.GoToAsync($"{route}");
+                    await Shell.Current.GoToAsync($"//{route}");
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", "Something is wrong.", "Close");
+                await Shell.Current.DisplayAlert("Warning", $"Navigation error: {ex.Message}.", "Close");
             }
            
         }
+        partial void OnSelectedTabChanged(string value)
+        {
+            UpdateButtonColors();
+        }
         private void UpdateButtonColors()
         {
-            PomodoroButtonColor = _selectedTab == "PomodoroPage" ? "#344E41" : "#EA7649";
-            TipsButtonColor = _selectedTab == "TipsPage" ? "#344E41" : "#EA7649";
-            SettingsButtonColor = _selectedTab == "SettingsPage" ? "#344E41" : "#EA7649";
-        }
-        private void UpdateSelectedTab(string currentPage)
-        {
-            _selectedTab = currentPage switch
-            {
-                "PomodoroPage" => "PomodoroPage",
-                "TipsPage" => "TipsPage",
-                "SettingsPage" => "SettingsPage",
-                _ => _selectedTab
-            };
-            UpdateButtonColors();
+            PomodoroButtonColor = SelectedTab == "PomodoroPage" ? _selectedColor : _defaultColor;
+            TipsButtonColor = SelectedTab == "TipsPage" ? _selectedColor : _defaultColor;
+            SettingsButtonColor = SelectedTab == "SettingsPage" ? _selectedColor : _defaultColor;
         }
     }
 }

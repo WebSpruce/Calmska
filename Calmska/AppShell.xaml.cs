@@ -13,14 +13,9 @@ namespace Calmska
             InitializeComponent();
             BindingContext = new AppShellViewModel();
 
-            Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
-            Routing.RegisterRoute("loginpage", typeof(LoginPage));
-            Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
-            Routing.RegisterRoute(nameof(PomodoroPage), typeof(PomodoroPage));
-            Routing.RegisterRoute(nameof(TipsPage), typeof(TipsPage));
-            Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
             Routing.RegisterRoute(nameof(TipsListPage), typeof(TipsListPage));
             Routing.RegisterRoute("moodentrypage", typeof(MoodEntryPage));
+            Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
 
             MainThread.BeginInvokeOnMainThread(CheckForNotificationNavigation);
         }

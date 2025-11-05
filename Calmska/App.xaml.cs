@@ -1,4 +1,7 @@
-﻿namespace Calmska
+﻿using Calmska.ViewModels;
+using Calmska.Views;
+
+namespace Calmska
 {
     public partial class App : Application
     {
@@ -6,7 +9,17 @@
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            string userJson = SecureStorage.Default.GetAsync("user_info").Result;
+
+            if (string.IsNullOrEmpty(userJson))
+            {
+                var loginPage = MauiProgram.Services.GetRequiredService<LoginPage>();
+                MainPage = new NavigationPage(loginPage);
+            }
+            else
+            {
+                MainPage = new AppShell();
+            }
         }
     }
 }
