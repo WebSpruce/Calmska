@@ -60,10 +60,6 @@ namespace Calmska.Api.Repository
                 if (moodHistoryDTO == null)
                     return new OperationResult { Result = false, Error = "The provided MoodHistory object is null." };
 
-                var userByEmail = GetByArgumentAsync(new MoodHistoryDTO { UserId = moodHistoryDTO.UserId, MoodId = null, Date = null, MoodHistoryId = null }, token);
-                if (userByEmail.Result != null)
-                    return new OperationResult { Result = false, Error = "The moodHistory for provided UserId already exists." };
-
                 moodHistoryDTO.Date = DateTime.UtcNow;
 
                 var moodHistory = _mapper.Map<MoodHistory>(moodHistoryDTO);
