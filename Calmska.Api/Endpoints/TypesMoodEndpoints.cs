@@ -11,7 +11,9 @@ public class TypesMoodEndpoints : IModule
     {
         var types_mood = app
             .MapGroup(ApiRoutes.TypesMoods.GroupName)
-            .WithTags("Types_Moods");
+            .WithTags("Types_Moods")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         types_mood.MapGet("/", async ([FromServices] ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {

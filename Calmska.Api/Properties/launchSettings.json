@@ -19,7 +19,8 @@
         "mongoDbUri": "X",
         "mongoDbName": "X",
         "calmskaApiUri": "X",
-        "calmska_firebaseApiKey": "X"
+        "calmska_firebaseApiKey": "X",
+        "automapper_key": "X"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7048;http://localhost:5077"

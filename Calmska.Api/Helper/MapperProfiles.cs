@@ -19,7 +19,15 @@ namespace Calmska.Api.Helper
             CreateMap<MoodDTO, Mood>();
             CreateMap<Mood, MoodDTO>();
 
-            CreateMap<MoodHistoryDTO, MoodHistory>();
+            CreateMap<MoodHistoryDTO, MoodHistory>()
+                .ForMember(dest => dest.MoodHistoryId,
+                    opt => opt.MapFrom(src => src.MoodHistoryId ?? Guid.NewGuid()))
+                .ForMember(dest => dest.Date,
+                    opt => opt.MapFrom(src => src.Date ?? DateTime.UtcNow))
+                .ForMember(dest => dest.UserId,
+                    opt => opt.MapFrom(src => src.UserId ?? Guid.Empty))
+                .ForMember(dest => dest.MoodId,
+                    opt => opt.MapFrom(src => src.MoodId ?? Guid.Empty));
             CreateMap<MoodHistory, MoodHistoryDTO>();
 
             CreateMap<TipsDTO, Tips>();
@@ -32,8 +40,14 @@ namespace Calmska.Api.Helper
             CreateMap<Types_Mood, Types_MoodDTO>();
 
             CreateMap<Settings, SettingsDTO>()
-            .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
-            .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)));
+            .ForMember(dest => dest.PomodoroTimer, 
+                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
+            .ForMember(dest => dest.PomodoroBreak, 
+                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)))
+            .ForMember(dest => dest.PomodoroTimerFloat,
+                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
+            .ForMember(dest => dest.PomodoroBreakFloat,
+                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)));
 
             CreateMap<SettingsDTO, Settings>()
                 .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PomodoroTimer) ? src.PomodoroTimer : string.Empty))

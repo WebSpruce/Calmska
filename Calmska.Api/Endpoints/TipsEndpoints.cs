@@ -10,8 +10,10 @@ public class TipsEndpoints : IModule
     public void RegisterEndpoints(IEndpointRouteBuilder app)
     {
         var tips = app
-            .MapGroup("/api/v2/tips")
-            .WithTags("Tips");
+            .MapGroup(ApiRoutes.Tips.GroupName)
+            .WithTags("Tips")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         tips.MapGet("/", async (IRepository<Tips, TipsDTO> tipsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {

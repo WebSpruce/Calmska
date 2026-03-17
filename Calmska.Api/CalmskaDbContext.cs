@@ -1,4 +1,5 @@
-﻿using Calmska.Models.Models;
+﻿using Calmska.Api.Helper;
+using Calmska.Models.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Api
@@ -22,8 +23,14 @@ namespace Calmska.Api
             modelBuilder.Entity<MoodHistory>();
             modelBuilder.Entity<Settings>();
             modelBuilder.Entity<Tips>();
-            modelBuilder.Entity<Types_Tips>();
-            modelBuilder.Entity<Types_Mood>();
+            modelBuilder.Entity<Types_Tips>()
+                .Property(t => t.TypeId)
+                .ValueGeneratedOnAdd()
+                .HasValueGenerator<IntValueGenerator>();
+            modelBuilder.Entity<Types_Mood>()
+                .Property(t => t.TypeId)
+                .ValueGeneratedOnAdd()
+                .HasValueGenerator<IntValueGenerator>();
         }
     }
 }

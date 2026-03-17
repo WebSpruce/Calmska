@@ -11,7 +11,9 @@ public class TypesTipsEndpoints : IModule
     {
         var types_tips = app
             .MapGroup(ApiRoutes.TypesTips.GroupName)
-            .WithTags("Types_Tips");
+            .WithTags("Types_Tips")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         types_tips.MapGet("/", async ([FromServices] ITypesRepository<Types_Tips, Types_TipsDTO> typesRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {

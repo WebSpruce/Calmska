@@ -11,7 +11,9 @@ public class MoodHistoryEndpoints : IModule
     {
         var moodHistory = app
             .MapGroup(ApiRoutes.MoodHistory.GroupName)
-            .WithTags("MoodHistory");
+            .WithTags("MoodHistory")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         moodHistory.MapGet("/", async (IRepository<MoodHistory, MoodHistoryDTO> moodHistoryRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {

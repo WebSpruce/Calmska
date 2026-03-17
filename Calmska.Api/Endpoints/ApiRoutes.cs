@@ -1,9 +1,12 @@
+using Asp.Versioning;
+using Asp.Versioning.Builder;
+
 namespace Calmska.Api.Endpoints;
 
 public class ApiRoutes
 {
     private const string Base = "/api";
-    private const string Version = "v2";
+    private const string Version = "v{version:apiVersion}";
     private const string ApiBase = $"{Base}/{Version}";
 
     public static class Accounts
@@ -22,6 +25,10 @@ public class ApiRoutes
     {
         public const string GroupName = $"{ApiBase}/moodhistory";
     }
+    public static class Tips
+    {
+        public const string GroupName = $"{ApiBase}/tips";
+    }
     public static class TypesTips
     {
         public const string GroupName = $"{ApiBase}/types_tips";
@@ -30,5 +37,11 @@ public class ApiRoutes
     {
         public const string GroupName = $"{ApiBase}/types_moods";
     }
-    
+
+    public static ApiVersionSet ApiVersion(IEndpointRouteBuilder app)
+    {
+        return app.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(3))
+            .Build();
+    }
 }

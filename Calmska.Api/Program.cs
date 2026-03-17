@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Calmska.Api.Endpoints;
 using Calmska.Api.Interfaces;
 using Calmska.Api.Middlewares;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
+using Scalar.AspNetCore;
 
 namespace Calmska.Api
 {
@@ -19,6 +21,8 @@ namespace Calmska.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
+            builder.Services.AddOpenApi("v3");
 
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 #if !DEBUG
@@ -33,6 +37,7 @@ namespace Calmska.Api
             string atlasURI = Environment.GetEnvironmentVariable("mongoDbUri") ?? string.Empty;
             string dbName = Environment.GetEnvironmentVariable("mongoDbName") ?? string.Empty;
             string firebaseApiKey = Environment.GetEnvironmentVariable("calmska_firebaseApiKey") ?? string.Empty;
+            string automapperKey = Environment.GetEnvironmentVariable("automapper_key") ?? string.Empty;
             builder.Services.AddDbContext<CalmskaDbContext>(options =>
                 {
                     if (string.IsNullOrEmpty(atlasURI))
@@ -53,7 +58,12 @@ namespace Calmska.Api
             builder.Services.AddScoped<ITypesRepository<Types_Tips, Types_TipsDTO>, Types_TipsRepository>();
             builder.Services.AddScoped<ITypesRepository<Types_Mood, Types_MoodDTO>, Types_MoodRepository>();
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            if(string.IsNullOrEmpty(automapperKey))
+                throw new InvalidOperationException("Automapper key is empty.");
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.LicenseKey = automapperKey;
+            }, AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddAuthorization();
             builder.Services.AddSingleton<IFirebaseAuthClient>(sp =>
@@ -72,9 +82,21 @@ namespace Calmska.Api
                 });
             });
 
+            builder.Services.AddApiVersioning(options =>
+                {
+                    options.DefaultApiVersion = new ApiVersion(1);
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true;
+                    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+                })
+                .AddApiExplorer(options =>
+                {
+                    options.GroupNameFormat = "'v'V";
+                    options.SubstituteApiVersionInUrl = true;
+                });
+            
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.RegisterModules();
-            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -82,8 +104,12 @@ namespace Calmska.Api
             
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.MapOpenApi();
+                app.MapScalarApiReference(options =>
+                {
+                    options.WithTitle("Calmska API")
+                        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                });
             }
             else
             {

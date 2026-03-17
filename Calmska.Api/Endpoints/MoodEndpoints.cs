@@ -11,7 +11,9 @@ public class MoodEndpoints : IModule
     {
         var mood = app
             .MapGroup(ApiRoutes.Moods.GroupName)
-            .WithTags("Moods");
+            .WithTags("Moods")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {

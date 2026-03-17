@@ -12,7 +12,8 @@ public class AccountsEndpoints : IModule
     {
         var accounts = app
             .MapGroup(ApiRoutes.Accounts.GroupName)
-            .WithTags("Accounts");
+            .WithTags("Accounts")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
         
         accounts.MapGet("/", async (IRepository<Account, AccountDTO> accountRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>

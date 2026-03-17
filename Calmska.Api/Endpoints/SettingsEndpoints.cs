@@ -12,7 +12,9 @@ public class SettingsEndpoints: IModule
     {
         var settings = app
             .MapGroup(ApiRoutes.Settings.GroupName)
-            .WithTags("Settings");
+            .WithTags("Settings")
+            .WithApiVersionSet(ApiRoutes.ApiVersion(app));
+        
         settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {
