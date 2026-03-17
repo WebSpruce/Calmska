@@ -51,7 +51,7 @@
             string endpoint = "/api/v2/moodhistory";
             var moodHistory = new MoodHistoryDTO
             {
-                MoodHistoryId = Guid.NewGuid(),
+                MoodHistoryId = Guid.Parse("532af909-6d0e-4d6e-b5e9-f1f49d577a9f"),
                 UserId = Guid.NewGuid(),
                 MoodId = Guid.NewGuid(),
                 Date = DateTime.UtcNow

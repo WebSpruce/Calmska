@@ -23,7 +23,7 @@
         [Fact]
         public async Task SearchListTips_ShouldReturnOk_WhenTipsMatchCriteria()
         {
-            string endpoint = "/api/v2/tips/searchList?Content=Updated tip content.&Type=updated-type&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v2/tips/searchList?content=Drink water regularly.&type=3&pageNumber=1&pageSize=5";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -36,7 +36,7 @@
         [Fact]
         public async Task SearchListTips_ShouldReturnNotFound_WhenNoTipsMatchCriteria()
         {
-            string endpoint = "/api/v2/tips/searchList?Content=nonexistent&type=random&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v2/tips/searchList?content=nonexistent&type=1&pageNumber=1&pageSize=5";
 
             var response = await _client.GetAsync(endpoint);
 

@@ -1,21 +1,41 @@
-﻿namespace Calmska.Tests.ApiTests.Helper
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
+
+namespace Calmska.Tests.ApiTests.Helper
 {
     public class MapperProfilesTests
     {
         private readonly IMapper _mapper;
         public MapperProfilesTests()
         {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<MapperProfiles>();
-            });
-            _mapper = config.CreateMapper();
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+            
+            string automapperKey = config["automapper_key"] ?? string.Empty;
+
+            var mapperConfig = new MapperConfigurationExpression();
+            mapperConfig.AddProfile<MapperProfiles>();
+            mapperConfig.LicenseKey = automapperKey;
+
+            _mapper = new MapperConfiguration(mapperConfig, NullLoggerFactory.Instance)
+                .CreateMapper();
         }
         [Fact]
         public void MapperConfiguration_IsValid()
         {
-            var config = (MapperConfiguration)_mapper.ConfigurationProvider;
-            config.AssertConfigurationIsValid();
+            var mapperConfiguration = new MapperConfiguration(
+                cfg =>
+                {
+                    cfg.AddProfile<MapperProfiles>();
+                    cfg.LicenseKey = Environment.GetEnvironmentVariable("automapper_key") ?? string.Empty;
+                },
+                NullLoggerFactory.Instance
+            );
+
+            mapperConfiguration.AssertConfigurationIsValid();
         }
 
         [Theory]

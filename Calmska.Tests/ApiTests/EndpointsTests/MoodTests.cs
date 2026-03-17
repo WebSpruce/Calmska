@@ -53,13 +53,12 @@
             string endpoint = "/api/v2/moods";
             var mood = new MoodDTO
             {
-                MoodId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
+                MoodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999"),
                 MoodName = "Happy",
                 MoodTypeId = 3
             };
 
             var response = await _client.PostAsJsonAsync(endpoint, mood);
-
             response.StatusCode.Should().Be(HttpStatusCode.Created);
 
             var location = response.Headers.Location.ToString();
@@ -72,7 +71,7 @@
             string endpoint = "/api/v2/moods";
             var mood = new MoodDTO
             {
-                MoodId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
+                MoodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999"),
                 MoodName = "Excited",
                 MoodTypeId = 1
             };
@@ -86,7 +85,7 @@
         public async Task DeleteMood_ShouldReturnOk_WhenMoodExists()
         {
             string endpoint = "/api/v2/moods";
-            var moodId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6");
+            var moodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999");
 
             var response = await _client.SendAsync(new HttpRequestMessage
             {

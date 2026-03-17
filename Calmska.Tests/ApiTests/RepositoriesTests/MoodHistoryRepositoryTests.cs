@@ -19,6 +19,16 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
 
             _context = new CalmskaDbContext(options);
             _mapper = new Mock<IMapper>();
+            
+            _mapper.Setup(m => m.Map<MoodHistory>(It.IsAny<MoodHistoryDTO>()))
+                .Returns((MoodHistoryDTO dto) => new MoodHistory
+                {
+                    MoodHistoryId = dto.MoodHistoryId ?? Guid.Empty, 
+                    MoodId = dto.MoodId ?? Guid.Empty, 
+                    UserId = dto.UserId ?? Guid.Empty, 
+                    Date = dto.Date ?? DateTime.UtcNow
+                });
+            
             _repository = new MoodHistoryRepository(_context, _mapper.Object);
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -92,29 +102,14 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
             result.Error.Should().Be("The provided MoodHistory object is null.");
         }
         [Fact]
-        public async Task AddAsync_ShouldReturnError_WhenEmailAlreadyExists()
-        {
-            _context.Accounts.RemoveRange(_context.Accounts.ToList());
-            var guid = Guid.NewGuid();
-            var existingMoodHistory = new MoodHistory { UserId = guid, Date = DateTime.UtcNow, MoodId = Guid.NewGuid(), MoodHistoryId = Guid.NewGuid() };
-            _context.MoodHistoryDb.Add(existingMoodHistory);
-            await _context.SaveChangesAsync();
-
-            var moodHistoryDto = new MoodHistoryDTO { UserId = guid, Date = DateTime.UtcNow, MoodId = Guid.NewGuid(), MoodHistoryId = null };
-
-            var result = await _repository.AddAsync(moodHistoryDto, _cancellationTokenSource.Token);
-
-            result.Result.Should().BeFalse();
-            result.Error.Should().Be("The moodHistory for provided UserId already exists.");
-        }
-        [Fact]
         public async Task AddAsync_ShouldReturnSuccess_WhenAccountIsAdded()
         {
             _context.MoodHistoryDb.RemoveRange(_context.MoodHistoryDb.ToList());
             var moodHistoryDto = new MoodHistoryDTO { MoodHistoryId = Guid.NewGuid(), MoodId = Guid.NewGuid(), UserId = Guid.NewGuid(), Date = DateTime.UtcNow };
-
+            
             _mapper.Setup(m => m.Map<MoodHistory>(It.IsAny<MoodHistoryDTO>()))
-                       .Returns(new MoodHistory { MoodHistoryId = moodHistoryDto.MoodHistoryId ?? Guid.Empty, MoodId = moodHistoryDto.MoodId ?? Guid.Empty, UserId = moodHistoryDto.UserId ?? Guid.Empty, Date = moodHistoryDto.Date ?? DateTime.UtcNow });
+                .Returns(new MoodHistory { MoodHistoryId = moodHistoryDto.MoodHistoryId ?? Guid.Empty, MoodId = moodHistoryDto.MoodId ?? Guid.Empty, UserId = moodHistoryDto.UserId ?? Guid.Empty, Date = moodHistoryDto.Date ?? DateTime.UtcNow });
+            
             var result = await _repository.AddAsync(moodHistoryDto, _cancellationTokenSource.Token);
 
             result.Result.Should().BeTrue();

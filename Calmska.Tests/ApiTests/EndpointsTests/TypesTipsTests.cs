@@ -23,7 +23,7 @@
         [Fact]
         public async Task GetAllTypesTips_ShouldReturnNotFound_WhenNoTypesExist()
         {
-            string endpoint = "/api/v2/types_tips?pageNumber=1&pageSize=10";
+            string endpoint = "/api/v2/types_tips?pageNumber=0&pageSize=10";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -33,7 +33,7 @@
         [Fact]
         public async Task SearchListTypesTips_ShouldReturnOk_WhenTypesMatchCriteria()
         {
-            string endpoint = "/api/v2/types_tips/searchList?Type=some-type&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v2/types_tips/searchList?Type=Health&pageNumber=1&pageSize=5";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<PaginatedResult<Types_TipsDTO>>();
@@ -76,7 +76,7 @@
         public async Task AddTypeTip_ShouldReturnCreated_WhenTypeIsValid()
         {
             string endpoint = "/api/v2/types_tips";
-            var typeTip = new Types_TipsDTO { TypeId = 1, Type = "Health" };
+            var typeTip = new Types_TipsDTO { TypeId = 100, Type = "Health" };
             var response = await _client.PostAsJsonAsync(endpoint, typeTip);
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }

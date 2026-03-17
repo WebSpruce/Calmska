@@ -1,11 +1,28 @@
-﻿namespace Calmska.Tests.ApiTests.EndpointsTests
+﻿using Firebase.Auth;
+
+namespace Calmska.Tests.ApiTests.EndpointsTests
 {
     public class AccountsTests : IClassFixture<WebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly Mock<IFirebaseAuthClient> _mockFirebase;
         public AccountsTests(WebApplicationFactory<Program> factory)
         {
-            _client = factory.CreateClient();
+            _mockFirebase = new Mock<IFirebaseAuthClient>();
+            _client = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    // remove the original IFirebaseAuthClient instance
+                    var descriptor = services.SingleOrDefault(
+                        d => d.ServiceType == typeof(IFirebaseAuthClient));
+
+                    if (descriptor != null)
+                        services.Remove(descriptor);
+                    
+                    services.AddSingleton(_mockFirebase.Object);
+                });
+            }).CreateClient();
         }
         [Fact]
         public async Task GetAllAccounts_ShouldReturnOk_WhenAccountsExist()
