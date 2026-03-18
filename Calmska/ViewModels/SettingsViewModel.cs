@@ -6,19 +6,14 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using Microsoft.Maui;
 using System.Text.Json;
-using System.Diagnostics;
 using Application = Microsoft.Maui.Controls.Application;
 using Debug = System.Diagnostics.Debug;
 
 #if ANDROID
 using Android.Content;
-using Android.App;
 using Android.OS;
 using Calmska.Platforms.Android.ForegroundServices;
-using Calmska.Platforms.Android.BroadcastReceivers;
 using Calmska.Platforms.Android;
 #endif
 
@@ -93,19 +88,24 @@ namespace Calmska.ViewModels
             _instance = this;
             _settingsService = settingsService;
             _accountService = accountService;
-            string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-            _accountLogged = JsonSerializer.Deserialize<AccountDTO>(userJson);
-            if (_accountLogged == null)
+            Task.Run(async () =>
             {
+                string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+                _accountLogged = JsonSerializer.Deserialize<AccountDTO>(userJson);
+                if (_accountLogged == null)
+                {
 #if ANDROID
                     Toast.Make("Couldn't load the user's settings.", ToastDuration.Short, 14).Show();
 #endif
-                return;
-            }
-            LUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
-            EUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
+                    return;
+                }
 
-            LoadSettingsElseCreate(_accountLogged ?? new AccountDTO());
+                LUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
+                EUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
+
+                await LoadSettingsElseCreateAsync(_accountLogged ?? new AccountDTO());
+            });
+
 
             //NotificationsEnabled = Preferences.Get("NotificationsEnabled", false);
             //var timeString = Preferences.Get("NotificationTime", "08:00:00");
@@ -133,9 +133,7 @@ namespace Calmska.ViewModels
             OperationResultT<bool> isUpdated = await _accountService.UpdateAsync(accountToUpdate);
             if (isUpdated != null && isUpdated.Result)
             {
-#if ANDROID
-                await Toast.Make($"Username saved.", ToastDuration.Short, 14).Show();
-#endif
+                await ShowErrorMessage("Username saved.");
                 bool isRemoved = SecureStorage.Default.Remove("user_info");
                 if (isRemoved)
                 {
@@ -145,7 +143,7 @@ namespace Calmska.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Warning.", "The username is saved, but to see the updated data, please relaunch the app.", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning.", "The username is saved, but to see the updated data, please relaunch the app.", "Close");
                 }
             }
             else
@@ -172,27 +170,21 @@ namespace Calmska.ViewModels
                 var isUpdated = await _settingsService.UpdateAsync(usersSettingsToUpdate.Result);
                 if (isUpdated != null && isUpdated.Error == string.Empty && isUpdated.Result)
                 {
-#if ANDROID
-                    await Toast.Make($"Settings saved.", ToastDuration.Short, 14).Show();
-#endif
+                    await ShowErrorMessage("Settings saved.");
                 }
                 else
                 {
-#if ANDROID
-                    await Toast.Make($"Couldn't save your settings. Please, try again.", ToastDuration.Short, 14).Show();
-#endif
+                    await ShowErrorMessage("Couldn't save your settings. Please, try again.");
                 }
             }
             else
             {
-#if ANDROID
-                await Toast.Make($"Error while loading settings: {usersSettingsToUpdate.Error}", ToastDuration.Long, 14).Show();
-#endif
+                await ShowErrorMessage($"Error while loading settings: {usersSettingsToUpdate.Error}");
                 return;
             }
         }
         [RelayCommand]
-        private void Logout()
+        private async Task Logout()
         {
             try
             {
@@ -204,7 +196,7 @@ namespace Calmska.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Logout error: {ex.Message}");
-                Application.Current.MainPage.DisplayAlert("Error", "Logout failed. Please try again.", "OK");
+                await Application.Current.MainPage.DisplayAlertAsync("Error", "Logout failed. Please try again.", "OK");
             }
         }
 #if ANDROID
@@ -226,7 +218,7 @@ namespace Calmska.ViewModels
             }
         }
 #endif
-        private async Task LoadSettingsElseCreate(AccountDTO user)
+        private async Task LoadSettingsElseCreateAsync(AccountDTO user)
         {
             var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
             if (!string.IsNullOrEmpty(usersSettings.Error))
@@ -244,17 +236,13 @@ namespace Calmska.ViewModels
                         usersSettings.Result = newSettings;
                     else
                     {
-#if ANDROID
-                        await Toast.Make($"Error while creating settings {isAdded?.Error}", ToastDuration.Long, 14).Show();
-#endif
+                        await ShowErrorMessage($"Error while creating settings {isAdded?.Error}");
                     }
 
                 }
                 else
                 {
-#if ANDROID
-                    await Toast.Make($"Error while loading settings: {usersSettings.Error}", ToastDuration.Long, 14).Show();
-#endif
+                    await ShowErrorMessage($"Error while loading settings: {usersSettings.Error}");
                     return;
                 }
             }
@@ -277,6 +265,15 @@ namespace Calmska.ViewModels
         public static int ConvertToSeconds(int hours, int minutes, int seconds)
         {
             return (hours * 3600) + (minutes * 60) + seconds;
+        }
+        
+        private async Task ShowErrorMessage(string message)
+        {
+#if ANDROID
+            await Toast.Make(message, ToastDuration.Short, 14).Show();
+#else
+            await Application.Current.MainPage.DisplayAlert("Error", message, "OK");
+#endif
         }
     }
 }

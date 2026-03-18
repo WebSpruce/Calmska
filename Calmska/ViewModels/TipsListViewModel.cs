@@ -96,9 +96,9 @@ namespace Calmska.ViewModels
         {
             try
             {
-                if (query.ContainsKey("tipType"))
+                if (query.TryGetValue("tipType", out var value))
                 {
-                    _tipType = (Types_TipsFrontendDTO?)query["tipType"];
+                    _tipType = (Types_TipsFrontendDTO?)value;
                     if(_tipType != null && _tipType.TypeId > 0)
                         await LoadTips();
                 }

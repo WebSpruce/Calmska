@@ -31,6 +31,8 @@
                 </HorizontalStackLayout>
                 <Button Text="ANALIZE MY MOOD" Command="{Binding AnalizeCommand}" Style="{StaticResource MediumButton}" Margin="0,20"
                         WidthRequest="200"/>
+                <ActivityIndicator IsRunning="{Binding IsActivityIndicatorRunning}" 
+                                   Style="{StaticResource MainActivityIndicator}" VerticalOptions="End" Margin="0,10" />
                 <CollectionView x:Name="TypesTipsCollection" ItemsSource="{Binding Types}" Margin="0,0,0,0"
                             SelectionMode="Single" SelectedItem="{Binding SelectedType}"
                             SelectionChangedCommand="{Binding TypeSelectedCommand}"

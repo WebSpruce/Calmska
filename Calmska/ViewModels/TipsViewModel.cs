@@ -3,7 +3,6 @@ using Calmska.Services.Interfaces;
 using Calmska.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
 using System.Text.Json;
 using Android.Util;
 using Calmska.Helper;
@@ -18,6 +17,8 @@ namespace Calmska.ViewModels
         private List<Types_TipsFrontendDTO> _types = new();
         [ObservableProperty]
         private Types_TipsFrontendDTO _selectedType = new();
+        [ObservableProperty]
+        private bool _isActivityIndicatorRunning = false;
 
         private readonly ITypesService<Types_TipsDTO> _typesTipsService;
         private readonly IService<MoodHistoryDTO> _moodHistoryService;
@@ -34,43 +35,17 @@ namespace Calmska.ViewModels
         {
             try
             {
-                var types = await _typesTipsService.GetAllAsync(null, null);
-                if (types != null && string.IsNullOrEmpty(types.Error) && types.Result != null)
+                var typesResult = await _typesTipsService.GetAllAsync(null, null);
+                if (typesResult != null && string.IsNullOrEmpty(typesResult.Error) && typesResult.Result != null)
                 {
-                    List<Types_TipsFrontendDTO> typesTemp = new List<Types_TipsFrontendDTO>();
-                    foreach (var type in types.Result.Items)
-                    {
-                        string icon = string.Empty;
-
-                        if (type.TypeId == 1)
-                            icon = "\ue30a";
-                        if (type.TypeId == 2)
-                            icon = "\ue407";
-                        if (type.TypeId == 3)
-                            icon = "\ue8df";
-                        if (type.TypeId == 4)
-                            icon = "\ue406";
-                        if (type.TypeId == 5)
-                            icon = "\ue88a";
-                        if (type.TypeId == 6)
-                            icon = "\ue8f9";
-                        if (type.TypeId == 7)
-                            icon = "\ue7ef";
-                        if (type.TypeId == 8)
-                            icon = "\ue2db";
-                        if (type.TypeId == 9)
-                            icon = "\ue91d";
-
-                        var type_tip = new Types_TipsFrontendDTO { Type = type.Type, TypeId = type.TypeId, IconName = icon };
-                        typesTemp.Add(type_tip);
-                    }
+                    List<Types_TipsFrontendDTO> typesTemp = typesResult.Result.Items.Select(type => MapTypeToFrontendDTO(type)).ToList();
                     typesTemp = typesTemp.OrderBy(t => t.Type).ToList();
                     Types = typesTemp;
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", $"Loading types of tips error: {ex.Message}\n{ex.InnerException}", "Close");
+                await Shell.Current.DisplayAlertAsync("Warning", $"Loading types of tips error: {ex.Message}\n{ex.InnerException}", "Close");
             }
             
         }
@@ -79,7 +54,8 @@ namespace Calmska.ViewModels
         {
             try
             {
-                if(SelectedType.TypeId != null && SelectedType.TypeId > 0)
+                IsActivityIndicatorRunning = true;
+                if (SelectedType.TypeId != null && SelectedType.TypeId > 0)
                 {
                     await Shell.Current.GoToAsync($"{nameof(TipsListPage)}", new Dictionary<string, object>
                     {
@@ -89,7 +65,11 @@ namespace Calmska.ViewModels
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", $"Changing page error: {ex.Message}\n{ex.InnerException}", "Close");
+                await ShowErrorMessage($"Navigation error: {ex.Message}\n{ex.InnerException}");
+            }
+            finally
+            {
+                IsActivityIndicatorRunning = false;
             }
         }
 
@@ -98,15 +78,15 @@ namespace Calmska.ViewModels
         {
             try
             {
+                IsActivityIndicatorRunning = true;
                 string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
                 var account = JsonSerializer.Deserialize<AccountDTO>(userJson);
                 if (account == null)
                 {
-#if ANDROID
-                    Toast.Make("Couldn't load the user's info.", ToastDuration.Short, 14).Show();
-#endif
+                    await ShowToastMessage("Couldn't load the user's info.");
                     return;
                 }
+
                 //save last prompt date to avoid spam
                 DateTime lastPrompt = Preferences.Default.Get("LastPrompt", DateTime.MinValue);
                 DateTime fiveDaysAgo = DateTime.Today.AddDays(-5);
@@ -134,7 +114,9 @@ namespace Calmska.ViewModels
                                     });
                                     if (mood.Result == null)
                                         return;
-                                    string comma = (recentMoodHistory.IndexOf(row) == recentMoodHistory.Count - 1) ? "," : "";
+                                    string comma = (recentMoodHistory.IndexOf(row) == recentMoodHistory.Count - 1)
+                                        ? ","
+                                        : "";
                                     moods += $"{mood.Result.MoodName}{comma} ";
                                 }
                             }
@@ -143,20 +125,23 @@ namespace Calmska.ViewModels
                                 await Toast.Make("Error while downloading your moods.", ToastDuration.Short, 14).Show();
                                 return;
                             }
-                            
+
                             Preferences.Default.Set("LastPrompt", DateTime.Now);
-                            string prompt = $"You are an empathetic and insightful AI assistant specializing in mood analysis and well-being. The user has entered their mood for several days in the app. Your tasks are:Analyze the mood data:Identify patterns, trends, or fluctuations in the user's mood over the recorded period.Note any significant changes, recurring themes, or potential triggers (if mentioned).Provide supportive feedback:Summarize your observations in a gentle, encouraging, and non-judgmental tone.Acknowledge positive moments and empathize with any challenges.Offer practical, personalized advice:Suggest specific, actionable steps inspired by the concept of “hygge” (coziness, comfort, connection, simple pleasures).Tailor your advice to the user’s mood patterns and any details they’ve shared.Include ideas for daily rituals, environment adjustments, social connections, or mindful activities that promote a hygge lifestyle. User's moods:{moods}. Don't write additional content just write advices. Write up to 100 words.";
+                            string prompt =
+                                $"You are an empathetic and insightful AI assistant specializing in mood analysis and well-being. The user has entered their mood for several days in the app. Your tasks are:Analyze the mood data:Identify patterns, trends, or fluctuations in the user's mood over the recorded period.Note any significant changes, recurring themes, or potential triggers (if mentioned).Provide supportive feedback:Summarize your observations in a gentle, encouraging, and non-judgmental tone.Acknowledge positive moments and empathize with any challenges.Offer practical, personalized advice:Suggest specific, actionable steps inspired by the concept of “hygge” (coziness, comfort, connection, simple pleasures).Tailor your advice to the user’s mood patterns and any details they’ve shared.Include ideas for daily rituals, environment adjustments, social connections, or mindful activities that promote a hygge lifestyle. User's moods:{moods}. Don't write additional content just write advices. Write up to 100 words.";
                             string llmresponse = await Prompting.SendPromptRequest(prompt);
-                            if(string.IsNullOrEmpty(llmresponse))
+                            if (string.IsNullOrEmpty(llmresponse))
                             {
-                                await Shell.Current.DisplayAlert("Warning", $"Error while getting mood.", "Close");
+                                await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
                                 return;
                             }
-                            await Shell.Current.DisplayAlert("Analysis", llmresponse, "Close");
+
+                            await Shell.Current.DisplayAlertAsync("Analysis", llmresponse, "Close");
                         }
                         else
                         {
-                            await Toast.Make("You don't have moods recorded for the last 5 days.", ToastDuration.Long, 14).Show();
+                            await Toast.Make("You don't have moods recorded for the last 5 days.", ToastDuration.Long,
+                                14).Show();
                             return;
                         }
                     }
@@ -168,27 +153,77 @@ namespace Calmska.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Warning", $"You cannot analize your moods right now, please wait at least 5 days (with 5 moods).", "Close");
-                    return;  
+                    await Shell.Current.DisplayAlertAsync("Warning",
+                        $"You cannot analize your moods right now, please wait at least 5 days (with 5 moods).",
+                        "Close");
+                    return;
                 }
-                
+
             }
             catch (Exception ex)
             {
-                await Toast.Make("Analizing error.", ToastDuration.Short, 14).Show();
-                #if ANDROID
-                    Log.Debug("Analizing", $"Analizing error: {ex.Message} - {ex.InnerException}");   
-                #endif
+                await ShowErrorMessage($"Analysis error: {ex.Message}\n{ex.InnerException}");
+#if ANDROID
+                Log.Debug("Analizing", $"Analizing error: {ex.Message} - {ex.InnerException}");
+#endif
+            }
+            finally
+            {
+                IsActivityIndicatorRunning = false;
             }
         }
 
         [RelayCommand]
         private async Task HyggeInfo()
         {
-            await Shell.Current.DisplayAlert("Hygge",
+            await Shell.Current.DisplayAlertAsync("Hygge",
                 "Hygge (pronounced 'hoo-gah') is a Danish and Norwegian concept representing the art of coziness, contentment, and well-being found in life's simple pleasures. It embodies warmth, togetherness, and creating comfortable moments—whether enjoying a book under a blanket, sharing meals with loved ones, or savoring quiet moments of gratitude.",
                 "OK");
         }
+        
+        private Types_TipsFrontendDTO MapTypeToFrontendDTO(Types_TipsDTO type)
+        {
+            string icon = GetIconForTypeId(type.TypeId ?? 0);
+            return new Types_TipsFrontendDTO { Type = type.Type, TypeId = type.TypeId, IconName = icon };
+        }
+        
+        private string GetIconForTypeId(int typeId)
+        {
+            Dictionary<int, string> typeIdToIconMap = new Dictionary<int, string>()
+            {
+                { 1, "\ue30a" },
+                { 2, "\ue407" },
+                { 3, "\ue8df" },
+                { 4, "\ue406" },
+                { 5, "\ue88a" },
+                { 6, "\ue8f9" },
+                { 7, "\ue7ef" },
+                { 8, "\ue2db" },
+                { 9, "\ue91d" }
+            };
+
+            if (typeIdToIconMap.ContainsKey(typeId))
+            {
+                return typeIdToIconMap[typeId];
+            }
+            return string.Empty;
+        }
+        
+        private async Task ShowToastMessage(string message)
+        {
+#if ANDROID
+            await Toast.Make(message, ToastDuration.Short, 14).Show();
+#else
+        await Shell.Current.DisplayAlertAsync("Warning", message, "OK");
+#endif
+        }
+
+        private async Task ShowErrorMessage(string message)
+        {
+            await Shell.Current.DisplayAlertAsync("Warning", message, "Close");
+        }
+
+        
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
             SelectedType = new();

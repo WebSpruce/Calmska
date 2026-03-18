@@ -1,5 +1,4 @@
 ﻿using Calmska.Models.DTO;
-using Calmska.Models.Models;
 using Calmska.Services.Interfaces;
 using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
@@ -13,8 +12,12 @@ namespace Calmska.ViewModels
 {
     internal partial class LoginViewModel : ObservableObject
     {
+        public const string DefaultBackgroundImage = "leaf.png";
+        public const string EyeHiddenIcon = "eye_hidden.svg";
+        public const string EyeOpenIcon = "eye_open.svg";
+        
         [ObservableProperty]
-        private string _backgroundImageSource = "leaf.png";
+        private string _backgroundImageSource = DefaultBackgroundImage;
         [ObservableProperty]
         private string _eEmail = string.Empty;
         [ObservableProperty]
@@ -22,7 +25,7 @@ namespace Calmska.ViewModels
         [ObservableProperty]
         private bool _isPasswordMode = true;
         [ObservableProperty]
-        private string _passwordBtnIcon = "eye_hidden.svg";
+        private string _passwordBtnIcon = EyeHiddenIcon;
         [ObservableProperty]
         private bool _isActivityIndicatorRunning = false;
 
@@ -38,9 +41,9 @@ namespace Calmska.ViewModels
         {
             IsPasswordMode = !IsPasswordMode;
             if (IsPasswordMode)
-                PasswordBtnIcon = "eye_open.svg";
+                PasswordBtnIcon = EyeOpenIcon;
             else
-                PasswordBtnIcon = "eye_hidden.svg";
+                PasswordBtnIcon = EyeHiddenIcon;
         }
 
         [RelayCommand]
@@ -49,22 +52,26 @@ namespace Calmska.ViewModels
             IsActivityIndicatorRunning = true;
             try
             {
-                var isEmailValid = new MailAddress(EEmail.ToLower());
+                if (!IsValidEmail(EEmail.ToLower()))
+                {
+                    await ShowErrorMessage("Invalid email format. Please check your input.");
+                    return;
+                }
                 if (string.IsNullOrEmpty(EPassword))
                 {
-#if ANDROID
-                    await Toast.Make("The password cannot be empty. Please try again.", ToastDuration.Short, 14).Show();
-#endif
+                    await ShowErrorMessage("The password cannot be empty. Please try again.");
                     return;
                 }
 
-                OperationResultT<bool> isLoggedIn = await _accountService.LoginAsync(new AccountDTO
-                    { Email = EEmail.ToLower(), PasswordHashed = EPassword });
+                var isLoggedIn = await _accountService.LoginAsync(
+                    new AccountDTO
+                    {
+                        Email = EEmail.ToLower(), 
+                        PasswordHashed = EPassword
+                    });
+                
                 if (isLoggedIn.Result)
                 {
-#if ANDROID
-                    await Toast.Make("Logged in.", ToastDuration.Short, 14).Show();
-#endif
                     var user = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() });
                     var userJson = JsonSerializer.Serialize(user.Result);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
@@ -80,21 +87,19 @@ namespace Calmska.ViewModels
                         await Task.Delay(100); 
                         await Shell.Current.GoToAsync($"//{navigateAfterLogin}");
                     }
-
+#if ANDROID
+                    await Toast.Make("Logged in.", ToastDuration.Short, 14).Show();
+#endif
                 }
                 else
                 {
-#if ANDROID
-                    await Toast.Make("Invalid email or password. Please try again.", ToastDuration.Short, 14).Show();
-#endif
+                    await ShowErrorMessage($"Invalid email or password: {isLoggedIn.Error}");
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Warning", "Something is wrong. Try again.", "Close");
-#if ANDROID
-                Android.Util.Log.Error("LoginDebug", $"Login error: {ex.Message}");
-#endif
+                Console.Error.WriteLine($"Login error: {ex.Message}"); 
+                await ShowErrorMessage("An unexpected error occurred. Please try again later.");
             }
             finally
             {
@@ -112,6 +117,28 @@ namespace Calmska.ViewModels
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", "Could not open the registration page.", "OK");
+            }
+        }
+        
+        private async Task ShowErrorMessage(string message)
+        {
+#if ANDROID
+            await Toast.Make(message, ToastDuration.Short, 14).Show();
+#else
+            await Application.Current.MainPage.DisplayAlert("Error", message, "OK");
+#endif
+        }
+        
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                new MailAddress(email);
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                return false;
             }
         }
     }

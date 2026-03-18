@@ -13,6 +13,9 @@
 
         <Entry Placeholder="Enter your mood..." Text="{Binding MoodText, Mode=TwoWay}" 
                Style="{StaticResource MediumEntry}"/>
+        
+        <ActivityIndicator IsRunning="{Binding IsActivityIndicatorRunning}" 
+                           Style="{StaticResource MainActivityIndicator}" VerticalOptions="End" Margin="0,10" />
 
         <HorizontalStackLayout Spacing="30" HorizontalOptions="Center">
             <Button Text="Close" Command="{Binding CloseCommand}" 

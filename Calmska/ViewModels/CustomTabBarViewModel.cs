@@ -30,7 +30,7 @@ namespace Calmska.ViewModels
             };
         }
         [RelayCommand]
-        private async void Navigate(string route)
+        private async Task Navigate(string route)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace Calmska.ViewModels
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", $"Navigation error: {ex.Message}.", "Close");
+                await Shell.Current.DisplayAlertAsync("Warning", $"Navigation error: {ex.Message}.", "Close");
             }
            
         }

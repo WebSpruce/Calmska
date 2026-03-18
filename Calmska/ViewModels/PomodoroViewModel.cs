@@ -3,12 +3,9 @@ using Calmska.Models.DTO;
 using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
 using System.Text.Json;
-using Android.Util;
 using Calmska.Services;
 using Calmska.Views;
-using Plugin.Maui.Audio;
 
 namespace Calmska.ViewModels
 {
@@ -95,7 +92,7 @@ namespace Calmska.ViewModels
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Error", "Could not load user settings.", "OK");
+                await Shell.Current.DisplayAlertAsync("Error", "Could not load user settings.", "OK");
             }
         }
 

@@ -1,16 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Calmska.Services.Interfaces;
-using Calmska.Models.Models;
 using Calmska.Models.DTO;
-using Calmska.Services.Services;
 using System.Text.Json;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Alerts;
-using System.Data;
-using System.Net.Http.Headers;
-using System.Diagnostics;
-using System.Net.Http.Json;
 using Calmska.Helper;
 using Calmska.Views;
 
@@ -25,6 +19,9 @@ namespace Calmska.ViewModels
     {
         [ObservableProperty]
         private string _moodText;
+        
+        [ObservableProperty]
+        private bool _isActivityIndicatorRunning = false;
 
         private bool _navigationAfterLogin = false;
         private const int NOTIFICATION_ID = 1002;
@@ -53,36 +50,49 @@ namespace Calmska.ViewModels
         {
             try
             {
+                IsActivityIndicatorRunning = true;
 #if ANDROID
-                var notificationManager = (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
+                var notificationManager =
+                    (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
                 notificationManager.Cancel(NOTIFICATION_ID);
 #endif
-                string prompt = $"User's description of their current mood: \"{MoodText}\". Based on the user's description of their current mood, select the most appropriate mood name from the following list: 'Inspired, Grateful, Curious, Worried, Anxious, Lonely, Bored, Indifferent, Accepting, Resentful, Determined, Peaceful, Overwhelmed, Content, Pensive, Reserved, Reflective, Hopeless, Calm, Confident, Proud, Frustrated, Insecure, Tranquil, Nostalgic, Ecstatic, Cheerful, Energized, Jealous, Irritated, Guilty, Serene, Disappointed, Melancholic, Neutral.' Respond with only one word from this list and nothing else.";
+                string prompt =
+                    $"User's description of their current mood: \"{MoodText}\". Based on the user's description of their current mood, select the most appropriate mood name from the following list: 'Inspired, Grateful, Curious, Worried, Anxious, Lonely, Bored, Indifferent, Accepting, Resentful, Determined, Peaceful, Overwhelmed, Content, Pensive, Reserved, Reflective, Hopeless, Calm, Confident, Proud, Frustrated, Insecure, Tranquil, Nostalgic, Ecstatic, Cheerful, Energized, Jealous, Irritated, Guilty, Serene, Disappointed, Melancholic, Neutral.' Respond with only one word from this list and nothing else.";
                 string llmresponse = await Prompting.SendPromptRequest(prompt);
-                if(string.IsNullOrEmpty(llmresponse))
+                if (string.IsNullOrEmpty(llmresponse))
                 {
-                    await Shell.Current.DisplayAlert("Warning", $"Error while getting mood.", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
                     return;
                 }
+
                 var mood = await _moodService.GetByArgumentAsync(new MoodDTO { MoodName = llmresponse, MoodId = null });
                 if (mood == null || mood.Result == null || mood.Error != string.Empty)
                 {
-                    await Shell.Current.DisplayAlert("Warning", $"Error while getting mood.", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
                     return;
                 }
+
                 string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
                 var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
                 if (user == null)
                 {
-                    await Shell.Current.DisplayAlert("Warning", "Error while getting user's information.", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning", "Error while getting user's information.",
+                        "Close");
                     return;
                 }
-                var result = await _moodhistoryService.AddAsync(new MoodHistoryDTO { Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId, MoodHistoryId = Guid.NewGuid() });
+
+                var result = await _moodhistoryService.AddAsync(new MoodHistoryDTO
+                {
+                    Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId,
+                    MoodHistoryId = Guid.NewGuid()
+                });
                 if (result == null || result?.Result == null || result.Error != string.Empty)
                 {
-                    await Shell.Current.DisplayAlert("Warning", $"Error while getting user's information.\n{result?.Error}", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning",
+                        $"Error while getting user's information.\n{result?.Error}", "Close");
                     return;
                 }
+
                 bool isAdded = result.Result;
 
                 if (isAdded)
@@ -98,16 +108,20 @@ namespace Calmska.ViewModels
 #endif
                 }
 
-                if(_navigationAfterLogin)
+                if (_navigationAfterLogin)
                     await Shell.Current.GoToAsync(nameof(PomodoroPage));
                 else
                     await Shell.Current.GoToAsync("..");
-                    
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Warning", "Error while getting user's information.", "Close");
                 return;
+            }
+            finally
+            {
+                IsActivityIndicatorRunning = false;
             }
 
         }
@@ -116,14 +130,12 @@ namespace Calmska.ViewModels
         {
             try
             {
-                if (query.ContainsKey("navigationAfterLogin"))
-                {
-                    _navigationAfterLogin = Convert.ToBoolean(query["navigationAfterLogin"]);
-                }
+                if (query.TryGetValue("navigationAfterLogin", out var value))
+                    _navigationAfterLogin = Convert.ToBoolean(value);
             }
             catch (Exception ex)
             {
-                Shell.Current.DisplayAlert("Error", "Error while loading data.", "Close");
+                Shell.Current.DisplayAlertAsync("Error", "Error while loading data.", "Close");
             }
         }
     }
