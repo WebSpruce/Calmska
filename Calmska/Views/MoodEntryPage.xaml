@@ -2,20 +2,23 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.MoodEntryPage"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
              BackgroundColor="{DynamicResource MainGreen}"
              Shell.NavBarIsVisible="False"
-             HideSoftInputOnTapped="True">
+             HideSoftInputOnTapped="True"
+             x:DataType="vm:MoodEntryPageViewModel">
 
     <VerticalStackLayout Padding="20" VerticalOptions="Center" Spacing="10">
-        <Label Text="How are you feeling today?" FontSize="20" HorizontalOptions="Center" />
+        <Label Text="How are you feeling today?" Style="{StaticResource LargeCanelaRegular}" />
 
-        <Entry Placeholder="Enter your mood..." Text="{Binding MoodText, Mode=TwoWay}" BackgroundColor="{DynamicResource SecondGreen}"/>
+        <Entry Placeholder="Enter your mood..." Text="{Binding MoodText, Mode=TwoWay}" 
+               Style="{StaticResource MediumEntry}"/>
 
         <HorizontalStackLayout Spacing="30" HorizontalOptions="Center">
-            <Button Text="Close" Command="{Binding CloseCommand}" CornerRadius="100"
-                BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack" WidthRequest="150"/>
-            <Button Text="Submit" Command="{Binding SubmitMoodCommand}" CornerRadius="100"
-                BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack" WidthRequest="150"/>
+            <Button Text="Close" Command="{Binding CloseCommand}" 
+                    Style="{StaticResource MediumButton}"/>
+            <Button Text="Submit" Command="{Binding SubmitMoodCommand}" 
+                    Style="{StaticResource MediumButton}"/>
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

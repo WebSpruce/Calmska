@@ -2,12 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.TipsPage"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
              xmlns:controls="clr-namespace:Calmska.Controls"
              xmlns:converters="clr-namespace:Calmska.Helper"
              xmlns:calmska="clr-namespace:Calmska"
-             BackgroundColor="#344E41"
+             xmlns:dto="clr-namespace:Calmska.Models.DTO;assembly=Calmska.Models"
+             BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
-             Shell.TabBarIsVisible="False">
+             Shell.TabBarIsVisible="False"
+             x:DataType="vm:TipsViewModel">
     
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -16,59 +19,55 @@
     </ContentPage.Resources>
 
     <Grid RowDefinitions="*, Auto">
-        <ContentView Grid.Row="0" BackgroundColor="#344E41" Padding="5">
-            <ScrollView VerticalScrollBarVisibility="Never">
-                <VerticalStackLayout>
-                    <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,20,0,0">
-                        <Label Text="Feel Hygge" 
-                               FontSize="48" FontFamily="CanelaBlack" HorizontalOptions="Center" TextColor="White" FontAttributes="Bold"/>
-                        <Label Text="{x:Static calmska:IconFont.Info}"  Style="{x:StaticResource MaterialIcons}"
-                               FontSize="40" TextColor="White" VerticalOptions="Center">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding HyggeInfoCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </HorizontalStackLayout>
-                    <Button Text="ANALIZE MY MOOD" Command="{Binding AnalizeCommand}" CornerRadius="100"
-                            BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
-                            WidthRequest="200" Margin="0,20"/>
-                    <CollectionView x:Name="TypesTipsCollection" ItemsSource="{Binding Types}" Margin="0,0,0,0"
-                                    SelectionMode="Single" SelectedItem="{Binding SelectedType}"
-                                    SelectionChangedCommand="{Binding TypeSelectedCommand}"
-                                    VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout Orientation="Vertical" Span="2"/>
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
-                                    Padding="10" Margin="5"
-                                    BackgroundColor="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
-                                    Stroke="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
-                                    >
-                                    <Grid RowDefinitions="*,*" RowSpacing="20">
-                                        <Label Grid.Row="0" Text="{Binding IconName}" Style="{x:StaticResource MaterialIcons}"
-                                            FontSize="60" TextColor="White" VerticalOptions="Start"/>
-                                        <Label Grid.Row="1" Text="{Binding Type}" TextColor="White" FontFamily="CanelaBlack" FontSize="24" VerticalOptions="End"/>
-                                    </Grid>
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup Name="CommonStates">
-                                            <VisualState Name="Normal"/>
-                                            <VisualState Name="Selected">
-                                                <VisualState.Setters>
-                                                    <Setter Property="BackgroundColor" Value="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"/>
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                        </VisualStateGroup>
-                                    </VisualStateManager.VisualStateGroups>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <BoxView HeightRequest="130" BackgroundColor="Transparent" />
-                </VerticalStackLayout>
-            </ScrollView>
-        </ContentView>
+        <ScrollView VerticalScrollBarVisibility="Never" Grid.Row="0" Padding="5">
+            <VerticalStackLayout>
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,20,0,0">
+                    <Label Text="Feel Hygge" Style="{DynamicResource LargeCanelaBlack}"/>
+                    <Label Text="{x:Static calmska:IconFont.Info}"  Style="{StaticResource MaterialIconsLarge}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding HyggeInfoCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+                <Button Text="ANALIZE MY MOOD" Command="{Binding AnalizeCommand}" Style="{StaticResource MediumButton}" Margin="0,20"
+                        WidthRequest="200"/>
+                <CollectionView x:Name="TypesTipsCollection" ItemsSource="{Binding Types}" Margin="0,0,0,0"
+                            SelectionMode="Single" SelectedItem="{Binding SelectedType}"
+                            SelectionChangedCommand="{Binding TypeSelectedCommand}"
+                            VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:Types_TipsFrontendDTO">
+                        <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"     
+                            Padding="10" Margin="5"
+                            BackgroundColor="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
+                            Stroke="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"
+                            >
+                            <Grid RowDefinitions="*,*" RowSpacing="20">
+                                <Label Grid.Row="0" Text="{Binding IconName}" Style="{StaticResource MaterialIconsLarge}"
+                                    FontSize="60" HorizontalOptions="Start" VerticalOptions="Start"/>
+                                <Label Grid.Row="1" Text="{Binding Type}" Style="{StaticResource LargeCanelaBlack}" 
+                                       HorizontalOptions="Start" VerticalOptions="End"/>
+                            </Grid>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal"/>
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{Binding ., Converter={StaticResource IndexToColorConverter}, ConverterParameter={x:Reference TypesTipsCollection}}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Border>
+                    </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <BoxView HeightRequest="130" BackgroundColor="Transparent" />
+            </VerticalStackLayout>
+        </ScrollView>
         <controls:CustomTabBar Grid.Row="1" Margin="0,-105,0,0" HeightRequest="105"/>
     </Grid>
 </ContentPage>

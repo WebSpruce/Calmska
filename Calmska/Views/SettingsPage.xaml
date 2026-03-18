@@ -2,11 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.SettingsPage"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
              xmlns:controls="clr-namespace:Calmska.Controls"
              xmlns:calmska="clr-namespace:Calmska"
              BackgroundColor="{DynamicResource MainGreen}"
              Shell.NavBarIsVisible="True"
              HideSoftInputOnTapped="True"
+             x:DataType="vm:SettingsViewModel"
              >
 
     <Shell.BackButtonBehavior>
@@ -26,21 +28,18 @@
     <Grid RowDefinitions="*, Auto">
         <ScrollView>
             <VerticalStackLayout Padding="10" Spacing="10">
-                <Label Text="{Binding LUserName}"
-                    FontSize="42" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
+                <Label Text="{Binding LUserName}" Style="{StaticResource LargeCanelaBlack}"/>
 
                 <Border Stroke="{DynamicResource SecondGreen}" StrokeShape="RoundRectangle 15" BackgroundColor="{DynamicResource SecondGreen}" Margin="10,0">
                     <HorizontalStackLayout HorizontalOptions="StartAndExpand" VerticalOptions="Center" Padding="10,0">
-                        <Label Text="{x:Static calmska:IconFont.Person}" Style="{x:StaticResource MaterialIcons}"
-                               FontSize="20" TextColor="White" VerticalOptions="Center"/>
+                        <Label Text="{x:Static calmska:IconFont.Person}" Style="{StaticResource MaterialIconsLarge}"
+                               Margin="0,13,0,0"/>
                         <Entry Placeholder="Your username" Text="{Binding EUserName}"
-                            TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                            WidthRequest="250" Margin="5,0"/>
+                               Style="{StaticResource MediumEntry}"/>
                     </HorizontalStackLayout>
                 </Border>
-                <Button Text="SAVE USERNAME" Command="{Binding SaveUsernameCommand}" CornerRadius="100"
-                    BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
-                    WidthRequest="150" Margin="0,10,0,30"/>
+                <Button Text="SAVE USERNAME" Command="{Binding SaveUsernameCommand}" 
+                        Style="{StaticResource MediumButton}" Margin="0,10,0,30"/>
 
                 <Border BackgroundColor="{DynamicResource SecondGreen}" Stroke="{DynamicResource SecondGreen}" 
                         Padding="20" Margin="10">
@@ -48,64 +47,44 @@
                         <RoundRectangle CornerRadius="10"/>
                     </Border.StrokeShape>
                     <Grid ColumnDefinitions="*,*" RowDefinitions="0.2*,*,2*">
-                        
-                            <Label Text="{x:Static calmska:IconFont.Timer}" Style="{x:StaticResource MaterialIcons}"
-                                   Grid.Column="0" Grid.Row="0"
-                                FontSize="30" TextColor="White" HorizontalTextAlignment="Center" />
-                            <Label Text="Working time" Grid.Column="0" Grid.Row="1" TextColor="White"
-                                FontSize="22" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Row="2" Grid.Column="0">
-                                <Label Text="Hours:" TextColor="White" Grid.Column="0" Grid.Row="0"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Hours" Text="{Binding EWorkingTimeHours}" Grid.Column="1" Grid.Row="0" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    VerticalOptions="Center"/>
+                        <Label Text="{x:Static calmska:IconFont.Timer}" Grid.Column="0" Grid.Row="0" 
+                               Style="{StaticResource MaterialIconsLarge}" Margin="0,0,0,5"/>
+                        <Label Text="Working time" Grid.Column="0" Grid.Row="1" Style="{StaticResource LargeCanelaBlack}"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Row="2" Grid.Column="0">
+                            <Label Text="Hours:" Grid.Column="0" Grid.Row="0" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Hours" Text="{Binding EWorkingTimeHours}" Grid.Column="1" Grid.Row="0" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
 
-                                <Label Text="Minutes:" TextColor="White" Grid.Column="0" Grid.Row="1"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Minutes" Text="{Binding EWorkingTimeMinutes}" Grid.Column="1" Grid.Row="1" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    Margin="5,0" VerticalOptions="Center"/>
+                            <Label Text="Minutes:" Grid.Column="0" Grid.Row="1" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Minutes" Text="{Binding EWorkingTimeMinutes}" Grid.Column="1" Grid.Row="1" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
 
-                                <Label Text="Seconds:" TextColor="White" Grid.Column="0" Grid.Row="2"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Seconds" Text="{Binding EWorkingTimeSeconds}" Grid.Column="1" Grid.Row="2" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    Margin="5,0" VerticalOptions="Center"/>
-                            </Grid>
+                            <Label Text="Seconds:" Grid.Column="0" Grid.Row="2" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Seconds" Text="{Binding EWorkingTimeSeconds}" Grid.Column="1" Grid.Row="2" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
+                        </Grid>
                             
-                            <Label Text="{x:Static calmska:IconFont.Emoji_food_beverage}" Style="{x:StaticResource MaterialIcons}"
-                                   Grid.Column="1" Grid.Row="0"
-                                FontSize="30" TextColor="White" HorizontalTextAlignment="Center"/>
-                            <Label Text="Break time" TextColor="White" Grid.Column="1" Grid.Row="1"
-                                FontSize="22" FontFamily="CanelaBlack" HorizontalOptions="Center" VerticalOptions="Start"/>
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Column="1" Grid.Row="2">
-                                <Label Text="Hours:" TextColor="White" Grid.Column="0" Grid.Row="0"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Hours" Text="{Binding EBreakTimeHours}" Grid.Column="1" Grid.Row="0" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    VerticalOptions="Center"/>
+                        <Label Text="{x:Static calmska:IconFont.Emoji_food_beverage}" Grid.Column="1" Grid.Row="0" 
+                               Style="{StaticResource MaterialIconsLarge}" Margin="0,0,0,5"/>
+                        <Label Text="Break time" Grid.Column="1" Grid.Row="1" Style="{StaticResource LargeCanelaBlack}"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" Grid.Column="1" Grid.Row="2">
+                            <Label Text="Hours:" Grid.Column="0" Grid.Row="0" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Hours" Text="{Binding EBreakTimeHours}" Grid.Column="1" Grid.Row="0" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
 
-                                <Label Text="Minutes:" TextColor="White" Grid.Column="0" Grid.Row="1"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Minutes" Text="{Binding EBreakTimeMinutes}" Grid.Column="1" Grid.Row="1" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    Margin="5,0" VerticalOptions="Center"/>
+                            <Label Text="Minutes:" Grid.Column="0" Grid.Row="1" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Minutes" Text="{Binding EBreakTimeMinutes}" Grid.Column="1" Grid.Row="1" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
 
-                                <Label Text="Seconds:" TextColor="White" Grid.Column="0" Grid.Row="2"
-                                    FontSize="16" FontFamily="MADEINFINITYRegular" VerticalOptions="Center"/>
-                                <Entry Placeholder="Seconds" Text="{Binding EBreakTimeSeconds}" Grid.Column="1" Grid.Row="2" Keyboard="Numeric"
-                                    TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                                    Margin="5,0" VerticalOptions="Center"/>
-                            </Grid>
-                       
+                            <Label Text="Seconds:" Grid.Column="0" Grid.Row="2" Style="{StaticResource SmallInfinity}"/>
+                            <Entry Placeholder="Seconds" Text="{Binding EBreakTimeSeconds}" Grid.Column="1" Grid.Row="2" 
+                                   Keyboard="Numeric" Style="{StaticResource MediumEntry}"/>
+                        </Grid>
                     </Grid>
                 </Border>
 
-                <Button Text="SAVE TIMER" Command="{Binding SaveSettingsCommand}" CornerRadius="100"
-                    BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
-                    WidthRequest="150" Margin="0,10,0,30"/>
-
+                <Button Text="SAVE TIMER" Command="{Binding SaveSettingsCommand}" 
+                        Style="{StaticResource MediumButton}" Margin="0,10,0,30"/>
 
                 <Border BackgroundColor="{DynamicResource SecondGreen}" Stroke="{DynamicResource SecondGreen}" 
                         Padding="20" Margin="10">
@@ -114,18 +93,18 @@
                     </Border.StrokeShape>
                     <VerticalStackLayout>
                         <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                            <Label Text="Enable Mood Notifications  " VerticalTextAlignment="Center"/>
+                            <Label Text="Enable Mood Notifications  " Style="{StaticResource SmallInfinity}"/>
                             <Switch IsToggled="{Binding NotificationsEnabled, Mode=TwoWay}"
                                     VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                            <Label Text="Select Notification Time:  " VerticalTextAlignment="Center"/>
+                            <Label Text="Select Notification Time:  " Style="{StaticResource SmallInfinity}"/>
                             <TimePicker Time="{Binding SelectedNotificationTime, Mode=TwoWay}" 
                                         VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
-                <BoxView HeightRequest="130" BackgroundColor="Transparent" />
+                
             </VerticalStackLayout>
         </ScrollView>
         <controls:CustomTabBar Grid.Row="1"/>

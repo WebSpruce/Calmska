@@ -2,44 +2,43 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.TipsListPage"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
+             xmlns:helper="clr-namespace:Calmska.Helper"
              BackgroundColor="#344E41"
              HideSoftInputOnTapped="True"
              Shell.TabBarIsVisible="False"
              Shell.NavBarIsVisible="True"
+             Shell.ForegroundColor="White"
              Title="{Binding Title}"
+             x:DataType="vm:TipsListViewModel"
              >
 
     <Shell.BackButtonBehavior>
-        <BackButtonBehavior IsVisible="False"/>
+        <BackButtonBehavior IsVisible="True"/>
     </Shell.BackButtonBehavior>
 
-    <ScrollView VerticalScrollBarVisibility="Never">
-        <VerticalStackLayout>
-            <CollectionView ItemsSource="{Binding Tips}" Margin="0,0,0,0"
-                        SelectionMode="Single" SelectedItem="{Binding SelectedTip}"
-                        VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="1"/>
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 10,10,10,10"     
-                            Padding="10" Margin="5" 
-                            HeightRequest="{Binding BorderHeight}"
-                            BackgroundColor="{Binding BorderBGColor}"
-                            >
-                            <Grid>
-                                <Label IsVisible="{Binding IsDefaultTextVisible}"
-                                    Text="{Binding Data.Content}"
-                                    LineBreakMode="TailTruncation" TextColor="White" FontFamily="MADEINFINITYMedium" FontSize="25" VerticalOptions="Center"/>
-                                <Label IsVisible="{Binding IsExpanded}"
-                                    Text="{Binding Data.Content}"
-                                    TextColor="White" FontFamily="MADEINFINITYMedium" FontSize="25" VerticalOptions="Center"/>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+    <CollectionView ItemsSource="{Binding Tips}" Margin="0,0,0,0"
+                    SelectionMode="Single" SelectedItem="{Binding SelectedTip}"
+                    VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+        <CollectionView.ItemsLayout>
+            <GridItemsLayout Orientation="Vertical" Span="1"/>
+        </CollectionView.ItemsLayout>
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="helper:TipsExpandableItem">
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 10,10,10,10"     
+                        Padding="10" Margin="5" 
+                        HeightRequest="{Binding BorderHeight}"
+                        BackgroundColor="{Binding BorderBGColor}">
+                    <Grid>
+                        <Label IsVisible="{Binding IsDefaultTextVisible}"
+                               Text="{Binding Data.Content}"
+                               Style="{StaticResource LargeTipsInfinityIsNotExpanded}"/>
+                        <Label IsVisible="{Binding IsExpanded}"
+                               Text="{Binding Data.Content}"
+                               Style="{StaticResource LargeTipsInfinityIsExpanded}"/>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
 </ContentPage>

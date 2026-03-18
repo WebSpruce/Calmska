@@ -8,7 +8,10 @@ using Calmska.Services;
 
 namespace Calmska.Platforms.Android.ForegroundServices;
 
-[Service(Exported = true, ForegroundServiceType = ForegroundService.TypeShortService)]
+[Service(
+    Name = "com.companyname.calmska.PomodoroTimeNotificationService",
+    Exported = true, 
+    ForegroundServiceType = ForegroundService.TypeShortService)]
 public class PomodoroTimeNotificationService : Service
 {
     private const int _notificationId = 1002; 

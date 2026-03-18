@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="Calmska.Resources.Styles.EntryStyles">
+    
+    <Style x:Key="MediumEntry" TargetType="Entry">
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="FontSize" Value="Medium"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
+        <Setter Property="Margin" Value="5,0"/>
+        <Setter Property="PlaceholderColor" Value="{DynamicResource PlaceholderGray}" />
+    </Style>
+    
+    
+</ResourceDictionary>

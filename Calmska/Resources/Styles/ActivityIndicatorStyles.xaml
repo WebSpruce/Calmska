@@ -1,0 +1,10 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="Calmska.Resources.Styles.ActivityIndicatorStyles">
+    
+    <Style x:Key="MainActivityIndicator" TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{DynamicResource AccentLightOrange}"/>
+        <Setter Property="WidthRequest" Value="20"/>
+    </Style>
+    
+</ResourceDictionary>

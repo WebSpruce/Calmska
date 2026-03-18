@@ -2,20 +2,22 @@
 
 namespace Calmska.Helper
 {
-    internal partial class ExpandableItem<T> : ObservableObject
+    public partial class ExpandableItem<T> : ObservableObject
     {
-        public T Data { get; set; }
+        [ObservableProperty]   // ✅ make it observable
+        private T _data;
         [ObservableProperty]
         private bool _isExpanded;
         [ObservableProperty]
-        private object _isDefaultTextVisible;
+        private object _isDefaultTextVisible = true;
         [ObservableProperty]
-        private object _borderBGColor = Color.FromArgb("#538A5E");
+        private Color _borderBGColor = Color.FromArgb("#538A5E");
         [ObservableProperty]
         private int _borderHeight = 70;
         partial void OnIsExpandedChanged(bool value)
         {
             BorderHeight = value ? 140 : 70;
+            IsDefaultTextVisible = !value;
         }
     }
 }

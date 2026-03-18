@@ -2,7 +2,15 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Controls.CustomTabBar"
-             BackgroundColor="Transparent">
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
+             xmlns:styles="clr-namespace:Calmska.Resources.Styles"
+             BackgroundColor="Transparent"
+             x:DataType="vm:CustomTabBarViewModel">
+    
+    <ContentView.Resources>
+        <styles:ButtonStyles/>
+    </ContentView.Resources>
+    
     <Border StrokeShape="RoundRectangle 50,50,50,50" HorizontalOptions="Center" Padding="0" Margin="20"
             Stroke="{DynamicResource AccentOrange}">
         <Grid ColumnDefinitions="*,*,*" 

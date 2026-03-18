@@ -7,7 +7,8 @@
              xmlns:vm="clr-namespace:Calmska.ViewModels"
              BackgroundColor="{DynamicResource MainGreen}"
              Shell.NavBarIsVisible="True"
-             Title="PomodoroPage">
+             Title="PomodoroPage"
+             x:DataType="vm:PomodoroViewModel">
 
     <Shell.BackButtonBehavior>
         <BackButtonBehavior IsVisible="False"/>
@@ -21,8 +22,8 @@
     
     <Shell.TitleView>
         <HorizontalStackLayout VerticalOptions="Fill">
-            <Label Text="{Binding NavBarTitle, StringFormat='Hello {0}'}" FontFamily="CanelaBlack"
-                TextColor="White" VerticalTextAlignment="Center" VerticalOptions="Center" HeightRequest="50" FontSize="29" />
+            <Label Text="{Binding NavBarTitle, StringFormat='Hello {0}'}" 
+                   Style="{StaticResource LargeCanelaBlack}"/>
         </HorizontalStackLayout>
     </Shell.TitleView>
     <ContentPage.ToolbarItems>
@@ -38,8 +39,8 @@
     <Grid RowDefinitions="*, Auto">
         <ContentView>
             <Grid>
-                <Label Text="Either you run the day or the day runs you."
-                    FontSize="24" FontFamily="CanelaRegular" HorizontalOptions="Start" VerticalOptions="Start" Padding="15,0"/>
+                <Label Text="Either you run the day or the day runs you." Style="{StaticResource LargeCanelaRegular}" 
+                       Padding="15,0" HorizontalOptions="Start" VerticalOptions="Start"/>
                 
                 <Ellipse Stroke="LightGray" StrokeThickness="7"
                     WidthRequest="200" HeightRequest="200" HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -49,15 +50,15 @@
                       HorizontalOptions="Center" VerticalOptions="Center"/>
 
                 <Label Text="{Binding TimeRemaining}"
-                    FontSize="35" FontFamily="CanelaRegular" HorizontalOptions="Center" VerticalOptions="Center"/>
+                       Style="{StaticResource LargeCanelaBlack}"/>
                 <Label Text="{Binding TimeType}"
-                    FontSize="15" FontFamily="MADEINFINITYRegular" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,80,0,0"/>
+                    Style="{StaticResource SmallInfinity}" Margin="0,80,0,0"/>
 
                 <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="End" Spacing="30">
-                    <Button Text="{Binding PlayPauseIcon}" Style="{x:StaticResource MaterialIcons}" HeightRequest="80" WidthRequest="80" Command="{Binding PlayPauseCommand}" 
-                            BackgroundColor="Transparent" TextColor="White" FontSize="40"/>
-                    <Button Text="{x:Static calmska:IconFont.Restart_alt}" Style="{x:StaticResource MaterialIcons}" HeightRequest="80" WidthRequest="80" Command="{Binding ResetTimerCommand}" 
-                            BackgroundColor="Transparent" TextColor="White" FontSize="40"/>
+                    <Button Text="{Binding PlayPauseIcon}" Style="{StaticResource PomodoroControlsButton}" 
+                            Command="{Binding PlayPauseCommand}" />
+                    <Button Text="{x:Static calmska:IconFont.Restart_alt}" Style="{StaticResource PomodoroControlsButton}"
+                            Command="{Binding ResetTimerCommand}" />
                 </StackLayout>
             </Grid>
         </ContentView>

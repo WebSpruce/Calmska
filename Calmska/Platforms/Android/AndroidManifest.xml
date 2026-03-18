@@ -5,20 +5,6 @@
 			android:name="com.google.firebase.messaging.default_notification_icon"
 			android:resource="@drawable/calmska"
 			/>
-
-		<receiver android:name=".MoodNotificationReceiver" android:exported="true">
-			<intent-filter>
-				<action android:name="android.intent.action.BOOT_COMPLETED" />
-				<action android:name="com.myapp.NOTIFICATION_CLICKED" />
-			</intent-filter>
-		</receiver>
-		<receiver android:name=".BootReceiver" android:enabled="true" android:exported="true">
-			<intent-filter>
-				<action android:name="android.intent.action.BOOT_COMPLETED"/>
-			</intent-filter>
-		</receiver>
-		<service android:name=".MoodNotificationService" android:foregroundServiceType="dataSync" />
-		<service android:name=".PomodoroTimeNotificationService" android:foregroundServiceType="shortService"/>
 		
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

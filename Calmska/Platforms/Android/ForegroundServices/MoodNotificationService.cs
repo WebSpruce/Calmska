@@ -7,7 +7,10 @@ using AndroidX.Core.App;
 
 namespace Calmska.Platforms.Android.ForegroundServices
 {
-    [Service(Exported = true, ForegroundServiceType = ForegroundService.TypeDataSync)]
+    [Service(
+        Name = "com.companyname.calmska.MoodNotificationService",
+        Exported = true, 
+        ForegroundServiceType = ForegroundService.TypeDataSync)]
     internal class MoodNotificationService : Service
     {
         private const int _notificationId = 1001;

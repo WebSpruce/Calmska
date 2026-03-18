@@ -2,24 +2,25 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.RegisterPage"
-             BackgroundColor="#344E41"
+             xmlns:vm="clr-namespace:Calmska.ViewModels"
+             BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
              Shell.FlyoutItemIsVisible="False"
              NavigationPage.HasNavigationBar="False"
+             x:DataType="vm:RegisterViewModel"
              >
+    
     <Grid>
         <Image Source="{Binding BackgroundImageSource}" 
                Aspect="AspectFill" Opacity="0.4" ScaleX="-1.2" ScaleY="1.2" Margin="0,-100,-160,0" VerticalOptions="Start" HorizontalOptions="End"/>
         <StackLayout VerticalOptions="EndAndExpand" HorizontalOptions="Center" Spacing="10" Padding="0,0,0,100">
-            <Label Text="Sign Up" 
-                   FontSize="48" FontFamily="CanelaBlack" HorizontalOptions="Center" TextColor="White" FontAttributes="Bold"/>
+            <Label Text="Sign Up" Style="{StaticResource LargeCanelaBlack}"/>
             <Border WidthRequest="300" Stroke="{DynamicResource SecondGreen}" StrokeShape="RoundRectangle 15" BackgroundColor="{DynamicResource SecondGreen}">
                 <HorizontalStackLayout HorizontalOptions="StartAndExpand" VerticalOptions="Center" Padding="5,0">
                     <Image Source="email.svg" 
                         Aspect="AspectFit" WidthRequest="20" HeightRequest="20"/>
-                    <Entry Placeholder="Please enter your email address" Text="{Binding EEmail}" Keyboard="Email" 
-                        TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" FontSize="16"
-                        WidthRequest="250" Margin="5,0"/>
+                    <Entry Placeholder="Please enter your email" Text="{Binding EEmail}" 
+                           Keyboard="Email" Style="{StaticResource MediumEntry}" WidthRequest="250" Margin="5,0"/>
                 </HorizontalStackLayout>
             </Border>
             <Border WidthRequest="300" Stroke="{DynamicResource SecondGreen}" StrokeShape="RoundRectangle 15" BackgroundColor="{DynamicResource SecondGreen}">
@@ -27,10 +28,10 @@
                     <Image Source="padlock.svg" 
                         Aspect="AspectFit" WidthRequest="20" HeightRequest="20"/>
                     <Entry Placeholder="************" Text="{Binding EPassword}" IsPassword="{Binding IsPasswordMode}" 
-                       TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" BackgroundColor="{DynamicResource SecondGreen}" FontSize="16"
-                       WidthRequest="220" Margin="5,0,10,0"/>
+                           Style="{StaticResource MediumEntry}" WidthRequest="220" Margin="5,0,10,0"/>
                     <Grid WidthRequest="50" HeightRequest="45" Margin="-10,0,0,0">
-                        <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" WidthRequest="15" HeightRequest="15"/>
+                        <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" 
+                                     WidthRequest="10" Height="10" Padding="10" Aspect="AspectFit"/>
                     </Grid>
                 </HorizontalStackLayout>
             </Border>
@@ -39,21 +40,19 @@
                     <Image Source="padlock.svg" 
                         Aspect="AspectFit" WidthRequest="20" HeightRequest="20"/>
                     <Entry Placeholder="************" Text="{Binding EPasswordAgain}" IsPassword="{Binding IsPasswordMode}" 
-                       TextColor="White" PlaceholderColor="{DynamicResource PlaceholderGray}" BackgroundColor="{DynamicResource SecondGreen}" FontSize="16"
-                       WidthRequest="220" Margin="5,0,10,0"/>
+                           Style="{StaticResource MediumEntry}" WidthRequest="220" Margin="5,0,10,0"/>
                     <Grid WidthRequest="50" HeightRequest="45" Margin="-10,0,0,0">
-                        <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" WidthRequest="15" HeightRequest="15"/>
+                        <ImageButton Command="{Binding ChangePasswordVisibilityCommand}" Source="{Binding PasswordBtnIcon}" 
+                                     WidthRequest="10" Height="10" Padding="10" Aspect="AspectFit"/>
                     </Grid>
                 </HorizontalStackLayout>
             </Border>
-            <Button Text="Register" Command="{Binding RegisterCommand}" CornerRadius="100"
-                    BackgroundColor="{DynamicResource AccentOrange}" TextColor="White" FontFamily="MADEINFINITYBlack"
-                    WidthRequest="150"/>
+            <Button Text="REGISTER" Command="{Binding RegisterCommand}" Style="{StaticResource MediumButton}"/>
         </StackLayout>
-        <ActivityIndicator IsRunning="{Binding IsActivityIndicatorRunning}" Color="{DynamicResource AccentLightOrange}"
-                   WidthRequest="20" VerticalOptions="End" Margin="0,0,0,50" />
+        <ActivityIndicator IsRunning="{Binding IsActivityIndicatorRunning}" 
+                           Style="{StaticResource MainActivityIndicator}" VerticalOptions="End" Margin="0,0,0,50" />
         <Label Text="If you already have an account you can sign in"
-            TextDecorations="Underline" FontFamily="CanelaRegular" FontSize="14"
+            TextDecorations="Underline" FontFamily="CanelaRegular" FontSize="Small"
             HorizontalOptions="Center" VerticalOptions="End" Padding="0,0,0,30">
             <Label.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding GoToLoginCommand}"></TapGestureRecognizer>

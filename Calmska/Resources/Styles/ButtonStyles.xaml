@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="Calmska.Resources.Styles.ButtonStyles">
+    
+    <Style x:Key="MediumButton" TargetType="Button">
+        <Setter Property="CornerRadius" Value="100"/>
+        <Setter Property="BackgroundColor" Value="{DynamicResource AccentOrange}"/>
+        <Setter Property="FontFamily" Value="MADEINFINITYBlack"/>
+        <Setter Property="WidthRequest" Value="150"/>
+        <Setter Property="TextColor" Value="White"/>
+    </Style>
+    
+    <Style x:Key="PomodoroControlsButton" TargetType="Button">
+        <Setter Property="FontSize" Value="40" />
+        <Setter Property="FontFamily" Value="MaterialIcons"/>
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="WidthRequest" Value="80"/>
+        <Setter Property="HeightRequest" Value="80"/>
+    </Style>
+    
+</ResourceDictionary>

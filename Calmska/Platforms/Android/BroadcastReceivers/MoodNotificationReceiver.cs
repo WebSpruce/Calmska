@@ -1,12 +1,16 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Util;
 using AndroidX.Core.App;
 
 namespace Calmska.Platforms.Android.BroadcastReceivers
 {
-    [BroadcastReceiver(Enabled = true, Exported = false)]
-    [IntentFilter(new[] { "com.companyname.notifTest.NOTIFICATION_CLICKED" })]
+    [BroadcastReceiver(
+        Name = "com.companyname.calmska.MoodNotificationReceiver",
+        Enabled = true, Exported = true)]
+    [IntentFilter(new[] { "com.companyname.calmska.NOTIFICATION_CLICKED" })]
+    [Preserve(AllMembers = true)]
     public class MoodNotificationReceiver : BroadcastReceiver
     {
         private const string CHANNEL_ID = "MoodNotificationChannel";

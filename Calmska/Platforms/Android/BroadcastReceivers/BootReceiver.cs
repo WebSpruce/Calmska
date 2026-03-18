@@ -1,9 +1,14 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Runtime;
+
 namespace Calmska.Platforms.Android.BroadcastReceivers
 {
-    [BroadcastReceiver(Enabled = true, Exported = true)]
-    [IntentFilter(new[] { Intent.ActionBootCompleted })]
+    [BroadcastReceiver(
+        Name = "com.companyname.calmska.BootReceiver",
+        Enabled = true, Exported = true)]
+    [IntentFilter(new[] { "android.intent.action.BOOT_COMPLETED" })]
+    [Preserve(AllMembers = true)]
     public class BootReceiver : BroadcastReceiver
     {
         public override void OnReceive(Context? context, Intent? intent)

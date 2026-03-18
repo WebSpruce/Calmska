@@ -1,4 +1,5 @@
-﻿using Calmska.Helper;
+﻿using System.Collections.ObjectModel;
+using Calmska.Helper;
 using Calmska.Models.DTO;
 using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,12 +9,12 @@ namespace Calmska.ViewModels
     internal partial class TipsListViewModel : ObservableObject, IQueryAttributable
     {
         [ObservableProperty]
-        private List<ExpandableItem<TipsDTO?>> _tips;
+        private ObservableCollection<TipsExpandableItem> _tips;
         [ObservableProperty]
         private string _title = string.Empty;
-        private ExpandableItem<TipsDTO> _previouslyExpandedItem;
-        private ExpandableItem<TipsDTO?> _selectedTip = new();
-        public ExpandableItem<TipsDTO?> SelectedTip
+        private TipsExpandableItem _previouslyExpandedItem;
+        private TipsExpandableItem _selectedTip = new();
+        public TipsExpandableItem SelectedTip
         {
             get => _selectedTip;
             set
@@ -65,17 +66,17 @@ namespace Calmska.ViewModels
             {
                 if (_tipType == null || _tipType?.TypeId <= 0)
                 {
-                    await Shell.Current.DisplayAlert("Warning", $"Couldn't find tips for the provided type.", "Close");
+                    await Shell.Current.DisplayAlertAsync("Warning", $"Couldn't find tips for the provided type.", "Close");
                     return;
                 }
-                Title = _tipType?.Type;
+                Title = _tipType?.Type ?? "";
                 var tips = await _tipsService.SearchAllByArgumentAsync(new TipsDTO { TipsTypeId = _tipType?.TypeId, Content = null }, null, null);
                 if (tips != null && string.IsNullOrEmpty(tips.Error) && tips.Result != null)
                 {
-                    List<ExpandableItem<TipsDTO?>> tempTips = new();
+                    ObservableCollection<TipsExpandableItem> tempTips = new();
                     foreach (var t in tips.Result.Items)
                     {
-                        tempTips.Add(new ExpandableItem<TipsDTO?>
+                        tempTips.Add(new TipsExpandableItem
                         {
                             Data = t,
                             IsExpanded = false,
@@ -88,7 +89,7 @@ namespace Calmska.ViewModels
             }
             catch(Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", $"Loading tips list error: {ex.Message}\n{ex.InnerException}", "Close");
+                await Shell.Current.DisplayAlertAsync("Warning", $"Loading tips list error: {ex.Message}\n{ex.InnerException}", "Close");
             }
         }
         public async void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -103,7 +104,7 @@ namespace Calmska.ViewModels
                 }
             }catch(Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", $"Loading tips list page error: {ex.Message}\n{ex.InnerException}", "Close");
+                await Shell.Current.DisplayAlertAsync("Warning", $"Loading tips list page error: {ex.Message}\n{ex.InnerException}", "Close");
             }
         }
     }
