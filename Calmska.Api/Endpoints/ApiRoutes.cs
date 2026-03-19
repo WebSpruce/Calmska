@@ -37,11 +37,15 @@ public class ApiRoutes
     {
         public const string GroupName = $"{ApiBase}/types_moods";
     }
+    public static class Prompts
+    {
+        public const string GroupName = $"{ApiBase}/prompts";
+    }
 
     public static ApiVersionSet ApiVersion(IEndpointRouteBuilder app)
     {
         return app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(3))
+            .HasApiVersion(new ApiVersion(4))
             .Build();
     }
 }

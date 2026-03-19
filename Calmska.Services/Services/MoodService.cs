@@ -19,7 +19,7 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "/moods");
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "moods");
         }
 
         public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize)
@@ -42,7 +42,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"Type={moodCriteria.MoodTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/moods/searchList?{queryString}";
+                endpoint = $"moods/searchList?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, endpoint);
@@ -68,7 +68,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"Type={moodCriteria.MoodTypeId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/moods/search?{queryString}";
+                endpoint = $"moods/search?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<MoodDTO?>(_httpClient, endpoint);
@@ -76,17 +76,17 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<bool>> AddAsync(MoodDTO newAccount)
         {
-            return await HttpClientHelper.PostAsync<MoodDTO?>(_httpClient, "/moods", newAccount);
+            return await HttpClientHelper.PostAsync<MoodDTO?>(_httpClient, "moods", newAccount);
         }
 
         public async Task<OperationResultT<bool>> UpdateAsync(MoodDTO updatedAccount)
         {
-            return await HttpClientHelper.PutAsync<MoodDTO?>(_httpClient, "/moods", updatedAccount);
+            return await HttpClientHelper.PutAsync<MoodDTO?>(_httpClient, "moods", updatedAccount);
         }
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid moodId)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"/moods?moodId={moodId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"moods?moodId={moodId}");
         }
     }
 }

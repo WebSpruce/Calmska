@@ -2,6 +2,8 @@ using Asp.Versioning;
 using Calmska.Api.Endpoints;
 using Calmska.Api.Interfaces;
 using Calmska.Api.Middlewares;
+using Calmska.Api.Models;
+using Calmska.Api.Prompts;
 using Calmska.Api.Repository;
 using Calmska.Models.DTO;
 using Calmska.Models.Models;
@@ -22,7 +24,7 @@ namespace Calmska.Api
         {
             var builder = WebApplication.CreateBuilder(args);
             
-            builder.Services.AddOpenApi("v3");
+            builder.Services.AddOpenApi("v4");
 
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 #if !DEBUG
@@ -49,6 +51,15 @@ namespace Calmska.Api
                 }
             );
 
+            builder.Services.Configure<AiPromptingOptions>(options =>
+            {
+                options.ApiKey = Environment.GetEnvironmentVariable("ai_api_key") ?? string.Empty;
+                options.ApiHost = Environment.GetEnvironmentVariable("ai_api_host") ?? string.Empty;
+                options.ApiModel = Environment.GetEnvironmentVariable("ai_api_model") ?? string.Empty;
+            });
+
+            builder.Services.AddSingleton<IAiFirewallService, AiFirewallService>();
+            builder.Services.AddHttpClient<IAiPromptingRepository, AiPromptingRepository>();
             builder.Services.AddScoped<IRepository<Account, AccountDTO>, AccountRepository>();
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRepository<Settings, SettingsDTO>, SettingsRepository>();
@@ -101,6 +112,7 @@ namespace Calmska.Api
             var app = builder.Build();
 
             app.UseMiddleware<RequestLoggingMiddleware>();
+            PromptLoader.ClearCache();
             
             if (app.Environment.IsDevelopment())
             {

@@ -19,7 +19,7 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<PaginatedResult<SettingsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<SettingsDTO?>>(_httpClient, "/settings");
+            return await HttpClientHelper.GetAsync<PaginatedResult<SettingsDTO?>>(_httpClient, "settings");
         }
 
         public async Task<OperationResultT<PaginatedResult<SettingsDTO?>>> SearchAllByArgumentAsync(SettingsDTO settingsCriteria, int? pageNumber, int? pageSize)
@@ -50,7 +50,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"UserId={settingsCriteria.UserId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/settings/searchList?{queryString}";
+                endpoint = $"settings/searchList?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<PaginatedResult<SettingsDTO?>>(_httpClient, endpoint);
@@ -84,7 +84,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"UserId={settingsCriteria.UserId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/settings/search?{queryString}";
+                endpoint = $"settings/search?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<SettingsDTO?>(_httpClient, endpoint);
@@ -92,17 +92,17 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<bool>> AddAsync(SettingsDTO newSettings)
         {
-            return await HttpClientHelper.PostAsync<SettingsDTO?>(_httpClient, "/settings", newSettings);
+            return await HttpClientHelper.PostAsync<SettingsDTO?>(_httpClient, "settings", newSettings);
         }
 
         public async Task<OperationResultT<bool>> UpdateAsync(SettingsDTO updatedSettings)
         {
-            return await HttpClientHelper.PutAsync<SettingsDTO?>(_httpClient, "/settings", updatedSettings);
+            return await HttpClientHelper.PutAsync<SettingsDTO?>(_httpClient, "settings", updatedSettings);
         }
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid settingsId)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"/settings?settingsId={settingsId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"settings?settingsId={settingsId}");
         }
     }
 }

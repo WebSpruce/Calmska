@@ -19,7 +19,7 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<PaginatedResult<Types_TipsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<Types_TipsDTO?>>(_httpClient, "/types_tips");
+            return await HttpClientHelper.GetAsync<PaginatedResult<Types_TipsDTO?>>(_httpClient, "types_tips");
         }
 
         public async Task<OperationResultT<PaginatedResult<IEnumerable<Types_TipsDTO?>>>> SearchAllByArgumentAsync(Types_TipsDTO typesCriteria, int? pageNumber, int? pageSize)
@@ -38,7 +38,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"Type={Uri.EscapeDataString(typesCriteria.Type)}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/types_tips/searchList?{queryString}";
+                endpoint = $"types_tips/searchList?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<Types_TipsDTO?>>>(_httpClient, endpoint);
@@ -60,7 +60,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"Type={Uri.EscapeDataString(typesCriteria.Type)}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/types_tips/search?{queryString}";
+                endpoint = $"types_tips/search?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<Types_TipsDTO?>(_httpClient, endpoint);
@@ -68,17 +68,17 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<bool>> AddAsync(Types_TipsDTO newTip)
         {
-            return await HttpClientHelper.PostAsync<Types_TipsDTO?>(_httpClient, "/types_tips", newTip);
+            return await HttpClientHelper.PostAsync<Types_TipsDTO?>(_httpClient, "types_tips", newTip);
         }
 
         public async Task<OperationResultT<bool>> UpdateAsync(Types_TipsDTO updatedTip)
         {
-            return await HttpClientHelper.PutAsync<Types_TipsDTO?>(_httpClient, "/types_tips", updatedTip);
+            return await HttpClientHelper.PutAsync<Types_TipsDTO?>(_httpClient, "types_tips", updatedTip);
         }
 
         public async Task<OperationResultT<bool>> DeleteAsync(int TypeId)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"/types_tips?TypeId={TypeId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"types_tips?TypeId={TypeId}");
         }
     }
 }

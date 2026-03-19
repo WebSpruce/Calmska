@@ -19,7 +19,7 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<PaginatedResult<MoodHistoryDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<MoodHistoryDTO?>>(_httpClient, "/moodhistory");
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodHistoryDTO?>>(_httpClient, "moodhistory");
         }
 
         public async Task<OperationResultT<PaginatedResult<MoodHistoryDTO?>>> SearchAllByArgumentAsync(MoodHistoryDTO moodHistoryCriteria, int? pageNumber, int? pageSize)
@@ -47,7 +47,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"MoodId={moodHistoryCriteria.MoodId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/moodhistory/searchList?{queryString}";
+                endpoint = $"moodhistory/searchList?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<PaginatedResult<MoodHistoryDTO?>>(_httpClient, endpoint);
@@ -78,7 +78,7 @@ namespace Calmska.Services.Services
                     endpointParameters.Add($"MoodId={moodHistoryCriteria.MoodId}");
                 }
                 var queryString = string.Join("&", endpointParameters);
-                endpoint = $"/moodhistory/search?{queryString}";
+                endpoint = $"moodhistory/search?{queryString}";
             }
 
             return await HttpClientHelper.GetAsync<MoodHistoryDTO?>(_httpClient, endpoint);
@@ -86,17 +86,17 @@ namespace Calmska.Services.Services
 
         public async Task<OperationResultT<bool>> AddAsync(MoodHistoryDTO newMoodHistory)
         {
-            return await HttpClientHelper.PostAsync<MoodHistoryDTO?>(_httpClient, "/moodhistory", newMoodHistory);
+            return await HttpClientHelper.PostAsync<MoodHistoryDTO?>(_httpClient, "moodhistory", newMoodHistory);
         }
 
         public async Task<OperationResultT<bool>> UpdateAsync(MoodHistoryDTO updatedMoodHistory)
         {
-            return await HttpClientHelper.PutAsync<MoodHistoryDTO?>(_httpClient, "/moodhistory", updatedMoodHistory);
+            return await HttpClientHelper.PutAsync<MoodHistoryDTO?>(_httpClient, "moodhistory", updatedMoodHistory);
         }
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid moodHistoryId)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"/moodhistory?moodHistoryId={moodHistoryId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"moodhistory?moodHistoryId={moodHistoryId}");
         }
     }
 }

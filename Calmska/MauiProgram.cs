@@ -40,6 +40,7 @@ namespace Calmska
 #endif
             builder.Services.AddSingleton(AudioManager.Current);
             builder.Services.AddSingleton<PomodoroTimerService>();
+            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>();
             
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
@@ -76,6 +77,9 @@ namespace Calmska
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
             builder.Services.AddHttpClient<IService<MoodHistoryDTO>, MoodHistoryService>(client =>
+                client.BaseAddress = new Uri(apiBaseUrl)
+            );
+            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>(client =>
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
             

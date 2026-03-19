@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
 using Android.Util;
-using Calmska.Helper;
+using Calmska.Models.Models;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 
@@ -23,11 +23,13 @@ namespace Calmska.ViewModels
         private readonly ITypesService<Types_TipsDTO> _typesTipsService;
         private readonly IService<MoodHistoryDTO> _moodHistoryService;
         private readonly IService<MoodDTO> _moodService;
-        public TipsViewModel(ITypesService<Types_TipsDTO> typesTipsService, IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService)
+        private readonly IAiPromptingService _aiPromptingService;
+        public TipsViewModel(ITypesService<Types_TipsDTO> typesTipsService, IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
         {
             _typesTipsService = typesTipsService;
             _moodHistoryService = moodHistoryService;
             _moodService = moodService;
+            _aiPromptingService = aiPromptingService;
 
             Task.Run(async () => await LoadTypes());
         }
@@ -74,7 +76,7 @@ namespace Calmska.ViewModels
         }
 
         [RelayCommand]
-        private async Task Analize()
+        private async Task Analize(CancellationToken token)
         {
             try
             {
@@ -127,12 +129,15 @@ namespace Calmska.ViewModels
                             }
 
                             Preferences.Default.Set("LastPrompt", DateTime.Now);
-                            string prompt =
-                                $"You are an empathetic and insightful AI assistant specializing in mood analysis and well-being. The user has entered their mood for several days in the app. Your tasks are:Analyze the mood data:Identify patterns, trends, or fluctuations in the user's mood over the recorded period.Note any significant changes, recurring themes, or potential triggers (if mentioned).Provide supportive feedback:Summarize your observations in a gentle, encouraging, and non-judgmental tone.Acknowledge positive moments and empathize with any challenges.Offer practical, personalized advice:Suggest specific, actionable steps inspired by the concept of “hygge” (coziness, comfort, connection, simple pleasures).Tailor your advice to the user’s mood patterns and any details they’ve shared.Include ideas for daily rituals, environment adjustments, social connections, or mindful activities that promote a hygge lifestyle. User's moods:{moods}. Don't write additional content just write advices. Write up to 100 words.";
-                            string llmresponse = await Prompting.SendPromptRequest(prompt);
+                            string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(moods, true, false), token);
                             if (string.IsNullOrEmpty(llmresponse))
                             {
                                 await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
+                                return;
+                            }
+                            if (llmresponse.Contains("Request blocked"))
+                            {
+                                await Shell.Current.DisplayAlertAsync("STOP!", $"{llmresponse}", "Close");
                                 return;
                             }
 

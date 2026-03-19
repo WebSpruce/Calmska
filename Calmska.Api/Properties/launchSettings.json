@@ -3,9 +3,17 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "scalar",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "mongoDbUri": "X",
+        "mongoDbName": "X",
+        "calmskaApiUri": "X",
+        "calmska_firebaseApiKey": "X",
+        "automapper_key": "X",
+        "ai_api_host": "X",
+        "ai_api_key": "X",
+        "ai_api_model": "X"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5077"
@@ -13,14 +21,17 @@
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "scalar",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "mongoDbUri": "X",
         "mongoDbName": "X",
         "calmskaApiUri": "X",
         "calmska_firebaseApiKey": "X",
-        "automapper_key": "X"
+        "automapper_key": "X",
+        "ai_api_host": "X",
+        "ai_api_key": "X",
+        "ai_api_model": "X"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7048;http://localhost:5077"
@@ -28,7 +39,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "scalar",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

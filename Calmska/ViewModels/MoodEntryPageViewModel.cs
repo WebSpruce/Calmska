@@ -3,9 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Calmska.Services.Interfaces;
 using Calmska.Models.DTO;
 using System.Text.Json;
+using Calmska.Models.Models;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Alerts;
-using Calmska.Helper;
 using Calmska.Views;
 
 #if ANDROID
@@ -27,14 +27,16 @@ namespace Calmska.ViewModels
         private const int NOTIFICATION_ID = 1002;
         private readonly IService<MoodHistoryDTO> _moodhistoryService;
         private readonly IService<MoodDTO> _moodService;
+        private readonly IAiPromptingService _aiPromptingService;
         private IQueryAttributable _queryAttributableImplementation;
 
-        public MoodEntryPageViewModel(IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService)
+        public MoodEntryPageViewModel(IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
         {
             _moodhistoryService = moodHistoryService;
             MoodText = string.Empty;
             _moodService = moodService;
-            
+            _aiPromptingService = aiPromptingService;
+
 #if ANDROID
             Log.Debug("MoodEntryPageViewModel", "Constructor");
 #endif
@@ -46,7 +48,7 @@ namespace Calmska.ViewModels
             await Shell.Current.GoToAsync("..");
         }
         [RelayCommand]
-        private async Task SubmitMood()
+        private async Task SubmitMood(CancellationToken token)
         {
             try
             {
@@ -56,12 +58,15 @@ namespace Calmska.ViewModels
                     (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
                 notificationManager.Cancel(NOTIFICATION_ID);
 #endif
-                string prompt =
-                    $"User's description of their current mood: \"{MoodText}\". Based on the user's description of their current mood, select the most appropriate mood name from the following list: 'Inspired, Grateful, Curious, Worried, Anxious, Lonely, Bored, Indifferent, Accepting, Resentful, Determined, Peaceful, Overwhelmed, Content, Pensive, Reserved, Reflective, Hopeless, Calm, Confident, Proud, Frustrated, Insecure, Tranquil, Nostalgic, Ecstatic, Cheerful, Energized, Jealous, Irritated, Guilty, Serene, Disappointed, Melancholic, Neutral.' Respond with only one word from this list and nothing else.";
-                string llmresponse = await Prompting.SendPromptRequest(prompt);
+                string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(MoodText, false, true), token);
                 if (string.IsNullOrEmpty(llmresponse))
                 {
                     await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
+                    return;
+                }
+                if (llmresponse.Contains("Request blocked"))
+                {
+                    await Shell.Current.DisplayAlertAsync("STOP!", $"{llmresponse}", "Close");
                     return;
                 }
 
