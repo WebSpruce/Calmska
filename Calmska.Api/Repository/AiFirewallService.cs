@@ -91,7 +91,7 @@ public class AiFirewallService : IAiFirewallService
                 new { role = "system", content = systemPrompt },
                 new { role = "user",   content = userMessage }
             },
-            max_tokens = 5,
+            max_completion_tokens = 5,
             temperature = 0
         };
         var request = new HttpRequestMessage

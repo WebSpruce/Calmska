@@ -45,11 +45,9 @@ public class AiPromptingRepository : IAiPromptingRepository
             {
                 new { role = "user",   content = prompt }
             },
-            max_tokens = 5,
-            temperature = 0,
+            temperature = isAnalize ? 0.7 : 0,
             max_completion_tokens = 1024
         };
-
         var request = new HttpRequestMessage
         {
             Method = HttpMethod.Post,
