@@ -4,7 +4,7 @@
 
 <img src="https://github.com/WebSpruce/Calmska/blob/main/CALMSKA.gif?raw=true" height="400" alt="Holiday Calendar Screenshot">
 
-**<a href="https://appetize.io/app/b_nsqzz7b4zllmgudazolvyqx4xm" target=”_blank” style="font-size: 20px; color:#99aab5 ;">ONLINE DEMO</a>**
+**<a href="https://appetize.io/app/b_drwg7436gkktn7jsgekox6n5pa" target=”_blank” style="font-size: 20px; color:#99aab5 ;">ONLINE DEMO</a>**
 
 > [!IMPORTANT]
 > The app is available on android ONLY (tested on Android 12 and 13)
