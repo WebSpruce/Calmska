@@ -1,4 +1,4 @@
-using Calmska.Domain.Interfaces;
+using Calmska.Application.Abstractions;
 
 namespace Calmska.Infrastructure.Persistence.Security;
 

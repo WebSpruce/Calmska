@@ -15,7 +15,6 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
         
-        private const int _defaultPageNumber = 1;
         public Types_TipsRepository(CalmskaDbContext context, IMapper mapper)
         {
             _context = context;
@@ -29,7 +28,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Types_Tips>>(documentResult.Items);
             
-            return new PaginatedResult<Types_Tips>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<Types_Tips>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<PaginatedResult<Types_Tips>> GetAllByArgumentAsync(Types_TipsFilter tips, int? pageNumber, int? pageSize,
@@ -46,7 +45,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Types_Tips>>(documentResult.Items);
             
-            return new PaginatedResult<Types_Tips>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<Types_Tips>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<Types_Tips?> GetByArgumentAsync(Types_TipsFilter tips, CancellationToken token)

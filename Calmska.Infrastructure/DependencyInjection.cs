@@ -67,8 +67,6 @@ public static class DependencyInjection
             options.ApiModel = configuration["ai_api_model"] ?? string.Empty;
         });
 
-        services.AddSingleton<IAiFirewallService, AiFirewallService>();
-
         PromptLoader.ClearCache();
         
         return services;

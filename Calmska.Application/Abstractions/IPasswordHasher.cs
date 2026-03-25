@@ -1,4 +1,4 @@
-namespace Calmska.Domain.Interfaces;
+namespace Calmska.Application.Abstractions;
 
 public record SetHashResult(string Hash, string? Error);
 public record VerifyPasswordResult(bool Verified, string? Error);

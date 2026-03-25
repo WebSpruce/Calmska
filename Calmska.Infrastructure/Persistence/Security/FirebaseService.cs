@@ -1,4 +1,4 @@
-using Calmska.Domain.Interfaces;
+using Calmska.Application.Abstractions;
 using Firebase.Auth;
 
 namespace Calmska.Infrastructure.Persistence.Security;

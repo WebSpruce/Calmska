@@ -1,4 +1,4 @@
-namespace Calmska.Domain.Interfaces;
+namespace Calmska.Application.Abstractions;
 
 public record FirebaseResponse(bool IsSuccess, string? Error);
 public interface IFirebaseService

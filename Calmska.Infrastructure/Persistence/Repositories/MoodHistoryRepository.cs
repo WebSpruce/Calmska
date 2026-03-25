@@ -14,7 +14,6 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
         
-        private const int _defaultPageNumber = 1;
         public MoodHistoryRepository(CalmskaDbContext context, IMapper mapper)
         {
             _context = context;
@@ -28,7 +27,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<MoodHistory>>(documentResult.Items);
             
-            return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<PaginatedResult<MoodHistory>> GetAllByArgumentAsync(MoodHistoryFilter filter, int? pageNumber, int? pageSize,
@@ -47,7 +46,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<MoodHistory>>(documentResult.Items);
             
-            return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<MoodHistory?> GetByArgumentAsync(MoodHistoryFilter filter, CancellationToken token)

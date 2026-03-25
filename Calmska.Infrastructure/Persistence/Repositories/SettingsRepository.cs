@@ -14,7 +14,6 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
         
-        private const int _defaultPageNumber = 1;
         public SettingsRepository(CalmskaDbContext context, IMapper mapper)
         {
             _context = context;
@@ -28,7 +27,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Settings>>(documentResult.Items);
             
-            return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<PaginatedResult<Settings>> GetAllByArgumentAsync(SettingsFilter settings, int? pageNumber, int? pageSize,
@@ -48,7 +47,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Settings>>(documentResult.Items);
             
-            return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, pageNumber ?? _defaultPageNumber, pageSize ?? query.Count());
+            return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
         }
 
         public async Task<Settings?> GetByArgumentAsync(SettingsFilter settings, CancellationToken token)
