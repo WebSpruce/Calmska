@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Calmska.Infrastructure.Persistence.Models;
 
 public class SettingsDocument
 {
+    [Key]
     [BsonElement("_id")]
     public Guid SettingsId { get; set; }
     public string? Color { get; set; } = string.Empty;
