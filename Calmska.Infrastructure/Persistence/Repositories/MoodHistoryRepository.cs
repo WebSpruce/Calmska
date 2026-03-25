@@ -90,7 +90,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
 
                 var existingMoodHistory = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == filter.MoodHistoryId, token);
                 if (existingMoodHistory == null)
-                    return new OperationResult { Result = false, Error = "Didn't find any mood with the provided userId." };
+                    return new OperationResult { Result = false, Error = "Didn't find any mood with the provided moodId." };
 
                 UpdateMoodHistory(existingMoodHistory, filter);
 

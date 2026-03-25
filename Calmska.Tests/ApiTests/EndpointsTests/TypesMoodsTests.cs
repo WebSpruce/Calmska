@@ -1,4 +1,7 @@
-﻿namespace Calmska.Tests.ApiTests.EndpointsTests
+﻿using Calmska.Application.DTO;
+using Calmska.Domain.Common;
+
+namespace Calmska.Tests.ApiTests.EndpointsTests
 {
     public class TypesMoodsTests : IClassFixture<WebApplicationFactory<Program>>
     {
@@ -12,7 +15,7 @@
         [Fact]
         public async Task GetAllTypesMoods_ShouldReturnOk_WhenTypesExist()
         {
-            string endpoint = "/api/v2/types_moods?pageNumber=1&pageSize=10";
+            string endpoint = "/api/v4/types_moods?pageNumber=1&pageSize=10";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<PaginatedResult<Types_MoodDTO>>();
@@ -23,7 +26,7 @@
         [Fact]
         public async Task GetAllTypesMoods_ShouldReturnNotFound_WhenNoTypesExist()
         {
-            string endpoint = "/api/v2/types_moods?pageNumber=0&pageSize=10";
+            string endpoint = "/api/v4/types_moods?pageNumber=0&pageSize=10";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -33,7 +36,7 @@
         [Fact]
         public async Task SearchListTypesMoods_ShouldReturnOk_WhenTypesMatchCriteria()
         {
-            string endpoint = "/api/v2/types_moods/searchList?Type=Excited&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v4/types_moods/searchList?Type=Excited&pageNumber=1&pageSize=5";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<PaginatedResult<Types_MoodDTO>>();
@@ -44,7 +47,7 @@
         [Fact]
         public async Task SearchListTypesMoods_ShouldReturnNotFound_WhenNoTypesMatchCriteria()
         {
-            string endpoint = "/api/v2/types_moods/searchList?Type=nonexistent&pageNumber=1&pageSize=5";
+            string endpoint = "/api/v4/types_moods/searchList?Type=nonexistent&pageNumber=1&pageSize=5";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -54,7 +57,7 @@
         [Fact]
         public async Task SearchTypeMood_ShouldReturnOk_WhenTypeExists()
         {
-            string endpoint = "/api/v2/types_moods/search?TypeId=2";
+            string endpoint = "/api/v4/types_moods/search?TypeId=2";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<Types_MoodDTO>();
@@ -65,7 +68,7 @@
         [Fact]
         public async Task SearchTypeMood_ShouldReturnNotFound_WhenTypeDoesNotExist()
         {
-            string endpoint = "/api/v2/types_moods/search?TypeId=9999";
+            string endpoint = "/api/v4/types_moods/search?TypeId=9999";
             var response = await _client.GetAsync(endpoint);
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -75,7 +78,7 @@
         [Fact]
         public async Task AddTypeMood_ShouldReturnCreated_WhenTypeIsValid()
         {
-            string endpoint = "/api/v2/types_moods";
+            string endpoint = "/api/v4/types_moods";
             var typeMood = new Types_MoodDTO { TypeId = 100, Type = "Excited" };
             var response = await _client.PostAsJsonAsync(endpoint, typeMood);
             response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -84,7 +87,7 @@
         [Fact]
         public async Task UpdateTypeMood_ShouldReturnOk_WhenTypeIsValid()
         {
-            string endpoint = "/api/v2/types_moods";
+            string endpoint = "/api/v4/types_moods";
             var typeMood = new Types_MoodDTO { TypeId = 2, Type = "Calm" };
             var response = await _client.PutAsJsonAsync(endpoint, typeMood);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -95,7 +98,7 @@
         [Fact]
         public async Task UpdateTypeMood_ShouldReturnBadRequest_WhenTypeIsInvalid()
         {
-            string endpoint = "/api/v2/types_moods";
+            string endpoint = "/api/v4/types_moods";
             var typeMood = new Types_MoodDTO { TypeId = 0, Type = "" };
             var response = await _client.PutAsJsonAsync(endpoint, typeMood);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -104,7 +107,7 @@
         [Fact]
         public async Task DeleteTypeMood_ShouldReturnOk_WhenTypeExists()
         {
-            string endpoint = "/api/v2/types_moods";
+            string endpoint = "/api/v4/types_moods";
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
             {
                 Content = JsonContent.Create(100)
@@ -118,7 +121,7 @@
         [Fact]
         public async Task DeleteTypeMood_ShouldReturnBadRequest_WhenTypeDoesNotExist()
         {
-            string endpoint = "/api/v2/types_moods";
+            string endpoint = "/api/v4/types_moods";
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
             {
                 Content = JsonContent.Create(9999)

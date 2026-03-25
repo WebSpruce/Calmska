@@ -61,7 +61,7 @@ public class SettingsEndpoints: IModule
             var query = new CreateCommand(settingsDto.SettingsId ?? Guid.Empty, settingsDto.Color ?? "", settingsDto.PomodoroTimer ?? "", settingsDto.PomodoroBreak ?? "", settingsDto.UserId ?? Guid.Empty);
             
             var result = await sender.Send(query, token);
-            return result.Result ? Results.Ok("Settings created successfully") : Results.BadRequest(result.Error);
+            return result.Result ? Results.Created($"/api/{ApiRoutes.ApiVersion(app)}/settings/{settingsDto.SettingsId}", settingsDto) : Results.BadRequest(result.Error);
         });
         settings.MapPut("/", async (ISender sender,
             [FromBody] SettingsDTO settingsDto, CancellationToken token) =>
