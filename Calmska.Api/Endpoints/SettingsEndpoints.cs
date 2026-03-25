@@ -1,7 +1,8 @@
 using Calmska.Api.Interfaces;
-using Calmska.Models.DTO;
-using Calmska.Models.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Calmska.Application.DTO;
+using Calmska.Application.Features.Settings.Commands;
+using Calmska.Application.Features.Settings.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calmska.Api.Endpoints;
@@ -15,72 +16,74 @@ public class SettingsEndpoints: IModule
             .WithTags("Settings")
             .WithApiVersionSet(ApiRoutes.ApiVersion(app));
         
-        settings.MapGet("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
+        settings.MapGet("/", async (ISender sender, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await settingsRepository.GetAllAsync(pageNumber, pageSize, token);
+            
+            var query = new GetAllQuery(pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Settings not found: {result?.error}");
         });
-        settings.MapGet("/searchList", async (IRepository<Settings, SettingsDTO> settingsRepository, 
+        settings.MapGet("/searchList", async (ISender sender, 
             [FromQuery] Guid? settingsId, [FromQuery] string ? color, [FromQuery] float? pomodoroTimer, [FromQuery] float? pomodoroBreak, [FromQuery]Guid? userId,
             [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var settingsDto = new SettingsDTO()
-            {
-                SettingsId = settingsId,
-                Color = color,
-                PomodoroBreak = pomodoroBreak.ToString(),
-                PomodoroTimer = pomodoroTimer.ToString(),
-                UserId = userId,
-            };
-            var result = await settingsRepository.GetAllByArgumentAsync(settingsDto, pageNumber, pageSize, token);
+
+            var query = new GetAllByArgumentQuery(settingsId, color, pomodoroTimer.ToString(), pomodoroBreak.ToString(), userId, pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Settings not found: {result?.error}");
         });
-        settings.MapGet("/search", async (IRepository<Settings, SettingsDTO> settingsRepository,
+        settings.MapGet("/search", async (ISender sender,
             [FromQuery] Guid? settingsId, [FromQuery] string? color, [FromQuery] float? pomodoroTimer, [FromQuery] float? pomodoroBreak, [FromQuery] Guid? userId,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var settingsDto = new SettingsDTO()
-            {
-                SettingsId = settingsId,
-                Color = color,
-                PomodoroBreak = pomodoroBreak.ToString(),
-                PomodoroTimer = pomodoroTimer.ToString(),
-                UserId = userId,
-            };
-            var result = await settingsRepository.GetByArgumentAsync(settingsDto, token);
-            return result != null ? Results.Ok(result) : Results.NotFound("Setting not found: {result?.error}");
+
+            var query = new GetByArgumentQuery(settingsId, color, pomodoroTimer.ToString(), pomodoroBreak.ToString(), userId);
+            
+            var result = await sender.Send(query, token);
+            return result != null ? Results.Ok(result) : Results.NotFound($"Setting not found");
         });
-        settings.MapPost("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
+        settings.MapPost("/", async (ISender sender,
             [FromBody] SettingsDTO settingsDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await settingsRepository.AddAsync(settingsDto, token);
-            return result.Result ? Results.Created($"/api/v2/settings/{settingsDto.SettingsId}", settingsDto) : Results.BadRequest(result.Error);
+            
+            var query = new CreateCommand(settingsDto.SettingsId ?? Guid.Empty, settingsDto.Color ?? "", settingsDto.PomodoroTimer ?? "", settingsDto.PomodoroBreak ?? "", settingsDto.UserId ?? Guid.Empty);
+            
+            var result = await sender.Send(query, token);
+            return result.Result ? Results.Ok("Settings created successfully") : Results.BadRequest(result.Error);
         });
-        settings.MapPut("/", async (IRepository<Settings, SettingsDTO> settingsRepository,
+        settings.MapPut("/", async (ISender sender,
             [FromBody] SettingsDTO settingsDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await settingsRepository.UpdateAsync(settingsDto, token);
+            
+            var query = new UpdateCommand(settingsDto.SettingsId ?? Guid.Empty, settingsDto.Color ?? "", settingsDto.PomodoroTimer ?? "", settingsDto.PomodoroBreak ?? "", settingsDto.UserId ?? Guid.Empty);
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Settings updated successfully") : Results.BadRequest(result.Error);
         });
-        settings.MapDelete("/", async (IRepository<Settings, SettingsDTO> settingsRepository, [FromBody] Guid settingsId,
+        settings.MapDelete("/", async (ISender sender, [FromBody] Guid settingsId,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await settingsRepository.DeleteAsync(settingsId, token);
-            return result.Result ? Results.Ok("Setting deleted successfully") : Results.BadRequest(result.Error);
+            
+            var query = new DeleteCommand(settingsId);
+            
+            var result = await sender.Send(query, token);
+            return result.Result ? Results.Ok("Deleted successfully") : Results.BadRequest(result.Error);
         });
     }
 }

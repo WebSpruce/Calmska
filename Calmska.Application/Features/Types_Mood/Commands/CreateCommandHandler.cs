@@ -6,15 +6,15 @@ using MediatR;
 
 namespace Calmska.Application.Features.Types_Mood.Commands;
 
-public class CreateMoodCommandHandler : IRequestHandler<CreateMoodCommand, OperationResult>
+public class CreateCommandHandler : IRequestHandler<CreateCommand, OperationResult>
 {
     private readonly ITypesRepository<Domain.Entities.Types_Mood, Types_MoodFilter> _repository;
 
-    public CreateMoodCommandHandler(ITypesRepository<Domain.Entities.Types_Mood, Types_MoodFilter> repository)
+    public CreateCommandHandler(ITypesRepository<Domain.Entities.Types_Mood, Types_MoodFilter> repository)
     {
         _repository = repository;
     }
-    public async Task<OperationResult> Handle(CreateMoodCommand request, CancellationToken token)
+    public async Task<OperationResult> Handle(CreateCommand request, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
 

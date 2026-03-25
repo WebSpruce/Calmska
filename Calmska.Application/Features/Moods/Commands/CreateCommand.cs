@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Calmska.Application.Features.Moods.Commands;
 
-public record CreateMoodCommand(string MoodName, int MoodTypeId) : IRequest<OperationResult>;
+public record CreateCommand(string MoodName, int MoodTypeId) : IRequest<OperationResult>;

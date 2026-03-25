@@ -1,5 +1,6 @@
 using Calmska.Api.Interfaces;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calmska.Api.Endpoints;
@@ -15,7 +16,7 @@ public class PromptsEndpoints : IModule
         
         prompts.MapPost("/prompt", async (
             [FromBody] PromptRequest request,
-            IAiPromptingRepository aiService,
+            ISender sender,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
@@ -24,7 +25,11 @@ public class PromptsEndpoints : IModule
             if (string.IsNullOrEmpty(request.Prompt))
                 return Results.BadRequest("Prompt cannot be empty.");
 
-            var result = await aiService.GetPromptResponseAsync(request.Prompt, request.IsAnalize, request.IsMoodEntry, token);
+            // var result = await aiService.GetPromptResponseAsync(request.Prompt, request.IsAnalize, request.IsMoodEntry, token);
+            
+            var query = new GetPromptResponseCommand(moodDto.MoodId, moodDto.MoodName, moodDto.MoodTypeId);
+            
+            var result = await sender.Send(query, token);
             return Results.Ok(new PromptResponse() { Result = result });
         });
     }

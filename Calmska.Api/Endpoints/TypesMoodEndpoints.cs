@@ -1,6 +1,8 @@
 using Calmska.Api.Interfaces;
-using Calmska.Models.DTO;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
+using Calmska.Application.Features.Types_Mood.Commands;
+using Calmska.Application.Features.Types_Mood.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calmska.Api.Endpoints;
@@ -14,65 +16,68 @@ public class TypesMoodEndpoints : IModule
             .WithTags("Types_Moods")
             .WithApiVersionSet(ApiRoutes.ApiVersion(app));
         
-        types_mood.MapGet("/", async ([FromServices] ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
+        types_mood.MapGet("/", async ([FromServices] ISender sender, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await typesRepository.GetAllAsync(pageNumber, pageSize, token);
+            var query = new GetAllQuery(pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Types not found: {result?.error}");
         });
-        types_mood.MapGet("/searchList", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromQuery] int? TypeId, [FromQuery] string? Type,
+        types_mood.MapGet("/searchList", async ([FromServices]ISender sender, [FromQuery] int? typeId, [FromQuery] string? type,
             [FromQuery] int? pageNumber, [FromQuery] int? pageSize, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
             
-            var typesMoodDto = new Types_MoodDTO()
-            {
-                TypeId = TypeId,
-                Type = Type
-            };
-            var result = await typesRepository.GetAllByArgumentAsync(typesMoodDto, pageNumber, pageSize, token);
+            var query = new GetAllByArgumentQuery(typeId, type, pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Types not found: {result?.error}");
         });
-        types_mood.MapGet("/search", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
+        types_mood.MapGet("/search", async ([FromServices]ISender sender,
             [FromQuery] int? typeId, [FromQuery] string? type, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
+
+            var query = new GetByArgumentQuery(typeId, type);
             
-            var typesMoodDto = new Types_MoodDTO()
-            {
-                TypeId = typeId,
-                Type = type
-            };
-            var result = await typesRepository.GetByArgumentAsync(typesMoodDto, token);
+            var result = await sender.Send(query, token);
             return result != null ? Results.Ok(result) : Results.NotFound("Types not found");
         });
-        types_mood.MapPost("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
+        types_mood.MapPost("/", async ([FromServices]ISender sender,
             [FromBody] Types_MoodDTO typesMoodDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
             
-            var result = await typesRepository.AddAsync(typesMoodDto, token);
+            var query = new CreateCommand(typesMoodDto.TypeId ?? 0, typesMoodDto.Type ?? "");
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Created($"/{typesMoodDto.TypeId}", typesMoodDto) : Results.BadRequest(result.Error);
         });
-        types_mood.MapPut("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository,
+        types_mood.MapPut("/", async ([FromServices]ISender sender,
             [FromBody] Types_MoodDTO typesMoodDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await typesRepository.UpdateAsync(typesMoodDto, token);
+            var query = new UpdateCommand(typesMoodDto.TypeId ?? 0, typesMoodDto.Type ?? "");
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Type updated successfully") : Results.BadRequest(result.Error);
         });
-        types_mood.MapDelete("/", async ([FromServices]ITypesRepository<Types_Mood, Types_MoodDTO> typesRepository, [FromBody] int typeId,
+        types_mood.MapDelete("/", async ([FromServices]ISender sender, [FromBody] int typeId,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await typesRepository.DeleteAsync(typeId, token);
+            
+            var query = new DeleteCommand(typeId);
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Type deleted successfully") : Results.BadRequest(result.Error);
         });
     }
