@@ -28,6 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
+    <ProjectReference Include="..\Calmska.Infrastructure\Calmska.Infrastructure.csproj" />
     <ProjectReference Include="..\Calmska.Models\Calmska.Models.csproj" />
   </ItemGroup>
 
