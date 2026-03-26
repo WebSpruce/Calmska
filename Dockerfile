@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Calmska.Api/Calmska.Api.csproj", "Calmska.Api/"]
-COPY ["Calmska.Models/Calmska.Models.csproj", "Calmska.Models/"]
+COPY ["Calmska.Domain/Calmska.Domain.csproj", "Calmska.Domain/"]
 RUN dotnet restore "./Calmska.Api/Calmska.Api.csproj"
 COPY . .
 WORKDIR "/src/Calmska.Api"

@@ -34,7 +34,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
 	  <ProjectReference Include="..\Calmska.Domain\Calmska.Domain.csproj" />
-	  <ProjectReference Include="..\Calmska.Models\Calmska.Models.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
