@@ -21,7 +21,7 @@ public class ApiRoutes
     {
         public const string GroupName = $"{ApiBase}/moods";
     }
-    public static class MoodHistory
+    public static class MoodHistorys
     {
         public const string GroupName = $"{ApiBase}/moodhistory";
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Calmska.Models.Models;
+using Calmska.Domain.Common;
 
 namespace Calmska.Services.Interfaces
 {

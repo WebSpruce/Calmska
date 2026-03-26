@@ -12,8 +12,6 @@
     <PackageReference Include="Asp.Versioning.Http" Version="8.1.1" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
     <PackageReference Include="AutoMapper" Version="16.1.1" />
-    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
-    <PackageReference Include="FirebaseAuthentication.net" Version="4.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
@@ -28,7 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Calmska.Models\Calmska.Models.csproj" />
+    <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
+    <ProjectReference Include="..\Calmska.Infrastructure\Calmska.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

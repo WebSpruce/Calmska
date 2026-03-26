@@ -1,5 +1,6 @@
-using Calmska.Models.DTO;
 using System.Text.Json;
+using Calmska.Application.DTO;
+
 namespace Calmska.Views;
 
 public partial class LoginPage : ContentPage

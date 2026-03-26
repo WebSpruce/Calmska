@@ -1,6 +1,8 @@
 using Calmska.Api.Interfaces;
-using Calmska.Models.DTO;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
+using Calmska.Application.Features.Moods.Commands;
+using Calmska.Application.Features.Moods.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calmska.Api.Endpoints;
@@ -14,65 +16,70 @@ public class MoodEndpoints : IModule
             .WithTags("Moods")
             .WithApiVersionSet(ApiRoutes.ApiVersion(app));
         
-        mood.MapGet("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
+        mood.MapGet("/", async (ISender sender, [FromQuery] int? pageNumber, [FromQuery] int? pageSize,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await moodRepository.GetAllAsync(pageNumber, pageSize, token);
+            
+            var query = new GetAllQuery(pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Moods not found: {result?.error}");
         });
-        mood.MapGet("/searchList", async (IRepository<Mood, MoodDTO> moodRepository, [FromQuery] Guid? MoodId, [FromQuery] string? MoodName, [FromQuery] int? Type,
+        mood.MapGet("/searchList", async (ISender sender, [FromQuery] Guid? moodId, [FromQuery] string? moodName, [FromQuery] int? type,
             [FromQuery] int? pageNumber, [FromQuery] int? pageSize, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var moodDto = new MoodDTO()
-            {
-                MoodId = MoodId,
-                MoodName = MoodName,
-                MoodTypeId = Type != null ? (int)Type : 0,
-            };
-            var result = await moodRepository.GetAllByArgumentAsync(moodDto, pageNumber, pageSize, token);
+
+            var query = new GetAllByArgumentQuery(moodId, moodName, type ?? 0, pageNumber, pageSize);
+            
+            var result = await sender.Send(query, token);
             return result.TotalCount > 0 ? Results.Ok(result) : Results.NotFound($"Moods not found: {result?.error}");
         });
-        mood.MapGet("/search", async (IRepository<Mood, MoodDTO> moodRepository, 
+        mood.MapGet("/search", async (ISender sender, 
             [FromQuery] Guid? moodId, [FromQuery] string? moodName, [FromQuery] int? type,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var moodDto = new MoodDTO()
-            {
-                MoodId = moodId,
-                MoodName = moodName,
-                MoodTypeId = type != null ? (int)type : 0,
-            };
-            var result = await moodRepository.GetByArgumentAsync(moodDto, token);
+            
+            var query = new GetByArgumentQuery(moodId, moodName, type ?? 0);
+            
+            var result = await sender.Send(query, token);
             return result != null ? Results.Ok(result) : Results.NotFound("Mood not found");
         });
-        mood.MapPost("/", async (IRepository<Mood, MoodDTO> moodRepository,
+        mood.MapPost("/", async (ISender sender,
             [FromBody] MoodDTO moodDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await moodRepository.AddAsync(moodDto, token);
+            
+            var query = new CreateCommand(moodDto.MoodName ?? "", moodDto.MoodTypeId);
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Created($"/{moodDto.MoodId}", moodDto) : Results.BadRequest(result.Error);
         });
-        mood.MapPut("/", async (IRepository<Mood, MoodDTO> moodRepository,
+        mood.MapPut("/", async (ISender sender,
             [FromBody] MoodDTO moodDto, CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await moodRepository.UpdateAsync(moodDto, token);
+            
+            var query = new UpdateCommand(moodDto.MoodId, moodDto.MoodName, moodDto.MoodTypeId);
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Mood updated successfully") : Results.BadRequest(result.Error);
         });
-        mood.MapDelete("/", async (IRepository<Mood, MoodDTO> moodRepository, [FromBody] Guid moodId,
+        mood.MapDelete("/", async (ISender sender, [FromBody] Guid moodId,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
-            var result = await moodRepository.DeleteAsync(moodId, token);
+            var query = new DeleteCommand(moodId);
+            
+            var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Mood deleted successfully") : Results.BadRequest(result.Error);
         });
     }

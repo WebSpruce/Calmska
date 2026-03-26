@@ -1,0 +1,14 @@
+﻿using Calmska.Domain.Common;
+
+namespace Calmska.Domain.Interfaces
+{
+    public interface ITypesRepository<TEntity, TFilter>
+    {
+        Task<PaginatedResult<TEntity>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token);
+        Task<PaginatedResult<TEntity>> GetAllByArgumentAsync(TFilter filter, int? pageNumber, int? pageSize, CancellationToken token);
+        Task<TEntity?> GetByArgumentAsync(TFilter filter, CancellationToken token);
+        Task<OperationResult> AddAsync(TEntity entity, CancellationToken token);
+        Task<OperationResult> UpdateAsync(TFilter entity, CancellationToken token);
+        Task<OperationResult> DeleteAsync(int id, CancellationToken token);
+    }
+}

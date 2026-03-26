@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Calmska.Models.DTO;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
+using Calmska.Domain.Common;
 using Calmska.Services.Helper;
 using Calmska.Services.Interfaces;
 
@@ -91,11 +91,11 @@ namespace Calmska.Services.Services
             {
                 if (!string.IsNullOrEmpty(accountCriteria.Email))
                 {
-                    endpointParameters.Add($"Email={Uri.EscapeDataString(accountCriteria.Email)}");
+                    endpointParameters.Add($"email={Uri.EscapeDataString(accountCriteria.Email)}");
                 }
                 if (!string.IsNullOrEmpty(accountCriteria.PasswordHashed))
                 {
-                    endpointParameters.Add($"PasswordHashed={Uri.EscapeDataString(accountCriteria.PasswordHashed)}");
+                    endpointParameters.Add($"password={Uri.EscapeDataString(accountCriteria.PasswordHashed)}");
                 }
                 var queryString = string.Join("&", endpointParameters);
                 endpoint = $"accounts/login?{queryString}";

@@ -1,11 +1,10 @@
-﻿using Calmska.Models.DTO;
-using Calmska.Services.Interfaces;
+﻿using Calmska.Services.Interfaces;
 using Calmska.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
 using Android.Util;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 

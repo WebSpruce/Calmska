@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Calmska.Models.DTO;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
+using Calmska.Domain.Common;
 using Calmska.Services.Helper;
 using Calmska.Services.Interfaces;
 

@@ -1,9 +1,8 @@
-﻿using Calmska.ViewModels;
-using Calmska.Views;
+﻿using Calmska.Views;
 
 namespace Calmska
 {
-    public partial class App : Application
+    public partial class App : Microsoft.Maui.Controls.Application
     {
         public App()
         {

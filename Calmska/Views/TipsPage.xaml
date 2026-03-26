@@ -6,7 +6,7 @@
              xmlns:controls="clr-namespace:Calmska.Controls"
              xmlns:converters="clr-namespace:Calmska.Helper"
              xmlns:calmska="clr-namespace:Calmska"
-             xmlns:dto="clr-namespace:Calmska.Models.DTO;assembly=Calmska.Models"
+             xmlns:dto="clr-namespace:Calmska.Application.DTO;assembly=Calmska.Application"
              BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
              Shell.TabBarIsVisible="False"

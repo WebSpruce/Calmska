@@ -1,11 +1,11 @@
-﻿using Calmska.Models.DTO;
-using Calmska.Models.Models;
-using Calmska.Services.Interfaces;
+﻿using Calmska.Services.Interfaces;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Net.Mail;
+using Calmska.Application.DTO;
+using Calmska.Domain.Common;
 
 namespace Calmska.ViewModels
 {
@@ -102,7 +102,7 @@ namespace Calmska.ViewModels
         [RelayCommand]
         internal async Task GoToLogin()
         {
-            await Application.Current.MainPage.Navigation.PopAsync();
+            await MauiControlsApplication.Current.MainPage.Navigation.PopAsync();
         }
         
         private async Task ShowErrorMessage(string message)
@@ -110,7 +110,7 @@ namespace Calmska.ViewModels
 #if ANDROID
             await Toast.Make(message, ToastDuration.Short, 14).Show();
 #else
-            await Application.Current.MainPage.DisplayAlert("Error", message, "OK");
+            await MauiApplication.Current.MainPage.DisplayAlert("Error", message, "OK");
 #endif
         }
         

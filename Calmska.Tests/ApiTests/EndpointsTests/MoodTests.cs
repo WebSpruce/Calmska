@@ -1,4 +1,8 @@
-﻿namespace Calmska.Tests.ApiTests.EndpointsTests
+﻿using Calmska.Application.DTO;
+using Calmska.Domain.Common;
+using Calmska.Domain.Entities;
+
+namespace Calmska.Tests.ApiTests.EndpointsTests
 {
     public class MoodTests : IClassFixture<WebApplicationFactory<Program>>
     {
@@ -12,7 +16,7 @@
         [Fact]
         public async Task GetAllMoods_ShouldReturnOk_WhenMoodsExist()
         {
-            string endpoint = "/api/v2/moods";
+            string endpoint = "/api/v4/moods";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -26,7 +30,7 @@
         [Fact]
         public async Task SearchMoods_ShouldReturnOk_WhenMoodExists()
         {
-            string endpoint = "/api/v2/moods/search?MoodId=9944e640-9504-47d5-943d-2d7750d909d5";
+            string endpoint = "/api/v4/moods/search?MoodId=9944e640-9504-47d5-943d-2d7750d909d5";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -40,7 +44,7 @@
         [Fact]
         public async Task SearchMoods_ShouldReturnNotFound_WhenMoodDoesNotExist()
         {
-            string endpoint = "/api/v2/moods/search?MoodId=00000000-0000-0000-0000-000000000000";
+            string endpoint = "/api/v4/moods/search?MoodId=00000000-0000-0000-0000-000000000000";
 
             var response = await _client.GetAsync(endpoint);
 
@@ -50,7 +54,7 @@
         [Fact]
         public async Task AddMood_ShouldReturnCreated_WhenMoodIsValid()
         {
-            string endpoint = "/api/v2/moods";
+            string endpoint = "/api/v4/moods";
             var mood = new MoodDTO
             {
                 MoodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999"),
@@ -68,10 +72,10 @@
         [Fact]
         public async Task UpdateMood_ShouldReturnOk_WhenMoodIsUpdated()
         {
-            string endpoint = "/api/v2/moods";
+            string endpoint = "/api/v4/moods";
             var mood = new MoodDTO
             {
-                MoodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999"),
+                MoodId = Guid.Parse("78898303-f297-482f-a951-2a08a81212fa"),
                 MoodName = "Excited",
                 MoodTypeId = 1
             };
@@ -84,8 +88,8 @@
         [Fact]
         public async Task DeleteMood_ShouldReturnOk_WhenMoodExists()
         {
-            string endpoint = "/api/v2/moods";
-            var moodId = Guid.Parse("9944e640-9504-47d5-943d-2d7750d90999");
+            string endpoint = "/api/v4/moods";
+            var moodId = Guid.Parse("78898303-f297-482f-a951-2a08a81212fa");
 
             var response = await _client.SendAsync(new HttpRequestMessage
             {
@@ -100,7 +104,7 @@
         [Fact]
         public async Task DeleteMood_ShouldReturnBadRequest_WhenMoodDoesNotExist()
         {
-            string endpoint = "/api/v2/moods";
+            string endpoint = "/api/v4/moods";
             var moodId = Guid.Parse("00000000-0000-0000-0000-000000000000");
 
             var response = await _client.SendAsync(new HttpRequestMessage

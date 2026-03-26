@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
 
 namespace Calmska.Services.Interfaces;
 
