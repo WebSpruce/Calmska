@@ -1,9 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Calmska.Services.Interfaces;
-using Calmska.Models.DTO;
 using System.Text.Json;
-using Calmska.Models.Models;
+using Calmska.Application.DTO;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Alerts;
 using Calmska.Views;
@@ -121,7 +120,7 @@ namespace Calmska.ViewModels
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Warning", "Error while getting user's information.", "Close");
+                await Shell.Current.DisplayAlertAsync("Warning", "Error while getting user's information.", "Close");
                 return;
             }
             finally

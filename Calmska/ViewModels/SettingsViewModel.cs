@@ -1,13 +1,12 @@
-﻿using Calmska.Models.DTO;
-using Calmska.Models.Models;
-using Calmska.Services.Interfaces;
+﻿using Calmska.Services.Interfaces;
 using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
-using Application = Microsoft.Maui.Controls.Application;
+using Calmska.Application.DTO;
+using Calmska.Domain.Common;
 using Debug = System.Diagnostics.Debug;
 
 #if ANDROID
@@ -191,12 +190,12 @@ namespace Calmska.ViewModels
                 SecureStorage.Default.Remove("user_info");
                 Preferences.Default.Clear(); 
                 var loginPage = MauiProgram.Services.GetRequiredService<LoginPage>();
-                Application.Current.MainPage = new NavigationPage(loginPage);
+                MauiControlsApplication.Current.MainPage = new NavigationPage(loginPage);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Logout error: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlertAsync("Error", "Logout failed. Please try again.", "OK");
+                await MauiControlsApplication.Current.MainPage.DisplayAlertAsync("Error", "Logout failed. Please try again.", "OK");
             }
         }
 #if ANDROID
@@ -272,7 +271,7 @@ namespace Calmska.ViewModels
 #if ANDROID
             await Toast.Make(message, ToastDuration.Short, 14).Show();
 #else
-            await Application.Current.MainPage.DisplayAlert("Error", message, "OK");
+            await MauiApplication.Current.MainPage.DisplayAlert("Error", message, "OK");
 #endif
         }
     }

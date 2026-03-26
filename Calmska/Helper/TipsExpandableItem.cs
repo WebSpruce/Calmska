@@ -1,4 +1,4 @@
-using Calmska.Models.DTO;
+using Calmska.Application.DTO;
 
 namespace Calmska.Helper;
 

@@ -1,5 +1,4 @@
-﻿using Calmska.Models.DTO;
-using Calmska.Services.Interfaces;
+﻿using Calmska.Services.Interfaces;
 using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
@@ -7,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Net.Mail;
 using System.Text.Json;
+using Calmska.Application.DTO;
 
 namespace Calmska.ViewModels
 {
@@ -77,7 +77,7 @@ namespace Calmska.ViewModels
                     await SecureStorage.Default.SetAsync("user_info", userJson);
 
                     // Check if it has a pending navigation from notification
-                    Application.Current.MainPage = new AppShell();
+                    MauiControlsApplication.Current.MainPage = new AppShell();
                     
                     string navigateAfterLogin = Preferences.Default.Get("NavigateAfterLogin", string.Empty);
                     Preferences.Default.Remove("NavigateAfterLogin");
@@ -112,11 +112,11 @@ namespace Calmska.ViewModels
             try
             {
                 var registerPage = MauiProgram.Services.GetRequiredService<RegisterPage>();
-                await Application.Current.MainPage.Navigation.PushAsync(registerPage);
+                await MauiControlsApplication.Current.MainPage.Navigation.PushAsync(registerPage);
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Could not open the registration page.", "OK");
+                await MauiControlsApplication.Current.MainPage.DisplayAlert("Error", "Could not open the registration page.", "OK");
             }
         }
         
@@ -125,7 +125,7 @@ namespace Calmska.ViewModels
 #if ANDROID
             await Toast.Make(message, ToastDuration.Short, 14).Show();
 #else
-            await Application.Current.MainPage.DisplayAlert("Error", message, "OK");
+            await MauiControlsApplication.Current.MainPage.DisplayAlert("Error", message, "OK");
 #endif
         }
         

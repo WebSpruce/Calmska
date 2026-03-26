@@ -1,5 +1,4 @@
 ﻿using Calmska.Controls;
-using Calmska.Models.DTO;
 using Calmska.Services.Interfaces;
 using Calmska.Services.Services;
 using Calmska.ViewModels;
@@ -8,6 +7,7 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using Calmska.Application.DTO;
 using Calmska.Services;
 using Plugin.Maui.Audio;
 

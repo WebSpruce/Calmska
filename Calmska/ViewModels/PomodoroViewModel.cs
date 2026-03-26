@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using Calmska.Models.DTO;
 using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
+using Calmska.Application.DTO;
 using Calmska.Services;
 using Calmska.Views;
 
@@ -53,7 +53,7 @@ namespace Calmska.ViewModels
                     status = await Permissions.RequestAsync<Permissions.PostNotifications>();
                     if (status != PermissionStatus.Granted)
                     {
-                        await Shell.Current.DisplayAlert("Permission Needed", 
+                        await Shell.Current.DisplayAlertAsync("Permission Needed", 
                             "Notification permission is required to show the timer in the background.", "OK");
                         return;
                     }
