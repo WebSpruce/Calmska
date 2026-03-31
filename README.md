@@ -4,7 +4,7 @@ AI‑assisted mood tracker with Pomodoro timer and Hygge‑inspired wellbeing ti
 
 ![Calmska preview](CALMSKA.gif)
 
-[Online demo](https://appetize.io/app/b_2mxop2skrgrccf7akq7ruj2m4a)
+[Online demo](https://appetize.io/app/b_6ufaefa2ofs4ki5t3rgcj2cnaa)
 
 > The mobile app is currently intended for Android.
 
