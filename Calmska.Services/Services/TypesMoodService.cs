@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
@@ -17,12 +18,12 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<PaginatedResult<Types_MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<Types_MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<Types_MoodDTO?>>(_httpClient, "types_moods");
+            return await HttpClientHelper.GetAsync<PaginatedResult<Types_MoodDTO?>>(_httpClient, "types_moods", token);
         }
 
-        public async Task<OperationResultT<PaginatedResult<IEnumerable<Types_MoodDTO?>>>> SearchAllByArgumentAsync(Types_MoodDTO typesCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<IEnumerable<Types_MoodDTO?>>>> SearchAllByArgumentAsync(Types_MoodDTO typesCriteria, int? pageNumber, int? pageSize, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -41,10 +42,10 @@ namespace Calmska.Services.Services
                 endpoint = $"types_moods/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<Types_MoodDTO?>>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<IEnumerable<Types_MoodDTO?>>>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<Types_MoodDTO?>> GetByArgumentAsync(Types_MoodDTO typesCriteria)
+        public async Task<OperationResultT<Types_MoodDTO?>> GetByArgumentAsync(Types_MoodDTO typesCriteria, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -63,22 +64,22 @@ namespace Calmska.Services.Services
                 endpoint = $"types_moods/search?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<Types_MoodDTO?>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<Types_MoodDTO?>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<bool>> AddAsync(Types_MoodDTO newTip)
+        public async Task<OperationResultT<bool>> AddAsync(Types_MoodDTO newTip, CancellationToken token)
         {
-            return await HttpClientHelper.PostAsync<Types_MoodDTO?>(_httpClient, "types_moods", newTip);
+            return await HttpClientHelper.PostAsync<Types_MoodDTO?>(_httpClient, "types_moods", newTip, token);
         }
 
-        public async Task<OperationResultT<bool>> UpdateAsync(Types_MoodDTO updatedTip)
+        public async Task<OperationResultT<bool>> UpdateAsync(Types_MoodDTO updatedTip, CancellationToken token)
         {
-            return await HttpClientHelper.PutAsync<Types_MoodDTO?>(_httpClient, "types_moods", updatedTip);
+            return await HttpClientHelper.PutAsync<Types_MoodDTO?>(_httpClient, "types_moods", updatedTip, token);
         }
 
-        public async Task<OperationResultT<bool>> DeleteAsync(int TypeId)
+        public async Task<OperationResultT<bool>> DeleteAsync(int TypeId, CancellationToken token)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"types_moods?TypeId={TypeId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"types_moods?TypeId={TypeId}", token);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Calmska.Domain.Common;
 
@@ -12,7 +13,7 @@ namespace Calmska.Services.Interfaces
         /// <param name="pageNumber">The page number for pagination.</param>
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A paginated result containing a list of objects.</returns>
-        Task<OperationResultT<PaginatedResult<T?>>> GetAllAsync(int? pageNumber, int? pageSize);
+        Task<OperationResultT<PaginatedResult<T?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token);
 
         /// <summary>
         /// Search for objects using specified criteria.
@@ -21,34 +22,34 @@ namespace Calmska.Services.Interfaces
         /// <param name="pageNumber">The page number for pagination.</param>
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A paginated result containing matched objects.</returns>
-        Task<OperationResultT<PaginatedResult<IEnumerable<T?>>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize);
+        Task<OperationResultT<PaginatedResult<IEnumerable<T?>>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize, CancellationToken token);
 
         /// <summary>
         /// Get a specific object by an argument.
         /// </summary>
         /// <param name="criteria">The criteria for searching object.</param>
         /// <returns>The object if found, or null if not.</returns>
-        Task<OperationResultT<T?>> GetByArgumentAsync(T criteria);
+        Task<OperationResultT<T?>> GetByArgumentAsync(T criteria, CancellationToken token);
 
         /// <summary>
         /// Add a new object.
         /// </summary>
         /// <param name="newObject">The details of the object to add.</param>
         /// <returns>The result of the add operation.</returns>
-        Task<OperationResultT<bool>> AddAsync(T newObject);
+        Task<OperationResultT<bool>> AddAsync(T newObject, CancellationToken token);
 
         /// <summary>
         /// Update an existing object.
         /// </summary>
         /// <param name="updatedObject">The updated details of the object.</param>
         /// <returns>The result of the update operation.</returns>
-        Task<OperationResultT<bool>> UpdateAsync(T updatedObject);
+        Task<OperationResultT<bool>> UpdateAsync(T updatedObject, CancellationToken token);
 
         /// <summary>
         /// Delete an object by its unique identifier.
         /// </summary>
         /// <param name="objectId">The unique identifier of the object to delete.</param>
         /// <returns>The result of the delete operation.</returns>
-        Task<OperationResultT<bool>> DeleteAsync(int objectId);
+        Task<OperationResultT<bool>> DeleteAsync(int objectId, CancellationToken token);
     }
 }

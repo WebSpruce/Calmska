@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
@@ -17,12 +18,12 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "moods");
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, "moods", token);
         }
 
-        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<MoodDTO?>>> SearchAllByArgumentAsync(MoodDTO moodCriteria, int? pageNumber, int? pageSize, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -45,10 +46,10 @@ namespace Calmska.Services.Services
                 endpoint = $"moods/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<MoodDTO?>>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<MoodDTO?>> GetByArgumentAsync(MoodDTO moodCriteria)
+        public async Task<OperationResultT<MoodDTO?>> GetByArgumentAsync(MoodDTO moodCriteria, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -71,22 +72,22 @@ namespace Calmska.Services.Services
                 endpoint = $"moods/search?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<MoodDTO?>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<MoodDTO?>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<bool>> AddAsync(MoodDTO newAccount)
+        public async Task<OperationResultT<bool>> AddAsync(MoodDTO newAccount, CancellationToken token)
         {
-            return await HttpClientHelper.PostAsync<MoodDTO?>(_httpClient, "moods", newAccount);
+            return await HttpClientHelper.PostAsync<MoodDTO?>(_httpClient, "moods", newAccount, token);
         }
 
-        public async Task<OperationResultT<bool>> UpdateAsync(MoodDTO updatedAccount)
+        public async Task<OperationResultT<bool>> UpdateAsync(MoodDTO updatedAccount, CancellationToken token)
         {
-            return await HttpClientHelper.PutAsync<MoodDTO?>(_httpClient, "moods", updatedAccount);
+            return await HttpClientHelper.PutAsync<MoodDTO?>(_httpClient, "moods", updatedAccount, token);
         }
 
-        public async Task<OperationResultT<bool>> DeleteAsync(Guid moodId)
+        public async Task<OperationResultT<bool>> DeleteAsync(Guid moodId, CancellationToken token)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"moods?moodId={moodId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"moods?moodId={moodId}", token);
         }
     }
 }

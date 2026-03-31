@@ -28,6 +28,7 @@ namespace Calmska.ViewModels
         private readonly IService<MoodDTO> _moodService;
         private readonly IAiPromptingService _aiPromptingService;
         private IQueryAttributable _queryAttributableImplementation;
+        private CancellationTokenSource _cts;
 
         public MoodEntryPageViewModel(IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
         {
@@ -40,6 +41,20 @@ namespace Calmska.ViewModels
             Log.Debug("MoodEntryPageViewModel", "Constructor");
 #endif
         }
+        [RelayCommand]
+        public void OnAppearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+        [RelayCommand]
+        public void OnDisappearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
 
         [RelayCommand]
         private async Task Close()
@@ -49,6 +64,8 @@ namespace Calmska.ViewModels
         [RelayCommand]
         private async Task SubmitMood(CancellationToken token)
         {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
+            
             try
             {
                 IsActivityIndicatorRunning = true;
@@ -57,7 +74,7 @@ namespace Calmska.ViewModels
                     (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
                 notificationManager.Cancel(NOTIFICATION_ID);
 #endif
-                string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(MoodText, false, true), token);
+                string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(MoodText, false, true), linkedCts.Token);
                 if (string.IsNullOrEmpty(llmresponse))
                 {
                     await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
@@ -69,7 +86,7 @@ namespace Calmska.ViewModels
                     return;
                 }
 
-                var mood = await _moodService.GetByArgumentAsync(new MoodDTO { MoodName = llmresponse, MoodId = null });
+                var mood = await _moodService.GetByArgumentAsync(new MoodDTO { MoodName = llmresponse, MoodId = null }, linkedCts.Token);
                 if (mood == null || mood.Result == null || mood.Error != string.Empty)
                 {
                     await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
@@ -89,7 +106,7 @@ namespace Calmska.ViewModels
                 {
                     Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId,
                     MoodHistoryId = Guid.NewGuid()
-                });
+                }, linkedCts.Token);
                 if (result == null || result?.Result == null || result.Error != string.Empty)
                 {
                     await Shell.Current.DisplayAlertAsync("Warning",

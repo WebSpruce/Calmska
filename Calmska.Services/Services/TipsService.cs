@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
@@ -17,12 +18,12 @@ namespace Calmska.Services.Services
             _httpClient = httpClient;
         }
 
-        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
-            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, "tips");
+            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, "tips", token);
         }
 
-        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> SearchAllByArgumentAsync(TipsDTO tipsCriteria, int? pageNumber, int? pageSize)
+        public async Task<OperationResultT<PaginatedResult<TipsDTO?>>> SearchAllByArgumentAsync(TipsDTO tipsCriteria, int? pageNumber, int? pageSize, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -45,10 +46,10 @@ namespace Calmska.Services.Services
                 endpoint = $"tips/searchList?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<PaginatedResult<TipsDTO?>>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<TipsDTO?>> GetByArgumentAsync(TipsDTO tipsCriteria)
+        public async Task<OperationResultT<TipsDTO?>> GetByArgumentAsync(TipsDTO tipsCriteria, CancellationToken token)
         {
             List<string> endpointParameters = new();
             string endpoint = string.Empty;
@@ -71,22 +72,22 @@ namespace Calmska.Services.Services
                 endpoint = $"tips/search?{queryString}";
             }
 
-            return await HttpClientHelper.GetAsync<TipsDTO?>(_httpClient, endpoint);
+            return await HttpClientHelper.GetAsync<TipsDTO?>(_httpClient, endpoint, token);
         }
 
-        public async Task<OperationResultT<bool>> AddAsync(TipsDTO newTip)
+        public async Task<OperationResultT<bool>> AddAsync(TipsDTO newTip, CancellationToken token)
         {
-            return await HttpClientHelper.PostAsync<TipsDTO?>(_httpClient, "tips", newTip);
+            return await HttpClientHelper.PostAsync<TipsDTO?>(_httpClient, "tips", newTip, token);
         }
 
-        public async Task<OperationResultT<bool>> UpdateAsync(TipsDTO updatedTip)
+        public async Task<OperationResultT<bool>> UpdateAsync(TipsDTO updatedTip, CancellationToken token)
         {
-            return await HttpClientHelper.PutAsync<TipsDTO?>(_httpClient, "tips", updatedTip);
+            return await HttpClientHelper.PutAsync<TipsDTO?>(_httpClient, "tips", updatedTip, token);
         }
 
-        public async Task<OperationResultT<bool>> DeleteAsync(Guid tipId)
+        public async Task<OperationResultT<bool>> DeleteAsync(Guid tipId, CancellationToken token)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"tips?tipId={tipId}");
+            return await HttpClientHelper.DeleteAsync(_httpClient, $"tips?tipId={tipId}", token);
         }
     }
 }

@@ -30,10 +30,50 @@ namespace Calmska.ViewModels
         private bool _isActivityIndicatorRunning = false;
 
         private readonly IAccountService _accountService;
+        private CancellationTokenSource _cts;
 
         public LoginViewModel(IAccountService accountService)
         {
             _accountService = accountService;
+        }
+
+        [RelayCommand]
+        public async Task AppearingAsync()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            
+            try
+            {
+                string? userJson = await SecureStorage.Default.GetAsync("user_info");
+                if (string.IsNullOrEmpty(userJson))
+                {
+                    return;
+                }
+        
+                var user = JsonSerializer.Deserialize<AccountDTO>(userJson ?? string.Empty);
+                if (user != null)
+                {
+                    if (!string.IsNullOrEmpty(user.Email))
+                    {
+                        await Shell.Current.GoToAsync($"{nameof(PomodoroPage)}");
+                        Shell.Current.Items.Remove(Shell.Current.CurrentItem);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlertAsync("Error", 
+                    "Error checking authentication status.", "OK");
+            }
+        }
+        [RelayCommand]
+        public void Disappearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         [RelayCommand]
@@ -47,8 +87,9 @@ namespace Calmska.ViewModels
         }
 
         [RelayCommand]
-        internal async Task Login()
+        internal async Task Login(CancellationToken token)
         {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
             IsActivityIndicatorRunning = true;
             try
             {
@@ -68,11 +109,11 @@ namespace Calmska.ViewModels
                     {
                         Email = EEmail.ToLower(), 
                         PasswordHashed = EPassword
-                    });
+                    }, linkedCts.Token);
                 
                 if (isLoggedIn.Result)
                 {
-                    var user = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() });
+                    var user = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() }, linkedCts.Token);
                     var userJson = JsonSerializer.Serialize(user.Result);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
 

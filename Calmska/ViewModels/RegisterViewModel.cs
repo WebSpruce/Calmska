@@ -31,10 +31,27 @@ namespace Calmska.ViewModels
         private bool _isActivityIndicatorRunning = false;
 
         private readonly IAccountService _accountService;
+        private CancellationTokenSource _cts;
         public RegisterViewModel(IAccountService accountService)
         {
             _accountService = accountService;
         }
+        
+        [RelayCommand]
+        public void OnAppearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+        [RelayCommand]
+        public void OnDisappearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
+        
         [RelayCommand]
         internal void ChangePasswordVisibility()
         {
@@ -45,8 +62,9 @@ namespace Calmska.ViewModels
                 PasswordBtnIcon = EyeHiddenIcon;
         }
         [RelayCommand]
-        internal async void Register()
+        internal async Task RegisterAsync(CancellationToken token)
         {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
             IsActivityIndicatorRunning = true;
             try
             {
@@ -66,7 +84,7 @@ namespace Calmska.ViewModels
                     return;
                 }
                 
-                var accountFromDb = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail });
+                var accountFromDb = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail }, linkedCts.Token);
                 if(accountFromDb.Result != null)
                 {
                     await ShowErrorMessage("The account with this email already exists.");
@@ -78,7 +96,7 @@ namespace Calmska.ViewModels
                         Email = EEmail.ToLower(),
                         UserName = EEmail.ToLower(),
                         PasswordHashed = EPassword
-                    });
+                    }, linkedCts.Token);
 
                 if (isSignedUp.Result)
                 {

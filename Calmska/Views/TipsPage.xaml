@@ -7,16 +7,27 @@
              xmlns:converters="clr-namespace:Calmska.Helper"
              xmlns:calmska="clr-namespace:Calmska"
              xmlns:dto="clr-namespace:Calmska.Application.DTO;assembly=Calmska.Application"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
              Shell.TabBarIsVisible="False"
-             x:DataType="vm:TipsViewModel">
+             x:DataType="vm:TipsViewModel"
+             x:Name="TipsContentPage">
     
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:IndexToColorConverter x:Key="IndexToColorConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
+    
+    <ContentPage.Behaviors>
+        <mct:EventToCommandBehavior EventName="Appearing"
+                                    BindingContext="{Binding BindingContext, Source={x:Reference TipsContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding AppearingCommand}"/>
+        <mct:EventToCommandBehavior EventName="Disappearing" 
+                                    BindingContext="{Binding BindingContext, Source={x:Reference TipsContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding DisappearingCommand}"/>
+    </ContentPage.Behaviors>
 
     <Grid RowDefinitions="*, Auto">
         <ScrollView VerticalScrollBarVisibility="Never" Grid.Row="0" Padding="5">

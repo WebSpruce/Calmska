@@ -3,11 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.LoginPage"
              xmlns:vm="clr-namespace:Calmska.ViewModels"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
              Shell.TabBarIsVisible="False"
              NavigationPage.HasNavigationBar="False"
-             x:DataType="vm:LoginViewModel">
+             x:DataType="vm:LoginViewModel"
+             x:Name="LoginContentPage">
+    
+    <!-- In v10+, EventToCommandBehavior no longer inherits the parent element's BindingContext automatically -->
+    <ContentPage.Behaviors>
+        <mct:EventToCommandBehavior EventName="Appearing"
+                                    BindingContext="{Binding BindingContext, Source={x:Reference LoginContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding AppearingCommand}"/>
+        <mct:EventToCommandBehavior EventName="Disappearing" 
+                                    BindingContext="{Binding BindingContext, Source={x:Reference LoginContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding DisappearingCommand}"/>
+    </ContentPage.Behaviors>
 
     <Grid>
         <Image Source="{Binding BackgroundImageSource}" 

@@ -1,5 +1,3 @@
-using Calmska.ViewModels;
-
 namespace Calmska.Views;
 
 public partial class SettingsPage : ContentPage
@@ -8,10 +6,4 @@ public partial class SettingsPage : ContentPage
 	{
 		InitializeComponent();
 	}
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        SettingsViewModel._instance.OnAppearing();
-    }
 }

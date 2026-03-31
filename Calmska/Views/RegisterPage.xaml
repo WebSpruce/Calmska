@@ -3,12 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Calmska.Views.RegisterPage"
              xmlns:vm="clr-namespace:Calmska.ViewModels"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              BackgroundColor="{DynamicResource MainGreen}"
              HideSoftInputOnTapped="True"
              Shell.FlyoutItemIsVisible="False"
              NavigationPage.HasNavigationBar="False"
              x:DataType="vm:RegisterViewModel"
+             x:Name="RegisterContentPage"
              >
+    
+    <ContentPage.Behaviors>
+        <mct:EventToCommandBehavior EventName="Appearing" 
+                                    BindingContext="{Binding BindingContext, Source={x:Reference RegisterContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding AppearingCommand}"/>
+        <mct:EventToCommandBehavior EventName="Disappearing" 
+                                    BindingContext="{Binding BindingContext, Source={x:Reference RegisterContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding DisappearingCommand}"/>
+    </ContentPage.Behaviors>
     
     <Grid>
         <Image Source="{Binding BackgroundImageSource}" 

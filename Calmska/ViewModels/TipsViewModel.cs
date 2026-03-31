@@ -23,20 +23,37 @@ namespace Calmska.ViewModels
         private readonly IService<MoodHistoryDTO> _moodHistoryService;
         private readonly IService<MoodDTO> _moodService;
         private readonly IAiPromptingService _aiPromptingService;
+        private CancellationTokenSource _cts;
         public TipsViewModel(ITypesService<Types_TipsDTO> typesTipsService, IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
         {
             _typesTipsService = typesTipsService;
             _moodHistoryService = moodHistoryService;
             _moodService = moodService;
             _aiPromptingService = aiPromptingService;
-
-            Task.Run(async () => await LoadTypes());
         }
+        
+        [RelayCommand]
+        public async Task OnAppearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            await LoadTypes();
+        }
+        [RelayCommand]
+        public void OnDisappearing()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
+        
         private async Task LoadTypes()
         {
             try
             {
-                var typesResult = await _typesTipsService.GetAllAsync(null, null);
+                var typesResult = await _typesTipsService.GetAllAsync(null, null, _cts.Token);
                 if (typesResult != null && string.IsNullOrEmpty(typesResult.Error) && typesResult.Result != null)
                 {
                     List<Types_TipsFrontendDTO> typesTemp = typesResult.Result.Items.Select(type => MapTypeToFrontendDTO(type)).ToList();
@@ -75,8 +92,9 @@ namespace Calmska.ViewModels
         }
 
         [RelayCommand]
-        private async Task Analize(CancellationToken token)
+        private async Task AnalizeAsync(CancellationToken token)
         {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
             try
             {
                 IsActivityIndicatorRunning = true;
@@ -96,7 +114,7 @@ namespace Calmska.ViewModels
                     var history = await _moodHistoryService.SearchAllByArgumentAsync(new MoodHistoryDTO()
                     {
                         UserId = account.UserId
-                    }, null, null);
+                    }, null, null, linkedCts.Token);
                     if (history != null && history.Result != null)
                     {
                         var recentMoodHistory = history.Result.Items
@@ -112,7 +130,7 @@ namespace Calmska.ViewModels
                                     var mood = await _moodService.GetByArgumentAsync(new MoodDTO()
                                     {
                                         MoodId = row.MoodId,
-                                    });
+                                    }, linkedCts.Token);
                                     if (mood.Result == null)
                                         return;
                                     string comma = (recentMoodHistory.IndexOf(row) == recentMoodHistory.Count - 1)
@@ -128,7 +146,7 @@ namespace Calmska.ViewModels
                             }
 
                             Preferences.Default.Set("LastPrompt", DateTime.Now);
-                            string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(moods, true, false), token);
+                            string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(moods, true, false), linkedCts.Token);
                             if (string.IsNullOrEmpty(llmresponse))
                             {
                                 await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");

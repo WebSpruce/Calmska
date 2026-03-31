@@ -22,7 +22,7 @@ namespace Calmska.ViewModels
         public float ProgressValue => _timerService.ProgressValue;
         public bool IsRunning => _timerService.IsRunning;
         public string PlayPauseIcon => IsRunning ? IconFont.Pause : IconFont.Play_arrow;
-
+        private CancellationTokenSource _cts;
         public PomodoroViewModel(PomodoroTimerService timerService, IService<SettingsDTO> settingsService)
         {
             _timerService = timerService;
@@ -75,9 +75,22 @@ namespace Calmska.ViewModels
         {
             _timerService.Reset();
         }
-
-        public async Task OnAppearing()
+        
+        [RelayCommand]
+        public void Disappearing()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
+
+        [RelayCommand]
+        public async Task AppearingAsync()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            
             try
             {
                 string userJson = await SecureStorage.Default.GetAsync("user_info") ?? string.Empty;
@@ -88,7 +101,7 @@ namespace Calmska.ViewModels
                 }
                 var user = JsonSerializer.Deserialize<AccountDTO>(userJson);
                 NavBarTitle = user?.UserName ?? "User";
-                await LoadTimeSettings(user);
+                await LoadTimeSettingsAsync(user, _cts.Token);
             }
             catch (Exception ex)
             {
@@ -96,10 +109,10 @@ namespace Calmska.ViewModels
             }
         }
 
-        private async Task LoadTimeSettings(AccountDTO user)
+        private async Task LoadTimeSettingsAsync(AccountDTO user, CancellationToken token)
         {
             if (user == null) return;
-            var settings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
+            var settings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, token);
             if (settings?.Result != null)
             {
                 int work = int.Parse(settings.Result.PomodoroTimer);

@@ -5,10 +5,12 @@
              xmlns:controls="clr-namespace:Calmska.Controls"
              xmlns:calmska="clr-namespace:Calmska"
              xmlns:vm="clr-namespace:Calmska.ViewModels"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              BackgroundColor="{DynamicResource MainGreen}"
              Shell.NavBarIsVisible="True"
              Title="PomodoroPage"
-             x:DataType="vm:PomodoroViewModel">
+             x:DataType="vm:PomodoroViewModel"
+             x:Name="PomodoroContentPage">
 
     <Shell.BackButtonBehavior>
         <BackButtonBehavior IsVisible="False"/>
@@ -19,6 +21,15 @@
             <vm:CustomTabBarViewModel x:Key="customTabBarViewModel"/>
         </ResourceDictionary>
     </ContentPage.Resources>
+    
+    <ContentPage.Behaviors>
+        <mct:EventToCommandBehavior EventName="Appearing" 
+                                    BindingContext="{Binding BindingContext, Source={x:Reference PomodoroContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding AppearingCommand}"/>
+        <mct:EventToCommandBehavior EventName="Disappearing"
+                                    BindingContext="{Binding BindingContext, Source={x:Reference PomodoroContentPage}, x:DataType=ContentPage}"
+                                    Command="{Binding DisappearingCommand}"/>
+    </ContentPage.Behaviors>
     
     <Shell.TitleView>
         <HorizontalStackLayout VerticalOptions="Fill">

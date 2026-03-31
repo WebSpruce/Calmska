@@ -47,8 +47,6 @@ namespace Calmska.ViewModels
                 {
                     _notificationsEnabled = value;
                     Preferences.Default.Set("IsNotificationEnabled", value);
-                    int hour = Preferences.Default.Get("NotificationHour", SelectedNotificationTime.Hours);
-                    int minute = Preferences.Default.Get("NotificationMinute", SelectedNotificationTime.Minutes);
 #if ANDROID
                     UpdateNotification();
 #endif
@@ -77,41 +75,37 @@ namespace Calmska.ViewModels
         }
 
         private AccountDTO? _accountLogged;
-        private const string NotificationServiceKey = "MoodNotificationsEnabled";
-        internal static SettingsViewModel _instance;
+        private CancellationTokenSource _cts;
 
         private readonly IService<SettingsDTO> _settingsService;
         private readonly IAccountService _accountService;
         public SettingsViewModel(IService<SettingsDTO> settingsService, IAccountService accountService)
         {
-            _instance = this;
             _settingsService = settingsService;
             _accountService = accountService;
-            Task.Run(async () =>
-            {
-                string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
-                _accountLogged = JsonSerializer.Deserialize<AccountDTO>(userJson);
-                if (_accountLogged == null)
-                {
-#if ANDROID
-                    Toast.Make("Couldn't load the user's settings.", ToastDuration.Short, 14).Show();
-#endif
-                    return;
-                }
-
-                LUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
-                EUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
-
-                await LoadSettingsElseCreateAsync(_accountLogged ?? new AccountDTO());
-            });
-
-
-            //NotificationsEnabled = Preferences.Get("NotificationsEnabled", false);
-            //var timeString = Preferences.Get("NotificationTime", "08:00:00");
-            //SelectedNotificationTime = TimeSpan.Parse(timeString);
         }
-        internal void OnAppearing()
+        [RelayCommand]
+        internal async Task OnAppearing()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            
+            string userJson = SecureStorage.Default.GetAsync("user_info").Result ?? string.Empty;
+            _accountLogged = JsonSerializer.Deserialize<AccountDTO>(userJson);
+            if (_accountLogged == null)
+            {
+#if ANDROID
+                Toast.Make("Couldn't load the user's settings.", ToastDuration.Short, 14).Show();
+#endif
+                return;
+            }
+
+            LUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
+            EUserName = _accountLogged != null ? (_accountLogged.UserName ?? string.Empty) : string.Empty;
+
+            await LoadSettingsElseCreateAsync(_accountLogged ?? new AccountDTO());
+            
             bool isEnabled = Preferences.Default.Get("IsNotificationEnabled", false);
             int hour = Preferences.Default.Get("NotificationHour", 8);
             int minute = Preferences.Default.Get("NotificationMinute", 0);
@@ -120,8 +114,17 @@ namespace Calmska.ViewModels
             SelectedNotificationTime = new TimeSpan(hour, minute, 0);
         }
         [RelayCommand]
-        private async Task SaveUsername()
+        public void OnDisappearing()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
+        [RelayCommand]
+        private async Task SaveUsername(CancellationToken token)
+        {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
+            
             if (_accountLogged == null)
                 return;
 
@@ -129,7 +132,7 @@ namespace Calmska.ViewModels
             accountToUpdate.UserName = EUserName;
             accountToUpdate.PasswordHashed = string.Empty;
 
-            OperationResultT<bool> isUpdated = await _accountService.UpdateAsync(accountToUpdate);
+            OperationResultT<bool> isUpdated = await _accountService.UpdateAsync(accountToUpdate, linkedCts.Token);
             if (isUpdated != null && isUpdated.Result)
             {
                 await ShowErrorMessage("Username saved.");
@@ -153,11 +156,13 @@ namespace Calmska.ViewModels
             }
         }
         [RelayCommand]
-        private async Task SaveSettings()
+        private async Task SaveSettings(CancellationToken token)
         {
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, _cts?.Token ?? CancellationToken.None);
+            
             if (_accountLogged == null)
                 return;
-            var usersSettingsToUpdate = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = _accountLogged.UserId });
+            var usersSettingsToUpdate = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = _accountLogged.UserId }, linkedCts.Token);
             if (usersSettingsToUpdate != null && string.IsNullOrEmpty(usersSettingsToUpdate.Error) && usersSettingsToUpdate.Result != null)
             {
                 int workInSeconds = ConvertToSeconds(int.Parse(EWorkingTimeHours), int.Parse(EWorkingTimeMinutes), int.Parse(EWorkingTimeSeconds));
@@ -166,7 +171,7 @@ namespace Calmska.ViewModels
                 usersSettingsToUpdate.Result.PomodoroBreakFloat = breakInSeconds;
                 usersSettingsToUpdate.Result.PomodoroTimerFloat = workInSeconds;
                 if (string.IsNullOrEmpty(usersSettingsToUpdate.Result.Color)) { usersSettingsToUpdate.Result.Color = null; }
-                var isUpdated = await _settingsService.UpdateAsync(usersSettingsToUpdate.Result);
+                var isUpdated = await _settingsService.UpdateAsync(usersSettingsToUpdate.Result, linkedCts.Token);
                 if (isUpdated != null && isUpdated.Error == string.Empty && isUpdated.Result)
                 {
                     await ShowErrorMessage("Settings saved.");
@@ -219,7 +224,7 @@ namespace Calmska.ViewModels
 #endif
         private async Task LoadSettingsElseCreateAsync(AccountDTO user)
         {
-            var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId });
+            var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, _cts.Token);
             if (!string.IsNullOrEmpty(usersSettings.Error))
             {
                 if (usersSettings.Error.Contains("NotFound"))
@@ -230,7 +235,7 @@ namespace Calmska.ViewModels
                         PomodoroTimerFloat = 2700f,
                         PomodoroBreakFloat = 300f
                     };
-                    var isAdded = await _settingsService.AddAsync(newSettings);
+                    var isAdded = await _settingsService.AddAsync(newSettings, _cts.Token);
                     if(isAdded != null && isAdded.Error == string.Empty && isAdded.Result)
                         usersSettings.Result = newSettings;
                     else
