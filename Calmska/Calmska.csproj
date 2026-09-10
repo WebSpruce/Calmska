@@ -130,7 +130,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
 	  <ProjectReference Include="..\Calmska.Domain\Calmska.Domain.csproj" />
-	  <ProjectReference Include="..\Calmska.Services\Calmska.Services.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

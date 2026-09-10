@@ -1,6 +1,5 @@
 ﻿using Calmska.Controls;
 using Calmska.Services.Interfaces;
-using Calmska.Services.Services;
 using Calmska.ViewModels;
 using Calmska.Views;
 using CommunityToolkit.Maui;
@@ -8,7 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using Calmska.Application.DTO;
+using Calmska.Interfaces;
 using Calmska.Services;
+using Calmska.Services.ApiClients;
 using Plugin.Maui.Audio;
 
 namespace Calmska
@@ -40,7 +41,7 @@ namespace Calmska
 #endif
             builder.Services.AddSingleton(AudioManager.Current);
             builder.Services.AddSingleton<PomodoroTimerService>();
-            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>();
+            builder.Services.AddHttpClient<IAiPromptingApiClient, AiPromptingApiClient>();
             
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
@@ -57,29 +58,29 @@ namespace Calmska
             builder.AddAppSettings();
 
             var apiBaseUrl = builder.Configuration.GetValue<string>("ApiUrl") ?? string.Empty;
-            builder.Services.AddHttpClient<IAccountService, AccountsService>(client =>
+            builder.Services.AddHttpClient<IAccountApiClient, AccountApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            builder.Services.AddHttpClient<IService<SettingsDTO>, SettingsService>(client =>
+            builder.Services.AddHttpClient<IApiClient<SettingsDTO>, SettingsApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            builder.Services.AddHttpClient<IService<TipsDTO>, TipsService>(client =>
+            builder.Services.AddHttpClient<IApiClient<TipsDTO>, TipsApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            builder.Services.AddHttpClient<ITypesService<Types_TipsDTO>, TypesTipsService>(client =>
+            builder.Services.AddHttpClient<ITypesApiClient<Types_TipsDTO>, TypesTipsApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
-            builder.Services.AddHttpClient<IService<MoodDTO>, MoodService>(client =>
+            builder.Services.AddHttpClient<IApiClient<MoodDTO>, MoodApiClient>(client =>
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
-            builder.Services.AddHttpClient<IService<MoodHistoryDTO>, MoodHistoryService>(client =>
+            builder.Services.AddHttpClient<IApiClient<MoodHistoryDTO>, MoodHistoryApiClient>(client =>
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
-            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>(client =>
+            builder.Services.AddHttpClient<IAiPromptingApiClient, AiPromptingApiClient>(client =>
                 client.BaseAddress = new Uri(apiBaseUrl)
             );
             

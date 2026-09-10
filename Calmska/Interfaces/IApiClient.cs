@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Calmska.Domain.Common;
+﻿using Calmska.Domain.Common;
 
-namespace Calmska.Services.Interfaces
+namespace Calmska.Interfaces
 {
-    public interface ITypesService<T>
+    public interface IApiClient<T>
     {
         /// <summary>
         /// Get all objects with optional pagination.
@@ -22,7 +19,7 @@ namespace Calmska.Services.Interfaces
         /// <param name="pageNumber">The page number for pagination.</param>
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A paginated result containing matched objects.</returns>
-        Task<OperationResultT<PaginatedResult<IEnumerable<T?>>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize, CancellationToken token);
+        Task<OperationResultT<PaginatedResult<T?>>> SearchAllByArgumentAsync(T criteria, int? pageNumber, int? pageSize, CancellationToken token);
 
         /// <summary>
         /// Get a specific object by an argument.
@@ -50,6 +47,6 @@ namespace Calmska.Services.Interfaces
         /// </summary>
         /// <param name="objectId">The unique identifier of the object to delete.</param>
         /// <returns>The result of the delete operation.</returns>
-        Task<OperationResultT<bool>> DeleteAsync(int objectId, CancellationToken token);
+        Task<OperationResultT<bool>> DeleteAsync(Guid objectId, CancellationToken token);
     }
 }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Net.Http;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Calmska.Domain.Common;
 
-namespace Calmska.Services.Helper
+namespace Calmska.Helper
 {
     internal class HttpClientHelper
     {
