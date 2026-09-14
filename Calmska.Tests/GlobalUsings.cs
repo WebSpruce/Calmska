@@ -2,13 +2,8 @@
 global using FluentAssertions;
 global using AutoMapper;
 global using Moq;
-global using Moq.Protected;
 global using Calmska.Api;
-global using Calmska.Services.Helper;
 global using Microsoft.AspNetCore.Mvc.Testing;
 global using Microsoft.EntityFrameworkCore;
 global using System.Net.Http.Json;
 global using System.Net;
-global using System.Text;
-global using System.Text.Json;
-global using Calmska.Services.Services;

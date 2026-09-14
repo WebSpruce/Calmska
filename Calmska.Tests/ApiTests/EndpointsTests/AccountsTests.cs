@@ -1,6 +1,7 @@
 ﻿using Calmska.Domain.Common;
 using Calmska.Domain.Entities;
 using Firebase.Auth;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Calmska.Tests.ApiTests.EndpointsTests
 {
