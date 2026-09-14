@@ -120,7 +120,6 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.50" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.50" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
@@ -128,6 +127,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Calmska.ApiClients\Calmska.ApiClients.csproj" />
 	  <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
 	  <ProjectReference Include="..\Calmska.Domain\Calmska.Domain.csproj" />
 	</ItemGroup>

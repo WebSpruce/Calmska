@@ -8,4 +8,9 @@ public interface IHttpClientService
     Task<OperationResultT<bool>> PostAsync<T>(string endpoint, T data, CancellationToken cancellationToken = default);
     Task<OperationResultT<bool>> PutAsync<T>(string endpoint, T data, CancellationToken cancellationToken = default);
     Task<OperationResultT<bool>> DeleteAsync(string endpoint, CancellationToken cancellationToken = default);
+    
+    Task<OperationResultT<TResponse>> PostAsync<TRequest, TResponse>(
+        string endpoint, 
+        TRequest data, 
+        CancellationToken cancellationToken = default);
 }

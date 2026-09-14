@@ -1,20 +1,20 @@
-﻿using Calmska.Services.Interfaces;
-using Calmska.Views;
+﻿using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Net.Mail;
 using System.Text.Json;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 
 namespace Calmska.ViewModels
 {
     internal partial class LoginViewModel : ObservableObject
     {
-        public const string DefaultBackgroundImage = "leaf.png";
-        public const string EyeHiddenIcon = "eye_hidden.svg";
-        public const string EyeOpenIcon = "eye_open.svg";
+        private const string DefaultBackgroundImage = "leaf.png";
+        private const string EyeHiddenIcon = "eye_hidden.svg";
+        private const string EyeOpenIcon = "eye_open.svg";
         
         [ObservableProperty]
         private string _backgroundImageSource = DefaultBackgroundImage;
@@ -29,12 +29,12 @@ namespace Calmska.ViewModels
         [ObservableProperty]
         private bool _isActivityIndicatorRunning = false;
 
-        private readonly IAccountService _accountService;
+        private readonly IAccountApiClient _accountApiClient;
         private CancellationTokenSource _cts;
 
-        public LoginViewModel(IAccountService accountService)
+        public LoginViewModel(IAccountApiClient accountApiClient)
         {
-            _accountService = accountService;
+            _accountApiClient = accountApiClient;
         }
 
         [RelayCommand]
@@ -104,16 +104,16 @@ namespace Calmska.ViewModels
                     return;
                 }
 
-                var isLoggedIn = await _accountService.LoginAsync(
-                    new AccountDTO
+                var isLoggedIn = await _accountApiClient.LoginAsync(
+                    new LoginDTO()
                     {
                         Email = EEmail.ToLower(), 
-                        PasswordHashed = EPassword
+                        Password = EPassword
                     }, linkedCts.Token);
                 
                 if (isLoggedIn.Result)
                 {
-                    var user = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() }, linkedCts.Token);
+                    var user = await _accountApiClient.GetByArgumentAsync(new AccountDTO { Email = EEmail.ToLower() }, linkedCts.Token);
                     var userJson = JsonSerializer.Serialize(user.Result);
                     await SecureStorage.Default.SetAsync("user_info", userJson);
 

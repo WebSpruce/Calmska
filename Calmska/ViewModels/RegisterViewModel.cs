@@ -1,9 +1,9 @@
-﻿using Calmska.Services.Interfaces;
-using CommunityToolkit.Maui.Alerts;
+﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Net.Mail;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
 
@@ -30,11 +30,11 @@ namespace Calmska.ViewModels
         [ObservableProperty]
         private bool _isActivityIndicatorRunning = false;
 
-        private readonly IAccountService _accountService;
+        private readonly IAccountApiClient _accountApiClient;
         private CancellationTokenSource _cts;
-        public RegisterViewModel(IAccountService accountService)
+        public RegisterViewModel(IAccountApiClient accountApiClient)
         {
-            _accountService = accountService;
+            _accountApiClient = accountApiClient;
         }
         
         [RelayCommand]
@@ -84,14 +84,14 @@ namespace Calmska.ViewModels
                     return;
                 }
                 
-                var accountFromDb = await _accountService.GetByArgumentAsync(new AccountDTO { Email = EEmail }, linkedCts.Token);
+                var accountFromDb = await _accountApiClient.GetByArgumentAsync(new AccountDTO { Email = EEmail }, linkedCts.Token);
                 if(accountFromDb.Result != null)
                 {
                     await ShowErrorMessage("The account with this email already exists.");
                     return;
                 }
                 
-                OperationResultT<bool> isSignedUp = await _accountService.AddAsync(
+                OperationResultT<bool> isSignedUp = await _accountApiClient.AddAsync(
                     new AccountDTO { 
                         Email = EEmail.ToLower(),
                         UserName = EEmail.ToLower(),

@@ -158,7 +158,32 @@ namespace Calmska.ApiClients
             }
         }
 
-    
+        public async Task<OperationResultT<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest data, CancellationToken cancellationToken = default)
+        {
+            var fullUrl = BuildUrl(endpoint);
+            var result = new OperationResultT<TResponse>();
+
+            try
+            {
+                _logger.LogDebug($"POST {fullUrl} (with response)");
+                var response = await _httpClient.PostAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
+                return await HandleResponseWithBodyAsync(response, fullUrl, cancellationToken, result);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return SetError(result, "Request was cancelled.", fullUrl);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                return HandleHttpException(httpEx, fullUrl, result);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, fullUrl, result);
+            }
+        }
+
+
         //GET responses deserializes body to T
         private async Task<OperationResultT<T>> HandleGetResponseAsync<T>(
             HttpResponseMessage response,
@@ -200,6 +225,37 @@ namespace Calmska.ApiClients
             }
     
             return await HandleErrorResponseAsync(response, fullUrl, cancellationToken, result);
+        }
+        
+        private async Task<OperationResultT<T>> HandleResponseWithBodyAsync<T>(
+            HttpResponseMessage response,
+            string fullUrl,
+            CancellationToken cancellationToken,
+            OperationResultT<T> result)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync(cancellationToken);
+                try
+                {
+                    result.Result = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+                    result.Error = string.Empty;
+                }
+                catch (JsonException jsonEx)
+                {
+                    _logger.LogError(jsonEx, $"Deserialization failed for {fullUrl}. Response: {json}");
+                    return SetError(result, SanitizeError($"Deserialization failed: {jsonEx.Message}", fullUrl), fullUrl);
+                }
+                return result;
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var sanitizedError = SanitizeErrorResponse(errorContent, response.StatusCode, fullUrl);
+    
+            _logger.LogWarning("Request failed: {StatusCode} {Url} — {Error}", 
+                (int)response.StatusCode, fullUrl, sanitizedError);
+
+            return SetError(result, sanitizedError, fullUrl);
         }
     
         //Shared error handling for all verbs

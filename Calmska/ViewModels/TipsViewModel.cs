@@ -1,9 +1,9 @@
-﻿using Calmska.Services.Interfaces;
-using Calmska.Views;
+﻿using Calmska.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
 using Android.Util;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
@@ -19,17 +19,17 @@ namespace Calmska.ViewModels
         [ObservableProperty]
         private bool _isActivityIndicatorRunning = false;
 
-        private readonly ITypesService<Types_TipsDTO> _typesTipsService;
-        private readonly IService<MoodHistoryDTO> _moodHistoryService;
-        private readonly IService<MoodDTO> _moodService;
-        private readonly IAiPromptingService _aiPromptingService;
+        private readonly ITypesApiClient<Types_TipsDTO> _typesTipsApiClient;
+        private readonly IApiClient<MoodHistoryDTO> _moodHistoryApiClient;
+        private readonly IApiClient<MoodDTO> _moodApiClient;
+        private readonly IAiPromptingApiClient _aiPromptingApiClient;
         private CancellationTokenSource _cts;
-        public TipsViewModel(ITypesService<Types_TipsDTO> typesTipsService, IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
+        public TipsViewModel(ITypesApiClient<Types_TipsDTO> typesTipsApiClient, IApiClient<MoodHistoryDTO> moodHistoryApiClient, IApiClient<MoodDTO> moodApiClient, IAiPromptingApiClient aiPromptingApiClient)
         {
-            _typesTipsService = typesTipsService;
-            _moodHistoryService = moodHistoryService;
-            _moodService = moodService;
-            _aiPromptingService = aiPromptingService;
+            _typesTipsApiClient = typesTipsApiClient;
+            _moodHistoryApiClient = moodHistoryApiClient;
+            _moodApiClient = moodApiClient;
+            _aiPromptingApiClient = aiPromptingApiClient;
         }
         
         [RelayCommand]
@@ -53,7 +53,7 @@ namespace Calmska.ViewModels
         {
             try
             {
-                var typesResult = await _typesTipsService.GetAllAsync(null, null, _cts.Token);
+                var typesResult = await _typesTipsApiClient.GetAllAsync(null, null, _cts.Token);
                 if (typesResult != null && string.IsNullOrEmpty(typesResult.Error) && typesResult.Result != null)
                 {
                     List<Types_TipsFrontendDTO> typesTemp = typesResult.Result.Items.Select(type => MapTypeToFrontendDTO(type)).ToList();
@@ -111,7 +111,7 @@ namespace Calmska.ViewModels
                 DateTime fiveDaysAgo = DateTime.Today.AddDays(-5);
                 if (lastPrompt.Date <= fiveDaysAgo) //at least 5 days from last prompt.
                 {
-                    var history = await _moodHistoryService.SearchAllByArgumentAsync(new MoodHistoryDTO()
+                    var history = await _moodHistoryApiClient.SearchAllByArgumentAsync(new MoodHistoryDTO()
                     {
                         UserId = account.UserId
                     }, null, null, linkedCts.Token);
@@ -127,7 +127,7 @@ namespace Calmska.ViewModels
                             {
                                 foreach (var row in recentMoodHistory)
                                 {
-                                    var mood = await _moodService.GetByArgumentAsync(new MoodDTO()
+                                    var mood = await _moodApiClient.GetByArgumentAsync(new MoodDTO()
                                     {
                                         MoodId = row.MoodId,
                                     }, linkedCts.Token);
@@ -146,7 +146,7 @@ namespace Calmska.ViewModels
                             }
 
                             Preferences.Default.Set("LastPrompt", DateTime.Now);
-                            string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(moods, true, false), linkedCts.Token);
+                            string llmresponse = await _aiPromptingApiClient.GetPromptResponseAsync(new PromptRequest(moods, true, false), linkedCts.Token);
                             if (string.IsNullOrEmpty(llmresponse))
                             {
                                 await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");

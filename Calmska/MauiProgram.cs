@@ -1,15 +1,14 @@
 ﻿using Calmska.Controls;
-using Calmska.Services.Interfaces;
 using Calmska.ViewModels;
 using Calmska.Views;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Calmska.Application.DTO;
-using Calmska.Interfaces;
+using Calmska.ApiClients;
+using Calmska.ApiClients.Clients;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Services;
-using Calmska.Services.ApiClients;
 using Plugin.Maui.Audio;
 
 namespace Calmska
@@ -56,33 +55,8 @@ namespace Calmska
 
 
             builder.AddAppSettings();
-
-            var apiBaseUrl = builder.Configuration.GetValue<string>("ApiUrl") ?? string.Empty;
-            builder.Services.AddHttpClient<IAccountApiClient, AccountApiClient>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IApiClient<SettingsDTO>, SettingsApiClient>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IApiClient<TipsDTO>, TipsApiClient>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<ITypesApiClient<Types_TipsDTO>, TypesTipsApiClient>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IApiClient<MoodDTO>, MoodApiClient>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
-            builder.Services.AddHttpClient<IApiClient<MoodHistoryDTO>, MoodHistoryApiClient>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
-            builder.Services.AddHttpClient<IAiPromptingApiClient, AiPromptingApiClient>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
+            
+            builder.Services.AddCalmskaApiClients(builder.Configuration);
             
             var app = builder.Build(); // Build the app
 

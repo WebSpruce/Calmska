@@ -1,10 +1,10 @@
-﻿using Calmska.Services.Interfaces;
-using Calmska.Views;
+﻿using Calmska.Views;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
 using Debug = System.Diagnostics.Debug;
@@ -77,12 +77,12 @@ namespace Calmska.ViewModels
         private AccountDTO? _accountLogged;
         private CancellationTokenSource _cts;
 
-        private readonly IService<SettingsDTO> _settingsService;
-        private readonly IAccountService _accountService;
-        public SettingsViewModel(IService<SettingsDTO> settingsService, IAccountService accountService)
+        private readonly IApiClient<SettingsDTO> _settingsApiClient;
+        private readonly IAccountApiClient _accountApiClient;
+        public SettingsViewModel(IApiClient<SettingsDTO> settingsApiClient, IAccountApiClient accountApiClient)
         {
-            _settingsService = settingsService;
-            _accountService = accountService;
+            _settingsApiClient = settingsApiClient;
+            _accountApiClient = accountApiClient;
         }
         [RelayCommand]
         internal async Task OnAppearing()
@@ -132,7 +132,7 @@ namespace Calmska.ViewModels
             accountToUpdate.UserName = EUserName;
             accountToUpdate.PasswordHashed = string.Empty;
 
-            OperationResultT<bool> isUpdated = await _accountService.UpdateAsync(accountToUpdate, linkedCts.Token);
+            OperationResultT<bool> isUpdated = await _accountApiClient.UpdateAsync(accountToUpdate, linkedCts.Token);
             if (isUpdated != null && isUpdated.Result)
             {
                 await ShowErrorMessage("Username saved.");
@@ -162,7 +162,7 @@ namespace Calmska.ViewModels
             
             if (_accountLogged == null)
                 return;
-            var usersSettingsToUpdate = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = _accountLogged.UserId }, linkedCts.Token);
+            var usersSettingsToUpdate = await _settingsApiClient.GetByArgumentAsync(new SettingsDTO { UserId = _accountLogged.UserId }, linkedCts.Token);
             if (usersSettingsToUpdate != null && string.IsNullOrEmpty(usersSettingsToUpdate.Error) && usersSettingsToUpdate.Result != null)
             {
                 int workInSeconds = ConvertToSeconds(int.Parse(EWorkingTimeHours), int.Parse(EWorkingTimeMinutes), int.Parse(EWorkingTimeSeconds));
@@ -171,7 +171,7 @@ namespace Calmska.ViewModels
                 usersSettingsToUpdate.Result.PomodoroBreakFloat = breakInSeconds;
                 usersSettingsToUpdate.Result.PomodoroTimerFloat = workInSeconds;
                 if (string.IsNullOrEmpty(usersSettingsToUpdate.Result.Color)) { usersSettingsToUpdate.Result.Color = null; }
-                var isUpdated = await _settingsService.UpdateAsync(usersSettingsToUpdate.Result, linkedCts.Token);
+                var isUpdated = await _settingsApiClient.UpdateAsync(usersSettingsToUpdate.Result, linkedCts.Token);
                 if (isUpdated != null && isUpdated.Error == string.Empty && isUpdated.Result)
                 {
                     await ShowErrorMessage("Settings saved.");
@@ -224,7 +224,7 @@ namespace Calmska.ViewModels
 #endif
         private async Task LoadSettingsElseCreateAsync(AccountDTO user)
         {
-            var usersSettings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, _cts.Token);
+            var usersSettings = await _settingsApiClient.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, _cts.Token);
             if (!string.IsNullOrEmpty(usersSettings.Error))
             {
                 if (usersSettings.Error.Contains("NotFound"))
@@ -235,7 +235,7 @@ namespace Calmska.ViewModels
                         PomodoroTimerFloat = 2700f,
                         PomodoroBreakFloat = 300f
                     };
-                    var isAdded = await _settingsService.AddAsync(newSettings, _cts.Token);
+                    var isAdded = await _settingsApiClient.AddAsync(newSettings, _cts.Token);
                     if(isAdded != null && isAdded.Error == string.Empty && isAdded.Result)
                         usersSettings.Result = newSettings;
                     else
