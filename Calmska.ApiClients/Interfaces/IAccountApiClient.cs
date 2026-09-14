@@ -1,7 +1,7 @@
 ﻿using Calmska.Application.DTO;
 using Calmska.Domain.Common;
 
-namespace Calmska.Interfaces
+namespace Calmska.ApiClients.Interfaces
 {
     public interface IAccountApiClient : IApiClient<AccountDTO> 
     {
@@ -10,6 +10,6 @@ namespace Calmska.Interfaces
         /// </summary>
         /// <param name="criteria">The criteria for searching object.</param>
         /// <returns>True if found, or false if not.</returns>
-        Task<OperationResultT<bool>> LoginAsync(AccountDTO criteria, CancellationToken token);
+        Task<OperationResultT<bool>> LoginAsync(LoginDTO criteria, CancellationToken token);
     }
 }

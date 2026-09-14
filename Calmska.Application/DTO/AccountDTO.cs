@@ -16,4 +16,10 @@ namespace Calmska.Application.DTO
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? PasswordHashed { get; set; }
     }
+
+    public class LoginDTO
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
 }

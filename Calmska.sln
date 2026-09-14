@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calmska.Application", "Calm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calmska.Infrastructure", "Calmska.Infrastructure\Calmska.Infrastructure.csproj", "{CA25532A-CCF8-4C6E-B466-748B96FD11D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calmska.ApiClients", "Calmska.ApiClients\Calmska.ApiClients.csproj", "{908242CD-005D-4193-BB7A-732E512FF497}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{CA25532A-CCF8-4C6E-B466-748B96FD11D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA25532A-CCF8-4C6E-B466-748B96FD11D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA25532A-CCF8-4C6E-B466-748B96FD11D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{908242CD-005D-4193-BB7A-732E512FF497}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{908242CD-005D-4193-BB7A-732E512FF497}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{908242CD-005D-4193-BB7A-732E512FF497}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{908242CD-005D-4193-BB7A-732E512FF497}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

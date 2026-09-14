@@ -1,6 +1,6 @@
 using Calmska.Application.DTO;
 
-namespace Calmska.Interfaces;
+namespace Calmska.ApiClients.Interfaces;
 
 public interface IAiPromptingApiClient
 {

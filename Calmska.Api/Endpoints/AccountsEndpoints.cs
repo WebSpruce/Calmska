@@ -63,14 +63,14 @@ public class AccountsEndpoints : IModule
             return result != null ? Results.Ok(result) : Results.NotFound("Account not found");
         });
         
-        accounts.MapGet("/login", async (ISender sender,
-            [FromQuery] string email, [FromQuery] string password,
+        accounts.MapPost("/login", async (ISender sender,
+            [FromBody] LoginDTO loginDto,
             CancellationToken token) =>
         {
             if (token.IsCancellationRequested)
                 return Results.StatusCode(499);
             
-            var query = new LoginCommand(email, password);
+            var query = new LoginCommand(loginDto.Email, loginDto.Password);
             
             var result = await sender.Send(query, token);
             return result ? Results.Ok(result) : Results.NotFound("Account does not exist");

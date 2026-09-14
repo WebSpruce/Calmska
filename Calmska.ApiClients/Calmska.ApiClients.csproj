@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Calmska.Application\Calmska.Application.csproj" />
+      <ProjectReference Include="..\Calmska.Domain\Calmska.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.Maui.Controls">
+        <HintPath>..\..\..\..\..\.nuget\packages\microsoft.maui.controls.core\10.0.50\lib\net10.0-android36.0\Microsoft.Maui.Controls.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

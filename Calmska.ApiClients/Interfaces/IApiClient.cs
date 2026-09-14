@@ -1,6 +1,6 @@
 ﻿using Calmska.Domain.Common;
 
-namespace Calmska.Interfaces
+namespace Calmska.ApiClients.Interfaces
 {
     public interface IApiClient<T>
     {

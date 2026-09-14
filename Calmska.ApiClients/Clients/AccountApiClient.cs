@@ -1,22 +1,21 @@
-﻿using Calmska.Application.DTO;
+﻿using Calmska.ApiClients.Interfaces;
+using Calmska.Application.DTO;
 using Calmska.Domain.Common;
-using Calmska.Helper;
-using Calmska.Interfaces;
 
-namespace Calmska.Services.ApiClients
+namespace Calmska.ApiClients.Clients
 {
     public class AccountApiClient : IAccountApiClient
     {
-        private readonly HttpClient _httpClient;
-        public AccountApiClient(HttpClient httpClient)
+        private readonly IHttpClientService _httpClientService;
+        public AccountApiClient(IHttpClientService httpClientService)
         {
-            _httpClient = httpClient;
+            _httpClientService = httpClientService;
         }
 
         public async Task<OperationResultT<PaginatedResult<AccountDTO?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             var endpoint = $"accounts?pageNumber={pageNumber ?? 1}&pageSize={pageSize ?? 10}";
-            return await HttpClientHelper.GetAsync<PaginatedResult<AccountDTO?>>(_httpClient, endpoint, token);
+            return await _httpClientService.GetAsync<PaginatedResult<AccountDTO?>>(endpoint, token);
         }
 
         public async Task<OperationResultT<PaginatedResult<AccountDTO?>>> SearchAllByArgumentAsync(AccountDTO accountCriteria, int? pageNumber, int? pageSize, CancellationToken token)
@@ -26,7 +25,7 @@ namespace Calmska.Services.ApiClients
                 ? "accounts/searchList" 
                 : $"accounts/searchList?{query}";
 
-            return await HttpClientHelper.GetAsync<PaginatedResult<AccountDTO?>>(_httpClient, endpoint, token);
+            return await _httpClientService.GetAsync<PaginatedResult<AccountDTO?>>(endpoint, token);
         }
 
         public async Task<OperationResultT<AccountDTO?>> GetByArgumentAsync(AccountDTO accountCriteria, CancellationToken token)
@@ -36,32 +35,27 @@ namespace Calmska.Services.ApiClients
                 ? "accounts/search" 
                 : $"accounts/search?{queryString}";
 
-            return await HttpClientHelper.GetAsync<AccountDTO?>(_httpClient, endpoint, token);
+            return await _httpClientService.GetAsync<AccountDTO?>(endpoint, token);
         }
 
-        public async Task<OperationResultT<bool>> LoginAsync(AccountDTO accountCriteria, CancellationToken token)
+        public async Task<OperationResultT<bool>> LoginAsync(LoginDTO loginDto, CancellationToken token)
         {
-            var queryString = BuildAccountQueryString(accountCriteria);
-            var endpoint = string.IsNullOrEmpty(queryString) 
-                ? "accounts/login" 
-                : $"accounts/login?{queryString}";
-
-            return await HttpClientHelper.GetAsync<bool>(_httpClient, endpoint, token);
+            return await _httpClientService.PostAsync<LoginDTO>("accounts/login", loginDto, token);
         }
 
         public async Task<OperationResultT<bool>> AddAsync(AccountDTO newAccount, CancellationToken token)
         {
-            return await HttpClientHelper.PostAsync<AccountDTO?>(_httpClient, "accounts", newAccount, token);
+            return await _httpClientService.PostAsync<AccountDTO?>("accounts", newAccount, token);
         }
 
         public async Task<OperationResultT<bool>> UpdateAsync(AccountDTO updatedAccount, CancellationToken token)
         {
-            return await HttpClientHelper.PutAsync<AccountDTO?>(_httpClient, "accounts", updatedAccount, token);
+            return await _httpClientService.PutAsync<AccountDTO?>("accounts", updatedAccount, token);
         }
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid accountId, CancellationToken token)
         {
-            return await HttpClientHelper.DeleteAsync(_httpClient, $"accounts?accountId={accountId}", token);
+            return await _httpClientService.DeleteAsync($"accounts?accountId={accountId}", token);
         }
         
         private static string BuildAccountQueryString(AccountDTO criteria)

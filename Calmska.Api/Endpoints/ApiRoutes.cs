@@ -45,7 +45,7 @@ public class ApiRoutes
     public static ApiVersionSet ApiVersion(IEndpointRouteBuilder app)
     {
         return app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(4))
+            .HasApiVersion(new ApiVersion(5))
             .Build();
     }
 }
