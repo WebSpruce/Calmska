@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
+using Calmska.Application.Converters;
 using Calmska.Application.DTO;
 using Calmska.Domain.Entities;
 
@@ -40,26 +42,15 @@ namespace Calmska.Application.Mapping
             CreateMap<Types_Mood, Types_MoodDTO>();
 
             CreateMap<Settings, SettingsDTO>()
-            .ForMember(dest => dest.PomodoroTimer, 
-                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
-            .ForMember(dest => dest.PomodoroBreak, 
-                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)))
-            .ForMember(dest => dest.PomodoroTimerFloat,
-                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroTimer)))
-            .ForMember(dest => dest.PomodoroBreakFloat,
-                opt => opt.MapFrom(src => ConvertToFloat(src.PomodoroBreak)));
+                .ForMember(dest => dest.PomodoroTimer, 
+                    opt => opt.MapFrom(src => src.PomodoroTimer.ToFloatOrNull()))
+                .ForMember(dest => dest.PomodoroBreak, 
+                    opt => opt.MapFrom(src => src.PomodoroBreak.ToFloatOrNull()))
+                ;
 
             CreateMap<SettingsDTO, Settings>()
-                .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PomodoroTimer) ? src.PomodoroTimer : string.Empty))
-                .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PomodoroBreak) ? src.PomodoroBreak : string.Empty));
-        }
-        private static float? ConvertToFloat(string value)
-        {
-            if (float.TryParse(value, out var result))
-            {
-                return result;
-            }
-            return null;
+                .ForMember(dest => dest.PomodoroTimer, opt => opt.MapFrom(src => src.PomodoroTimer.HasValue ? src.PomodoroTimer.Value.ToString() : string.Empty))
+                .ForMember(dest => dest.PomodoroBreak, opt => opt.MapFrom(src => src.PomodoroBreak.HasValue ? src.PomodoroBreak.Value.ToString() : string.Empty));
         }
     }
 }

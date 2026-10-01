@@ -10,10 +10,10 @@ namespace Calmska.Application.Features.Settings.Queries;
 
 public class GetAllByArgumentQueryHandler : IRequestHandler<GetAllByArgumentQuery, PaginatedResult<SettingsDTO>>
 {
-    private readonly IRepository<Domain.Entities.Settings, SettingsFilter> _repository;
+    private readonly ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> _repository;
     private readonly IMapper _mapper;
 
-    public GetAllByArgumentQueryHandler(IRepository<Domain.Entities.Settings, SettingsFilter> repository, IMapper mapper)
+    public GetAllByArgumentQueryHandler(ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;

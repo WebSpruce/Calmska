@@ -7,6 +7,8 @@ using System.Text.Json;
 using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
+using Calmska.Domain.Entities;
+using Calmska.Helper;
 using Debug = System.Diagnostics.Debug;
 
 #if ANDROID
@@ -77,9 +79,9 @@ namespace Calmska.ViewModels
         private AccountDTO? _accountLogged;
         private CancellationTokenSource _cts;
 
-        private readonly IApiClient<SettingsDTO> _settingsApiClient;
+        private readonly ISettingsApiClient<Settings, SettingsDTO> _settingsApiClient;
         private readonly IAccountApiClient _accountApiClient;
-        public SettingsViewModel(IApiClient<SettingsDTO> settingsApiClient, IAccountApiClient accountApiClient)
+        public SettingsViewModel(ISettingsApiClient<Settings, SettingsDTO> settingsApiClient, IAccountApiClient accountApiClient)
         {
             _settingsApiClient = settingsApiClient;
             _accountApiClient = accountApiClient;
@@ -168,22 +170,24 @@ namespace Calmska.ViewModels
                 int workInSeconds = ConvertToSeconds(int.Parse(EWorkingTimeHours), int.Parse(EWorkingTimeMinutes), int.Parse(EWorkingTimeSeconds));
                 int breakInSeconds = ConvertToSeconds(int.Parse(EBreakTimeHours), int.Parse(EBreakTimeMinutes), int.Parse(EBreakTimeSeconds));
 
-                usersSettingsToUpdate.Result.PomodoroBreakFloat = breakInSeconds;
-                usersSettingsToUpdate.Result.PomodoroTimerFloat = workInSeconds;
-                if (string.IsNullOrEmpty(usersSettingsToUpdate.Result.Color)) { usersSettingsToUpdate.Result.Color = null; }
-                var isUpdated = await _settingsApiClient.UpdateAsync(usersSettingsToUpdate.Result, linkedCts.Token);
-                if (isUpdated != null && isUpdated.Error == string.Empty && isUpdated.Result)
+                var dtoForUpdate = new SettingsDTO()
                 {
+                    Color = usersSettingsToUpdate.Result.Color,
+                    PomodoroBreak = breakInSeconds,
+                    PomodoroTimer = workInSeconds,
+                    SettingsId = usersSettingsToUpdate.Result.SettingsId,
+                    UserId = usersSettingsToUpdate.Result.UserId
+                };
+                
+                var isUpdated = await _settingsApiClient.UpdateAsync(dtoForUpdate, linkedCts.Token);
+                if (isUpdated is { Error: "", Result: true })
                     await ShowErrorMessage("Settings saved.");
-                }
                 else
-                {
                     await ShowErrorMessage("Couldn't save your settings. Please, try again.");
-                }
             }
             else
             {
-                await ShowErrorMessage($"Error while loading settings: {usersSettingsToUpdate.Error}");
+                await ShowErrorMessage($"Error while loading settings: {usersSettingsToUpdate?.Error}");
                 return;
             }
         }
@@ -225,6 +229,7 @@ namespace Calmska.ViewModels
         private async Task LoadSettingsElseCreateAsync(AccountDTO user)
         {
             var usersSettings = await _settingsApiClient.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, _cts.Token);
+            
             if (!string.IsNullOrEmpty(usersSettings.Error))
             {
                 if (usersSettings.Error.Contains("NotFound"))
@@ -232,12 +237,17 @@ namespace Calmska.ViewModels
                     SettingsDTO newSettings = new SettingsDTO
                     {
                         UserId = user.UserId,
-                        PomodoroTimerFloat = 2700f,
-                        PomodoroBreakFloat = 300f
+                        PomodoroTimer = 2700f,
+                        PomodoroBreak = 300f
                     };
                     var isAdded = await _settingsApiClient.AddAsync(newSettings, _cts.Token);
-                    if(isAdded != null && isAdded.Error == string.Empty && isAdded.Result)
-                        usersSettings.Result = newSettings;
+                    if(isAdded is { Error: "", Result: true })
+                        usersSettings.Result = new SettingsDTO()
+                        {
+                            UserId = (Guid)newSettings.UserId!,
+                            PomodoroBreak = newSettings.PomodoroBreak,
+                            PomodoroTimer = newSettings.PomodoroTimer,
+                        };
                     else
                     {
                         await ShowErrorMessage($"Error while creating settings {isAdded?.Error}");
@@ -250,8 +260,8 @@ namespace Calmska.ViewModels
                     return;
                 }
             }
-            TimeSpan workingTime = ConvertTime(!string.IsNullOrEmpty(usersSettings.Result?.PomodoroTimer) ? int.Parse(usersSettings.Result.PomodoroTimer) : 0);
-            TimeSpan breakTime = ConvertTime(!string.IsNullOrEmpty(usersSettings.Result?.PomodoroBreak) ? int.Parse(usersSettings.Result.PomodoroBreak) : 0);
+            TimeSpan workingTime = ConvertTime(usersSettings.Result?.PomodoroTimer.ToString()!);
+            TimeSpan breakTime = ConvertTime(usersSettings.Result?.PomodoroBreak.ToString()!);
             EWorkingTimeHours = workingTime.Hours.ToString();
             EWorkingTimeMinutes = workingTime.Minutes.ToString();
             EWorkingTimeSeconds = workingTime.Seconds.ToString();
@@ -261,10 +271,17 @@ namespace Calmska.ViewModels
         }
         private TimeSpan ConvertTime(int seconds)
         {
-            int hours = seconds >= 3600 ? seconds / 3600 : 0;
-            int minutes = (seconds % 3600) >= 60 ? (seconds % 3600) / 60 : 0;
-            int remainingSeconds = (seconds % 60 > 0 && hours == 0 && minutes == 0) ? seconds % 60 : 0;
-            return new TimeSpan(hours, minutes, remainingSeconds);
+            return TimeSpan.FromSeconds(seconds);
+        }
+
+        private TimeSpan ConvertTime(string secondsInString)
+        {
+            if (int.TryParse(secondsInString, out int seconds))
+            {
+                return TimeSpan.FromSeconds(seconds);
+            }
+
+            return TimeSpan.Zero;
         }
         public static int ConvertToSeconds(int hours, int minutes, int seconds)
         {

@@ -1,5 +1,6 @@
+using System.Globalization;
+using Calmska.Application.DTO;
 using Calmska.Domain.Common;
-using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
 using Calmska.Domain.Interfaces;
 using MediatR;
@@ -8,9 +9,9 @@ namespace Calmska.Application.Features.Settings.Commands;
 
 public class CreateCommandHandler : IRequestHandler<CreateCommand, OperationResult>
 {
-    private readonly IRepository<Domain.Entities.Settings, SettingsFilter> _repository;
+    private readonly ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> _repository;
 
-    public CreateCommandHandler(IRepository<Domain.Entities.Settings, SettingsFilter> repository)
+    public CreateCommandHandler(ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> repository)
     {
         _repository = repository;
     }
@@ -28,7 +29,7 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, OperationResu
             return new OperationResult { Result = false, Error = $"The settings object exists for the user with id: {request.UserId}." };
 
         return await _repository.AddAsync(
-            new Domain.Entities.Settings { Color = request.Color, PomodoroBreak = request.PomodoroBreak, PomodoroTimer = request.PomodoroTimer, SettingsId = request.SettingsId, UserId = request.UserId},
+            new Domain.Entities.Settings { Color = request.Color, PomodoroBreak = request.PomodoroBreak.ToString(CultureInfo.InvariantCulture), PomodoroTimer = request.PomodoroTimer.ToString(CultureInfo.InvariantCulture), SettingsId = request.SettingsId, UserId = request.UserId},
             token);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Calmska.ApiClients.Interfaces;
 using Calmska.Domain.Common;
@@ -39,10 +40,12 @@ namespace Calmska.ApiClients
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _jsonOptions = jsonOptions?.Value ?? new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            _jsonOptions = jsonOptions?.Value is { } supplied
+                ? new JsonSerializerOptions(supplied)
+                : new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+            _jsonOptions.PropertyNameCaseInsensitive = true;
+            _jsonOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
     
             _baseUrl = _httpClient.BaseAddress?.ToString().TrimEnd('/')
                 ?? throw new InvalidOperationException("HttpClient.BaseAddress is not configured.");
@@ -191,23 +194,25 @@ namespace Calmska.ApiClients
             CancellationToken cancellationToken,
             OperationResultT<T> result)
         {
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
+                return await HandleErrorResponseAsync(response, fullUrl, cancellationToken, result);
+            
+            try
             {
-                var json = await response.Content.ReadAsStringAsync(cancellationToken);
-                try
-                {
-                    result.Result = JsonSerializer.Deserialize<T>(json, _jsonOptions);
-                    result.Error = string.Empty;
-                }
-                catch (JsonException jsonEx)
-                {
-                    _logger.LogError(jsonEx, $"Deserialization failed for {fullUrl}. Response: {json}");
-                    return SetError(result, SanitizeError($"Deserialization failed: {jsonEx.Message}", fullUrl), fullUrl);
-                }
+                result.Result = await response.Content.ReadFromJsonAsync<T>(
+                    _jsonOptions,
+                    cancellationToken);
+
+                result.Error = string.Empty;
                 return result;
             }
-    
-            return await HandleErrorResponseAsync(response, fullUrl, cancellationToken, result);
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex,$"Could not deserialize response from {fullUrl} as {typeof(T).FullName}");
+
+                return SetError(result, 
+                    SanitizeError($"Invalid JSON response: {ex.Message}", fullUrl), fullUrl);
+            }
         }
     
         //POST/PUT/DELETE responses success is boolean true

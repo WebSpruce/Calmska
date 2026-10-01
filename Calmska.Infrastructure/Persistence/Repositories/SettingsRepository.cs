@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
+using Calmska.Application.DTO;
 using Calmska.Domain.Common;
 using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
@@ -9,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Infrastructure.Persistence.Repositories
 {
-    public class SettingsRepository : IRepository<Settings, SettingsFilter>
+    public class SettingsRepository : ISettingsRepository<Settings, SettingsDTO, SettingsFilter>
     {
         private readonly CalmskaDbContext _context;
         private readonly IMapper _mapper;
@@ -34,36 +36,85 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.SettingsDb
-                .Where(item =>
-                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
-                    (string.IsNullOrEmpty(settings.Color) || (item.Color != null && item.Color.ToLower().Contains(settings.Color.ToLower())) ) &&
-                    (string.IsNullOrEmpty(settings.PomodoroTimer) || (item.PomodoroTimer != null && item.PomodoroTimer.ToLower().Contains(settings.PomodoroTimer.ToLower())) ) &&
-                    (string.IsNullOrEmpty(settings.PomodoroBreak) || (item.PomodoroBreak != null && item.PomodoroBreak.ToLower().Contains(settings.PomodoroBreak.ToLower())) ) &&
-                    (!settings.UserId.HasValue || item.UserId == settings.UserId)
-                )
-                .AsQueryable, token);
-
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
-            var domainItems = _mapper.Map<IEnumerable<Settings>>(documentResult.Items);
             
-            return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
+            var query = _context.SettingsDb.AsNoTracking();
+
+            if (settings.SettingsId.HasValue)
+                query = query.Where(item => item.SettingsId == settings.SettingsId.Value);
+        
+            if (settings.UserId.HasValue)
+                query = query.Where(item => item.UserId == settings.UserId.Value);
+        
+            if (!string.IsNullOrWhiteSpace(settings.Color))
+                query = query.Where(item => item.Color != null && item.Color.Contains(settings.Color));
+        
+            if (settings.PomodoroTimer.HasValue)
+            {
+                string timerStr = settings.PomodoroTimer.Value.ToString(CultureInfo.InvariantCulture);
+                query = query.Where(item => item.PomodoroTimer != null && item.PomodoroTimer.Contains(timerStr));
+            }
+        
+            if (settings.PomodoroBreak.HasValue)
+            {
+                string breakStr = settings.PomodoroBreak.Value.ToString(CultureInfo.InvariantCulture);
+                query = query.Where(item => item.PomodoroBreak != null && item.PomodoroBreak.Contains(breakStr));
+            }
+        
+            int totalCount = await query.CountAsync(token);
+        
+            int resolvedPageNumber = pageNumber ?? 1;
+            int resolvedPageSize = pageSize ?? 10;
+        
+            var pagedEntities = await query
+                .Skip((resolvedPageNumber - 1) * resolvedPageSize)
+                .Take(resolvedPageSize)
+                .ToListAsync(token);
+        
+            var domainItems = _mapper.Map<IEnumerable<Settings>>(pagedEntities);
+            
+            return new PaginatedResult<Settings>(
+                domainItems, 
+                totalCount, 
+                resolvedPageNumber, 
+                resolvedPageSize
+            );
         }
 
-        public async Task<Settings?> GetByArgumentAsync(SettingsFilter settings, CancellationToken token)
+        public async Task<SettingsDTO?> GetByArgumentAsync(SettingsFilter settings, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await _context.SettingsDb
-                .Where(item =>
-                    (!settings.SettingsId.HasValue || item.SettingsId == settings.SettingsId) &&
-                    (string.IsNullOrEmpty(settings.Color) || (item.Color != null && item.Color.ToLower().Contains(settings.Color.ToLower())) ) &&
-                    (string.IsNullOrEmpty(settings.PomodoroTimer) || (item.PomodoroTimer != null && item.PomodoroTimer.ToLower().Contains(settings.PomodoroTimer.ToLower())) ) &&
-                    (string.IsNullOrEmpty(settings.PomodoroBreak) || (item.PomodoroBreak != null && item.PomodoroBreak.ToLower().Contains(settings.PomodoroBreak.ToLower())) ) &&
-                    (!settings.UserId.HasValue || item.UserId == settings.UserId)
-                )
-                .FirstOrDefaultAsync(token);
-            
-            return _mapper.Map<Settings?>(query);
+
+            var query = _context.SettingsDb.AsNoTracking();
+
+            if (settings.SettingsId.HasValue)
+                query = query.Where(item => item.SettingsId == settings.SettingsId.Value);
+
+            if (settings.UserId.HasValue)
+                query = query.Where(item => item.UserId == settings.UserId.Value);
+
+            if (!string.IsNullOrWhiteSpace(settings.Color))
+                query = query.Where(item => item.Color != null && 
+                                            item.Color.Contains(settings.Color)); 
+
+            if (settings.PomodoroTimer.HasValue) 
+            {
+                string timerStr = settings.PomodoroTimer.Value.ToString(CultureInfo.InvariantCulture);
+        
+                query = query.Where(item => item.PomodoroTimer != null && 
+                                            item.PomodoroTimer.Contains(timerStr));
+            }
+
+            if (settings.PomodoroBreak.HasValue)
+            {
+                string breakStr = settings.PomodoroBreak.Value.ToString(CultureInfo.InvariantCulture);
+        
+                query = query.Where(item => item.PomodoroBreak != null && 
+                                            item.PomodoroBreak.Contains(breakStr));
+            }
+
+            var entity = await query.FirstOrDefaultAsync(token); 
+
+            return _mapper.Map<SettingsDTO?>(entity);
         }
 
         public async Task<OperationResult> AddAsync(Settings settings, CancellationToken token)
@@ -130,10 +181,10 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         {
             if(!string.IsNullOrEmpty(filter.Color))
                 existingSettings.Color = filter.Color;
-            if(!string.IsNullOrEmpty(filter.PomodoroTimer))
-                existingSettings.PomodoroTimer = filter.PomodoroTimer;
-            if (!string.IsNullOrEmpty(filter.PomodoroBreak))
-                existingSettings.PomodoroBreak = filter.PomodoroBreak;
+            if(existingSettings.PomodoroTimer == filter.PomodoroTimer.ToString())
+                existingSettings.PomodoroTimer = filter.PomodoroTimer.ToString();
+            if (existingSettings.PomodoroBreak == filter.PomodoroBreak.ToString())
+                existingSettings.PomodoroBreak = filter.PomodoroBreak.ToString();
             if (filter.UserId != null)
                 existingSettings.UserId = (Guid)filter.UserId;
         }

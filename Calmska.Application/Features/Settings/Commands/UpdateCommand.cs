@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Calmska.Application.Features.Settings.Commands;
 
-public record UpdateCommand(Guid? SettingsId, string? Color, string? PomodoroTimer, string? PomodoroBreak, Guid? UserId) : IRequest<OperationResult>;
+public record UpdateCommand(Guid? SettingsId, string? Color, float? PomodoroTimer, float? PomodoroBreak, Guid? UserId) : IRequest<OperationResult>;

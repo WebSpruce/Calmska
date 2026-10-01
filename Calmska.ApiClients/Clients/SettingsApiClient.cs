@@ -1,10 +1,11 @@
 ﻿using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using Calmska.Domain.Common;
+using Calmska.Domain.Entities;
 
 namespace Calmska.ApiClients.Clients
 {
-    public class SettingsApiClient : IApiClient<SettingsDTO>
+    public class SettingsApiClient : ISettingsApiClient<Settings, SettingsDTO>
     {
         private readonly IHttpClientService _httpClientService;
         public SettingsApiClient(IHttpClientService httpClientService)

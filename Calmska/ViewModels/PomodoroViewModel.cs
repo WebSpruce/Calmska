@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
 using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
+using Calmska.Domain.Entities;
 using Calmska.Services;
 using Calmska.Views;
 
@@ -12,7 +13,7 @@ namespace Calmska.ViewModels
     public partial class PomodoroViewModel : ObservableObject
     {
         private readonly PomodoroTimerService _timerService;
-        private readonly IApiClient<SettingsDTO> _settingsApiClient;
+        private readonly ISettingsApiClient<Settings, SettingsDTO> _settingsApiClient;
 
         [ObservableProperty]
         private string _navBarTitle = string.Empty;
@@ -23,7 +24,7 @@ namespace Calmska.ViewModels
         public bool IsRunning => _timerService.IsRunning;
         public string PlayPauseIcon => IsRunning ? IconFont.Pause : IconFont.Play_arrow;
         private CancellationTokenSource _cts;
-        public PomodoroViewModel(PomodoroTimerService timerService, IApiClient<SettingsDTO> settingsApiClient)
+        public PomodoroViewModel(PomodoroTimerService timerService, ISettingsApiClient<Settings, SettingsDTO> settingsApiClient)
         {
             _timerService = timerService;
             _settingsApiClient = settingsApiClient;
@@ -115,8 +116,8 @@ namespace Calmska.ViewModels
             var settings = await _settingsApiClient.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, token);
             if (settings?.Result != null)
             {
-                int work = int.Parse(settings.Result.PomodoroTimer);
-                int breakTime = int.Parse(settings.Result.PomodoroBreak);
+                int work = Convert.ToInt32(settings.Result.PomodoroTimer);
+                int breakTime = Convert.ToInt32(settings.Result.PomodoroBreak);
                 _timerService.UpdateSettings(work, breakTime);
             }
         }
