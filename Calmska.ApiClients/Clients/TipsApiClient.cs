@@ -45,7 +45,7 @@ namespace Calmska.ApiClients.Clients
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid tipId, CancellationToken token)
         {
-            return await _httpClientService.DeleteAsync($"tips?tipId={tipId}", token);
+            return await _httpClientService.DeleteAsync($"tips/{tipId:D}", token);
         }
         
         private static string BuildQueryString(TipsDTO criteria)

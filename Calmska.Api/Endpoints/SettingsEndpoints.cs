@@ -80,12 +80,11 @@ public class SettingsEndpoints: IModule
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Settings updated successfully") : Results.BadRequest(result.Error);
         });
-        settings.MapDelete("/", async (ISender sender, [FromBody] Guid settingsId,
+        settings.MapDelete("/{settingsId:guid}", async (
+            ISender sender, 
+            Guid settingsId,
             CancellationToken token) =>
         {
-            if (token.IsCancellationRequested)
-                return Results.StatusCode(499);
-            
             var query = new DeleteCommand(settingsId);
             
             var result = await sender.Send(query, token);

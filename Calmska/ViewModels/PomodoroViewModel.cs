@@ -13,7 +13,7 @@ namespace Calmska.ViewModels
     public partial class PomodoroViewModel : ObservableObject
     {
         private readonly PomodoroTimerService _timerService;
-        private readonly ISettingsApiClient<Settings, SettingsDTO> _settingsApiClient;
+        private readonly ISettingsApiClient<SettingsDTO> _settingsApiClient;
 
         [ObservableProperty]
         private string _navBarTitle = string.Empty;
@@ -24,7 +24,7 @@ namespace Calmska.ViewModels
         public bool IsRunning => _timerService.IsRunning;
         public string PlayPauseIcon => IsRunning ? IconFont.Pause : IconFont.Play_arrow;
         private CancellationTokenSource _cts;
-        public PomodoroViewModel(PomodoroTimerService timerService, ISettingsApiClient<Settings, SettingsDTO> settingsApiClient)
+        public PomodoroViewModel(PomodoroTimerService timerService, ISettingsApiClient<SettingsDTO> settingsApiClient)
         {
             _timerService = timerService;
             _settingsApiClient = settingsApiClient;

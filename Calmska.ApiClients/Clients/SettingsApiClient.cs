@@ -46,7 +46,7 @@ namespace Calmska.ApiClients.Clients
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid settingsId, CancellationToken token)
         {
-            return await _httpClientService.DeleteAsync($"settings?settingsId={settingsId}", token);
+            return await _httpClientService.DeleteAsync($"settings/{settingsId:D}", token);
         }
         
         private static string BuildQueryString(SettingsDTO criteria)

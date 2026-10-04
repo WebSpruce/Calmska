@@ -45,7 +45,7 @@ namespace Calmska.ApiClients.Clients
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid moodHistoryId, CancellationToken token)
         {
-            return await _httpClientService.DeleteAsync($"moodhistory?moodHistoryId={moodHistoryId}", token);
+            return await _httpClientService.DeleteAsync($"moodhistory/{moodHistoryId:D}", token);
         }
         
         private static string BuildQueryString(MoodHistoryDTO criteria)

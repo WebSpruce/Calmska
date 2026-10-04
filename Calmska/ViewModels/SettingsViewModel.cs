@@ -79,9 +79,9 @@ namespace Calmska.ViewModels
         private AccountDTO? _accountLogged;
         private CancellationTokenSource _cts;
 
-        private readonly ISettingsApiClient<Settings, SettingsDTO> _settingsApiClient;
+        private readonly ISettingsApiClient<SettingsDTO> _settingsApiClient;
         private readonly IAccountApiClient _accountApiClient;
-        public SettingsViewModel(ISettingsApiClient<Settings, SettingsDTO> settingsApiClient, IAccountApiClient accountApiClient)
+        public SettingsViewModel(ISettingsApiClient<SettingsDTO> settingsApiClient, IAccountApiClient accountApiClient)
         {
             _settingsApiClient = settingsApiClient;
             _accountApiClient = accountApiClient;

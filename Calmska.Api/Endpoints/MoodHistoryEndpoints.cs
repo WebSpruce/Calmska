@@ -101,11 +101,9 @@ public class MoodHistoryEndpoints : IModule
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
         });
-        moodHistory.MapDelete("/", async (ISender sender, [FromBody] Guid moodHistoryId,
+        moodHistory.MapDelete("/{moodHistoryId:guid}", async (ISender sender, Guid moodHistoryId,
             CancellationToken token) =>
         {
-            if (token.IsCancellationRequested)
-                return Results.StatusCode(499);
             var query = new DeleteCommand(moodHistoryId);
             
             var result = await sender.Send(query, token);

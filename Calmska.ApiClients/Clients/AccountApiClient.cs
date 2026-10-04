@@ -55,7 +55,7 @@ namespace Calmska.ApiClients.Clients
 
         public async Task<OperationResultT<bool>> DeleteAsync(Guid accountId, CancellationToken token)
         {
-            return await _httpClientService.DeleteAsync($"accounts?accountId={accountId}", token);
+            return await _httpClientService.DeleteAsync($"accounts/{accountId:D}", token);
         }
         
         private static string BuildAccountQueryString(AccountDTO criteria)

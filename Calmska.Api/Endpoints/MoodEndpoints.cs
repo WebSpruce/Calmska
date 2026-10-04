@@ -72,11 +72,9 @@ public class MoodEndpoints : IModule
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Mood updated successfully") : Results.BadRequest(result.Error);
         });
-        mood.MapDelete("/", async (ISender sender, [FromBody] Guid moodId,
+        mood.MapDelete("/{moodId:guid}", async (ISender sender, Guid moodId,
             CancellationToken token) =>
         {
-            if (token.IsCancellationRequested)
-                return Results.StatusCode(499);
             var query = new DeleteCommand(moodId);
             
             var result = await sender.Send(query, token);
