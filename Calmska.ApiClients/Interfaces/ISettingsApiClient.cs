@@ -2,7 +2,7 @@ using Calmska.Domain.Common;
 
 namespace Calmska.ApiClients.Interfaces;
 
-public interface ISettingsApiClient<TEntity, TDto>
+public interface ISettingsApiClient<TDto>
 {
         Task<OperationResultT<PaginatedResult<TDto?>>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token);
         Task<OperationResultT<PaginatedResult<TDto?>>> SearchAllByArgumentAsync(TDto criteria, int? pageNumber, int? pageSize, CancellationToken token);

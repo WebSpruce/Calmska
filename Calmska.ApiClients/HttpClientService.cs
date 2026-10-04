@@ -61,7 +61,7 @@ namespace Calmska.ApiClients
             try
             {
                 _logger.LogDebug($"GET {fullUrl}");
-                var response = await _httpClient.GetAsync(fullUrl, cancellationToken);
+                using var response = await _httpClient.GetAsync(fullUrl, cancellationToken);
                 return await HandleGetResponseAsync(response, fullUrl, cancellationToken, result);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -89,7 +89,7 @@ namespace Calmska.ApiClients
             try
             {
                 _logger.LogDebug($"POST {fullUrl}");
-                var response = await _httpClient.PostAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
+                using var response = await _httpClient.PostAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
                 return await HandleMutationResponseAsync(response, fullUrl, cancellationToken, result);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -117,7 +117,7 @@ namespace Calmska.ApiClients
             try
             {
                 _logger.LogDebug($"PUT {fullUrl}");
-                var response = await _httpClient.PutAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
+                using var response = await _httpClient.PutAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
                 return await HandleMutationResponseAsync(response, fullUrl, cancellationToken, result);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -144,7 +144,7 @@ namespace Calmska.ApiClients
             try
             {
                 _logger.LogDebug($"DELETE {fullUrl}");
-                var response = await _httpClient.DeleteAsync(fullUrl, cancellationToken);
+                using var response = await _httpClient.DeleteAsync(fullUrl, cancellationToken);
                 return await HandleMutationResponseAsync(response, fullUrl, cancellationToken, result);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -169,7 +169,7 @@ namespace Calmska.ApiClients
             try
             {
                 _logger.LogDebug($"POST {fullUrl} (with response)");
-                var response = await _httpClient.PostAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
+                using var response = await _httpClient.PostAsJsonAsync(fullUrl, data, _jsonOptions, cancellationToken);
                 return await HandleResponseWithBodyAsync(response, fullUrl, cancellationToken, result);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

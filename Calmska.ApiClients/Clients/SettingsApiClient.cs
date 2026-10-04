@@ -5,7 +5,7 @@ using Calmska.Domain.Entities;
 
 namespace Calmska.ApiClients.Clients
 {
-    public class SettingsApiClient : ISettingsApiClient<Settings, SettingsDTO>
+    public class SettingsApiClient : ISettingsApiClient<SettingsDTO>
     {
         private readonly IHttpClientService _httpClientService;
         public SettingsApiClient(IHttpClientService httpClientService)

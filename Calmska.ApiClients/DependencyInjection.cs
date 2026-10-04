@@ -23,7 +23,7 @@ public static class DependencyInjection
             client.BaseAddress = baseUri;
         });
         services.AddScoped<IAccountApiClient, AccountApiClient>();
-        services.AddScoped<ISettingsApiClient<Settings, SettingsDTO>, SettingsApiClient>();
+        services.AddScoped<ISettingsApiClient<SettingsDTO>, SettingsApiClient>();
         services.AddScoped<IApiClient<TipsDTO>, TipsApiClient>();
         services.AddScoped<ITypesApiClient<Types_TipsDTO>, TypesTipsApiClient>();
         services.AddScoped<IApiClient<MoodDTO>, MoodApiClient>();

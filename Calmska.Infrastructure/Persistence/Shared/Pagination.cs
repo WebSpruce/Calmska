@@ -1,10 +1,11 @@
 ﻿using Calmska.Domain.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Calmska.Infrastructure.Shared
 {
     internal static class Pagination
     {
-        internal static PaginatedResult<T> Paginate<T>(IQueryable<T> query, int? pageNumber, int? pageSize)
+        internal static async Task<PaginatedResult<T>> Paginate<T>(IQueryable<T> query, int? pageNumber, int? pageSize)
         {
             // Validate query
             if (query == null || !query.Any())
@@ -50,10 +51,10 @@ namespace Calmska.Infrastructure.Shared
                 }
 
                 var totalItems = query.Count();
-                var items = query
+                var items = await query
                     .Skip((currentPage - 1) * currentPageSize)
                     .Take(currentPageSize)
-                    .ToList();
+                    .ToListAsync();
 
                 return new PaginatedResult<T>
                 {

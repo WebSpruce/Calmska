@@ -24,9 +24,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<Settings>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.SettingsDb.AsQueryable, token);
+            var query = _context.SettingsDb.AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Settings>>(documentResult.Items);
             
             return new PaginatedResult<Settings>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);

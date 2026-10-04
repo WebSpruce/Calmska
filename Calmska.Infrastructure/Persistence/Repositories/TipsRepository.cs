@@ -22,9 +22,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<Tips>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.TipsDb.AsQueryable, token);
+            var query = _context.TipsDb.AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Tips>>(documentResult.Items);
             
             return new PaginatedResult<Tips>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
@@ -33,15 +33,15 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<Tips>> GetAllByArgumentAsync(TipsFilter tips, int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.TipsDb
+            var query = _context.TipsDb
                 .Where(item =>
                     (!tips.TipId.HasValue || item.TipId == tips.TipId) &&
                     (string.IsNullOrEmpty(tips.Content) || (item.Content != null && item.Content.ToLower().Contains(tips.Content.ToLower())) ) &&
                     (tips.TipsTypeId == null || tips.TipsTypeId <= 0 || item.TipsTypeId == tips.TipsTypeId)
                 )
-                .AsQueryable, token);
+                .AsQueryable();
 
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Tips>>(documentResult.Items);
             
             return new PaginatedResult<Tips>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);

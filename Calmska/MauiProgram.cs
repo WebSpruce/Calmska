@@ -40,7 +40,6 @@ namespace Calmska
 #endif
             builder.Services.AddSingleton(AudioManager.Current);
             builder.Services.AddSingleton<PomodoroTimerService>();
-            builder.Services.AddHttpClient<IAiPromptingApiClient, AiPromptingApiClient>();
             
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
