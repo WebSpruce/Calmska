@@ -181,9 +181,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         {
             if(!string.IsNullOrEmpty(filter.Color))
                 existingSettings.Color = filter.Color;
-            if(existingSettings.PomodoroTimer == filter.PomodoroTimer.ToString())
+            if(existingSettings.PomodoroTimer != filter.PomodoroTimer.ToString())
                 existingSettings.PomodoroTimer = filter.PomodoroTimer.ToString();
-            if (existingSettings.PomodoroBreak == filter.PomodoroBreak.ToString())
+            if (existingSettings.PomodoroBreak != filter.PomodoroBreak.ToString())
                 existingSettings.PomodoroBreak = filter.PomodoroBreak.ToString();
             if (filter.UserId != null)
                 existingSettings.UserId = (Guid)filter.UserId;

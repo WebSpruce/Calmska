@@ -22,10 +22,10 @@ public class CreateCommandHandler : IRequestHandler<CreateCommand, OperationResu
         if (request.UserId == Guid.Empty)
             return new OperationResult { Result = false, Error = "The provided userId parameter is empty" };
         
-        var settingsByUserId = _repository.GetByArgumentAsync(
+        var settingsByUserId = await _repository.GetByArgumentAsync(
             new SettingsFilter(null, null, null, null, request.UserId), 
             token);
-        if (settingsByUserId.Result != null)
+        if (settingsByUserId != null)
             return new OperationResult { Result = false, Error = $"The settings object exists for the user with id: {request.UserId}." };
 
         return await _repository.AddAsync(

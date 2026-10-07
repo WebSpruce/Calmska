@@ -13,7 +13,7 @@ namespace Calmska.Infrastructure.Persistence
         public DbSet<TipsDocument> TipsDb { get; set; }
         public DbSet<Types_TipsDocument> Types_TipsDb { get; set; }
         public DbSet<Types_MoodDocument> Types_MoodDb { get; set; }
-        public CalmskaDbContext(DbContextOptions options) : base(options){}
+        public CalmskaDbContext(DbContextOptions<CalmskaDbContext> options) : base(options) {}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
