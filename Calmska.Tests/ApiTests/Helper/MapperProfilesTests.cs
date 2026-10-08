@@ -11,12 +11,7 @@ namespace Calmska.Tests.ApiTests.Helper
         private readonly IMapper _mapper;
         public MapperProfilesTests()
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-            
-            string automapperKey = config["automapper_key"] ?? string.Empty;
+            string automapperKey = Environment.GetEnvironmentVariable("automapper_key") ?? string.Empty;
 
             var mapperConfig = new MapperConfigurationExpression();
             mapperConfig.AddProfile<MapperProfiles>();
