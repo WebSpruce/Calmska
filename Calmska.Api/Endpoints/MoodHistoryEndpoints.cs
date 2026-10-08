@@ -96,7 +96,7 @@ public class MoodHistoryEndpoints : IModule
                 parsedDate = validDate;
             }
             moodHistoryDto.Date = parsedDate;
-            var query = new UpdateCommand(moodHistoryDto.MoodId, moodHistoryDto.Date, moodHistoryDto.UserId ?? Guid.Empty, moodHistoryDto.MoodId ?? Guid.Empty);
+            var query = new UpdateCommand(moodHistoryDto.MoodHistoryId, moodHistoryDto.Date, moodHistoryDto.UserId ?? Guid.Empty, moodHistoryDto.MoodId ?? Guid.Empty);
             
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);

@@ -69,7 +69,7 @@ public class TypesMoodEndpoints : IModule
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Type updated successfully") : Results.BadRequest(result.Error);
         });
-        types_mood.MapDelete("/{typeId:guid}", async ([FromServices]ISender sender, int typeId,
+        types_mood.MapDelete("/{typeId:int}", async ([FromServices]ISender sender, int typeId,
             CancellationToken token) =>
         {
             var query = new DeleteCommand(typeId);
