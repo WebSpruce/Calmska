@@ -66,6 +66,7 @@ public static class DependencyInjection
             options.ApiKey   = configuration["ai_api_key"]   ?? string.Empty;
             options.ApiHost  = configuration["ai_api_host"]  ?? string.Empty;
             options.ApiModel = configuration["ai_api_model"] ?? string.Empty;
+            options.ApiModelClassification = configuration["ai_api_model_classification"] ?? string.Empty;
         });
 
         PromptLoader.ClearCache();
