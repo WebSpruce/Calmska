@@ -10,13 +10,15 @@ using Scalar.AspNetCore;
 
 namespace Calmska.Api
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             
-            builder.Services.AddOpenApi("v4");
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Services.AddOpenApi(ApiRoutes.ApiVersionString);
 
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 #if !DEBUG
@@ -26,7 +28,12 @@ namespace Calmska.Api
             builder.WebHost.UseUrls($"http://localhost:{port}");
 #endif
 
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            if (BsonSerializer.LookupSerializer(typeof(Guid)) == null ||                                                                                                                                                                                                      
+                !(BsonSerializer.LookupSerializer(typeof(Guid)) is GuidSerializer))                                                                                                                                                                                           
+            {                                                                                                                                                                                                                                                                     
+                BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));                                                                                                                                                                               
+            }                                                                                                                                                                                                                                                                     
+
             
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration); 
@@ -43,7 +50,7 @@ namespace Calmska.Api
 
             builder.Services.AddApiVersioning(options =>
                 {
-                    options.DefaultApiVersion = new ApiVersion(1);
+                    options.DefaultApiVersion = new ApiVersion(int.Parse(ApiRoutes.ApiVersionString.Substring(1,1)));
                     options.AssumeDefaultVersionWhenUnspecified = true;
                     options.ReportApiVersions = true;
                     options.ApiVersionReader = new UrlSegmentApiVersionReader();

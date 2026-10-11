@@ -1,21 +1,32 @@
-﻿using Calmska.Application.DTO;
+﻿using Calmska.Api.Endpoints;
+using Calmska.Application.DTO;
 using Calmska.Domain.Common;
+using Calmska.Infrastructure.Persistence;
+using Calmska.Infrastructure.Persistence.Models;
+using Calmska.Tests.ApiTests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Calmska.Tests.ApiTests.EndpointsTests
 {
-    public class TipsTests : IClassFixture<WebApplicationFactory<Program>>
+    public class TipsTests : IClassFixture<CalmskaApiFactory>
     {
+        private readonly CalmskaApiFactory _factory;
         private readonly HttpClient _client;
-        public TipsTests(WebApplicationFactory<Program> factory)
+        public TipsTests(CalmskaApiFactory factory)
         {
+            _factory = factory;
             _client = factory.CreateClient();
         }
         [Fact]
         public async Task GetAllTips_ShouldReturnOk_WhenTipsExist()
         {
-            string endpoint = "/api/v4/tips?pageNumber=1&pageSize=10";
+            var id = Guid.NewGuid();
+            await SeedDocumentAsync(id);
+            var id2 = Guid.NewGuid();
+            await SeedDocumentAsync(id2);
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips?pageNumber=1&pageSize=10";
 
-            var response = await _client.GetAsync(endpoint);
+            using var response = await _client.GetAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<PaginatedResult<TipsDTO>>();
@@ -26,9 +37,11 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
         [Fact]
         public async Task SearchListTips_ShouldReturnOk_WhenTipsMatchCriteria()
         {
-            string endpoint = "/api/v4/tips/searchList?content=Drink water regularly.&type=3&pageNumber=1&pageSize=5";
+            var id = Guid.NewGuid();
+            await SeedDocumentAsync(id, content:"Drink water regularly.", tipsTypeId:3);
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/searchList?content=Drink water regularly.&type=3&pageNumber=1&pageSize=5";
 
-            var response = await _client.GetAsync(endpoint);
+            using var response = await _client.GetAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<PaginatedResult<TipsDTO>>();
@@ -39,9 +52,9 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
         [Fact]
         public async Task SearchListTips_ShouldReturnNotFound_WhenNoTipsMatchCriteria()
         {
-            string endpoint = "/api/v4/tips/searchList?content=nonexistent&type=1&pageNumber=1&pageSize=5";
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/searchList?content=nonexistent&type=1&pageNumber=1&pageSize=5";
 
-            var response = await _client.GetAsync(endpoint);
+            using var response = await _client.GetAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -50,22 +63,24 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
         [Fact]
         public async Task SearchTip_ShouldReturnOk_WhenTipExists()
         {
-            string endpoint = "/api/v4/tips/search?TipId=44a85f64-5717-4562-b3fc-2c963f66afa6";
+            var id = Guid.NewGuid();
+            await SeedDocumentAsync(id);
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/search?TipId={id}";
 
-            var response = await _client.GetAsync(endpoint);
+            using var response = await _client.GetAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var content = await response.Content.ReadFromJsonAsync<TipsDTO>();
             content.Should().NotBeNull();
-            content.TipId.Should().Be(Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"));
+            content.TipId.Should().Be(id);
         }
 
         [Fact]
         public async Task SearchTip_ShouldReturnNotFound_WhenTipDoesNotExist()
         {
-            string endpoint = "/api/v4/tips/search?TipId=00000000-0000-0000-0000-000000000000";
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/search?TipId=00000000-0000-0000-0000-000000000000";
 
-            var response = await _client.GetAsync(endpoint);
+            using var response = await _client.GetAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var errorMessage = await response.Content.ReadAsStringAsync();
@@ -74,7 +89,7 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
         [Fact]
         public async Task AddTip_ShouldReturnCreated_WhenTipIsValid()
         {
-            string endpoint = "/api/v4/tips";
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips";
             var tip = new TipsDTO
             {
                 TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
@@ -82,34 +97,51 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
                 TipsTypeId = 3
             };
 
-            var response = await _client.PostAsJsonAsync(endpoint, tip);
+            using var response = await _client.PostAsJsonAsync(endpoint, tip);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
-            var location = response.Headers.Location.ToString();
+            var location = response.Headers.Location?.ToString();
             location.Should().Contain(tip.TipId.ToString());
+            
+            var saved = await QuerySender.QueryDbAsync(_factory,db => db.TipsDb
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Content == "Drink water regularly."));
+
+            saved.Should().NotBeNull();
+            saved.TipsTypeId.Should().Be(3);
         }
         [Fact]
         public async Task UpdateTip_ShouldReturnOk_WhenTipIsValid()
         {
-            string endpoint = "/api/v4/tips";
+            var id = Guid.NewGuid();
+            await SeedDocumentAsync(id);
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips";
             var tip = new TipsDTO
             {
-                TipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6"),
+                TipId = id,
                 Content = "Updated tip content.",
                 TipsTypeId = 4
             };
 
-            var response = await _client.PutAsJsonAsync(endpoint, tip);
+            using var response = await _client.PutAsJsonAsync(endpoint, tip);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var successMessage = await response.Content.ReadAsStringAsync();
             successMessage.Should().Contain("Tip updated successfully");
+            
+            var updated = await QuerySender.QueryDbAsync(_factory,db => db.TipsDb
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.TipId == id));
+            
+            updated.Should().NotBeNull();
+            updated.Content.Should().Be("Updated tip content.");
+            updated.TipsTypeId.Should().Be(4);
         }
 
         [Fact]
         public async Task UpdateTip_ShouldReturnBadRequest_WhenTipIsInvalid()
         {
-            string endpoint = "/api/v4/tips";
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips";
             var tip = new TipsDTO
             {
                 TipId = Guid.Empty,
@@ -117,21 +149,18 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
                 TipsTypeId = null
             };
 
-            var response = await _client.PutAsJsonAsync(endpoint, tip);
+            using var response = await _client.PutAsJsonAsync(endpoint, tip);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         [Fact]
         public async Task DeleteTip_ShouldReturnOk_WhenTipExists()
         {
-            string endpoint = "/api/v4/tips";
-            Guid tipId = Guid.Parse("44a85f64-5717-4562-b3fc-2c963f66afa6");
-
-            var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
-            {
-                Content = JsonContent.Create(tipId)
-            };
-            var response = await _client.SendAsync(request);
+            var id = Guid.NewGuid();
+            await SeedDocumentAsync(id);
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/{id}";
+            
+            using var response = await _client.DeleteAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var successMessage = await response.Content.ReadAsStringAsync();
@@ -141,18 +170,34 @@ namespace Calmska.Tests.ApiTests.EndpointsTests
         [Fact]
         public async Task DeleteTip_ShouldReturnBadRequest_WhenTipDoesNotExist()
         {
-            string endpoint = "/api/v4/tips";
-            Guid tipId = Guid.NewGuid();
+            var id = Guid.NewGuid();
+            string endpoint = $"/api/{ApiRoutes.ApiVersionString}/tips/{id}";
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
-            {
-                Content = JsonContent.Create(tipId)
-            };
-            var response = await _client.SendAsync(request);
+            using var response = await _client.DeleteAsync(endpoint);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
+        private async Task<TipsDocument> SeedDocumentAsync(
+            Guid? tipId = null,
+            string content = "Test",
+            int tipsTypeId = 1
+            )
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<CalmskaDbContext>();
 
+            var tip = new TipsDocument()
+            {
+                TipId = tipId ?? Guid.NewGuid(),
+                Content = content,
+                TipsTypeId = tipsTypeId
+            };
+
+            await db.TipsDb.AddAsync(tip);
+            await db.SaveChangesAsync();
+
+            return tip;
+        }
     }
 }

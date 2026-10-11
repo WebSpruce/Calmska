@@ -1,19 +1,19 @@
-using Calmska.Domain.Entities;
+using Calmska.Application.DTO;
 using Calmska.Domain.Filters;
 using Calmska.Domain.Interfaces;
 using MediatR;
 
 namespace Calmska.Application.Features.Settings.Queries;
 
-public class GetByArgumentQueryHandler : IRequestHandler<GetByArgumentQuery, Domain.Entities.Settings?>
+public class GetByArgumentQueryHandler : IRequestHandler<GetByArgumentQuery, SettingsDTO?>
 {
-    private readonly IRepository<Domain.Entities.Settings, SettingsFilter> _repository;
+    private readonly ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> _repository;
 
-    public GetByArgumentQueryHandler(IRepository<Domain.Entities.Settings, SettingsFilter> repository)
+    public GetByArgumentQueryHandler(ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> repository)
     {
         _repository = repository;
     }
-    public async Task<Domain.Entities.Settings?> Handle(GetByArgumentQuery request, CancellationToken token)
+    public async Task<SettingsDTO?> Handle(GetByArgumentQuery request, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         

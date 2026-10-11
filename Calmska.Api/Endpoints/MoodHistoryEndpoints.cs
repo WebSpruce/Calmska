@@ -96,16 +96,14 @@ public class MoodHistoryEndpoints : IModule
                 parsedDate = validDate;
             }
             moodHistoryDto.Date = parsedDate;
-            var query = new UpdateCommand(moodHistoryDto.MoodId, moodHistoryDto.Date, moodHistoryDto.UserId ?? Guid.Empty, moodHistoryDto.MoodId ?? Guid.Empty);
+            var query = new UpdateCommand(moodHistoryDto.MoodHistoryId, moodHistoryDto.Date, moodHistoryDto.UserId ?? Guid.Empty, moodHistoryDto.MoodId ?? Guid.Empty);
             
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("MoodHistory updated successfully") : Results.BadRequest(result.Error);
         });
-        moodHistory.MapDelete("/", async (ISender sender, [FromBody] Guid moodHistoryId,
+        moodHistory.MapDelete("/{moodHistoryId:guid}", async (ISender sender, Guid moodHistoryId,
             CancellationToken token) =>
         {
-            if (token.IsCancellationRequested)
-                return Results.StatusCode(499);
             var query = new DeleteCommand(moodHistoryId);
             
             var result = await sender.Send(query, token);

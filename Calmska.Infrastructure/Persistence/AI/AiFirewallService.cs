@@ -85,13 +85,13 @@ public class AiFirewallService : IAiFirewallService
     {
         var requestData = new
         {
-            model = _options.ApiModel,
+            model = _options.ApiModelClassification,
             messages = new[]
             {
                 new { role = "system", content = systemPrompt },
                 new { role = "user",   content = userMessage }
             },
-            max_completion_tokens = 5,
+            max_completion_tokens = 200,    // Oct_2026 - because of a new llm for classification and api response set 200
             temperature = 0
         };
         var request = new HttpRequestMessage

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
-using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.Json;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
+using Calmska.Domain.Entities;
 using Calmska.Services;
 using Calmska.Views;
 
@@ -12,7 +13,7 @@ namespace Calmska.ViewModels
     public partial class PomodoroViewModel : ObservableObject
     {
         private readonly PomodoroTimerService _timerService;
-        private readonly IService<SettingsDTO> _settingsService;
+        private readonly ISettingsApiClient<SettingsDTO> _settingsApiClient;
 
         [ObservableProperty]
         private string _navBarTitle = string.Empty;
@@ -23,10 +24,10 @@ namespace Calmska.ViewModels
         public bool IsRunning => _timerService.IsRunning;
         public string PlayPauseIcon => IsRunning ? IconFont.Pause : IconFont.Play_arrow;
         private CancellationTokenSource _cts;
-        public PomodoroViewModel(PomodoroTimerService timerService, IService<SettingsDTO> settingsService)
+        public PomodoroViewModel(PomodoroTimerService timerService, ISettingsApiClient<SettingsDTO> settingsApiClient)
         {
             _timerService = timerService;
-            _settingsService = settingsService;
+            _settingsApiClient = settingsApiClient;
 
             _timerService.PropertyChanged += OnTimerServicePropertyChanged;
         }
@@ -112,11 +113,11 @@ namespace Calmska.ViewModels
         private async Task LoadTimeSettingsAsync(AccountDTO user, CancellationToken token)
         {
             if (user == null) return;
-            var settings = await _settingsService.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, token);
+            var settings = await _settingsApiClient.GetByArgumentAsync(new SettingsDTO { UserId = user.UserId }, token);
             if (settings?.Result != null)
             {
-                int work = int.Parse(settings.Result.PomodoroTimer);
-                int breakTime = int.Parse(settings.Result.PomodoroBreak);
+                int work = Convert.ToInt32(settings.Result.PomodoroTimer);
+                int breakTime = Convert.ToInt32(settings.Result.PomodoroBreak);
                 _timerService.UpdateSettings(work, breakTime);
             }
         }

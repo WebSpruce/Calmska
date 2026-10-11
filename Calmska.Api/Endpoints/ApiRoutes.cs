@@ -42,10 +42,12 @@ public class ApiRoutes
         public const string GroupName = $"{ApiBase}/prompts";
     }
 
+    private static readonly int ApiVersionNumber = 5;
+    public static readonly string ApiVersionString = $"v{ApiVersionNumber}";
     public static ApiVersionSet ApiVersion(IEndpointRouteBuilder app)
     {
         return app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(4))
+            .HasApiVersion(new ApiVersion(ApiVersionNumber))
             .Build();
     }
 }

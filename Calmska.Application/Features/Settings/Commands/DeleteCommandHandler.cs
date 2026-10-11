@@ -1,5 +1,5 @@
+using Calmska.Application.DTO;
 using Calmska.Domain.Common;
-using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
 using Calmska.Domain.Interfaces;
 using MediatR;
@@ -8,9 +8,9 @@ namespace Calmska.Application.Features.Settings.Commands;
 
 public class DeleteCommandHandler : IRequestHandler<DeleteCommand, OperationResult>
 {
-    private readonly IRepository<Domain.Entities.Settings, SettingsFilter> _repository;
+    private readonly ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> _repository;
 
-    public DeleteCommandHandler(IRepository<Domain.Entities.Settings, SettingsFilter> repository)
+    public DeleteCommandHandler(ISettingsRepository<Domain.Entities.Settings, SettingsDTO, SettingsFilter> repository)
     {
         _repository = repository;
     }

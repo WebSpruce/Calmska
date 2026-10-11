@@ -1,4 +1,6 @@
 using AutoMapper;
+using Calmska.Application.Converters;
+using Calmska.Application.DTO;
 using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
 using Calmska.Infrastructure.Persistence.Models;
@@ -48,6 +50,17 @@ public class MapperProfiles : Profile
                 PomodoroTimer = doc.PomodoroTimer ?? ""
             });
         CreateMap<Settings, SettingsDocument>();
+        
+        CreateMap<SettingsDocument, SettingsDTO>()
+            .ConstructUsing(doc => new SettingsDTO()
+            {
+                SettingsId = doc.SettingsId,
+                Color = doc.Color ?? "",
+                UserId = doc.UserId,
+                PomodoroBreak = doc.PomodoroBreak.ToFloatOrNull(),
+                PomodoroTimer = doc.PomodoroTimer.ToFloatOrNull()
+            });
+        CreateMap<SettingsDTO, SettingsDocument>();
         
         CreateMap<TipsDocument, Tips>()
             .ConstructUsing(doc => new Tips()

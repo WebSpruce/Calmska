@@ -6,38 +6,17 @@ namespace Calmska.Application.DTO
     public class SettingsDTO
     {
         [Key]
-        [JsonPropertyName("settingsid")]
+        [JsonPropertyName("settingsId")]
         public Guid? SettingsId { get; set; }
         [JsonPropertyName("color")]
         public string? Color { get; set; } = string.Empty;
-
-        private float? _pomodoroTimer;
-        private float? _pomodoroBreak;
-        [JsonIgnore]
-        public float? PomodoroTimerFloat
-        {
-            get => _pomodoroTimer;
-            set => _pomodoroTimer = value;
-        }
-        [JsonIgnore]
-        public float? PomodoroBreakFloat
-        {
-            get => _pomodoroBreak;
-            set => _pomodoroBreak = value;
-        }
-        [JsonPropertyName("pomodorotimer")]
-        public string? PomodoroTimer
-        {
-            get => _pomodoroTimer?.ToString();
-            set => _pomodoroTimer = float.TryParse(value, out var result) ? result : null;
-        }
-        [JsonPropertyName("pomodorobreak")]
-        public string? PomodoroBreak
-        {
-            get => _pomodoroBreak?.ToString();
-            set => _pomodoroBreak = float.TryParse(value, out var result) ? result : null;
-        }
-        [JsonPropertyName("userid")]
+        [JsonPropertyName("pomodoroTimer")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public float? PomodoroTimer { get; set; }
+        [JsonPropertyName("pomodoroBreak")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public float? PomodoroBreak { get; set; }
+        [JsonPropertyName("userId")]
         public Guid? UserId { get; set; }
     }
 }

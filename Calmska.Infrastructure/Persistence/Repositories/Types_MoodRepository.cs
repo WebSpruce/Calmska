@@ -22,9 +22,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<Types_Mood>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.Types_MoodDb.AsQueryable, token);
+            var query = _context.Types_MoodDb.AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Types_Mood>>(documentResult.Items);
             
             return new PaginatedResult<Types_Mood>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
@@ -34,14 +34,14 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.Types_MoodDb
+            var query = _context.Types_MoodDb
                 .Where(item =>
                     (!moods.TypeId.HasValue || item.TypeId == moods.TypeId) &&
                     (string.IsNullOrEmpty(moods.Type) || item.Type.ToLower().Contains(moods.Type.ToLower()))
                 )
-                .AsQueryable, token);
+                .AsQueryable();
 
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Types_Mood>>(documentResult.Items);
             
             return new PaginatedResult<Types_Mood>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);

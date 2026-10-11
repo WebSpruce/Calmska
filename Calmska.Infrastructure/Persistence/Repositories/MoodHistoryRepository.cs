@@ -22,9 +22,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<MoodHistory>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.MoodHistoryDb.AsQueryable, token);
+            var query = _context.MoodHistoryDb.AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<MoodHistory>>(documentResult.Items);
             
             return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
@@ -34,16 +34,16 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.MoodHistoryDb
+            var query = _context.MoodHistoryDb
                 .Where(item =>
                     (!filter.MoodHistoryId.HasValue || item.MoodHistoryId == filter.MoodHistoryId) &&
                     (!filter.Date.HasValue || item.Date.Date == filter.Date.Value.Date) &&
                     (!filter.UserId.HasValue || item.UserId == filter.UserId) &&
                     (!filter.MoodId.HasValue || item.MoodId == filter.MoodId)
                 )
-                .AsQueryable, token);
+                .AsQueryable();
 
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<MoodHistory>>(documentResult.Items);
             
             return new PaginatedResult<MoodHistory>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
@@ -90,7 +90,7 @@ namespace Calmska.Infrastructure.Persistence.Repositories
 
                 var existingMoodHistory = await _context.MoodHistoryDb.FirstOrDefaultAsync(a => a.MoodHistoryId == filter.MoodHistoryId, token);
                 if (existingMoodHistory == null)
-                    return new OperationResult { Result = false, Error = "Didn't find any mood with the provided moodId." };
+                    return new OperationResult { Result = false, Error = "Didn't find any mood history with the provided id." };
 
                 UpdateMoodHistory(existingMoodHistory, filter);
 

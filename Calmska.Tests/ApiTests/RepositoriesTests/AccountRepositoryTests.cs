@@ -1,6 +1,6 @@
-﻿using Calmska.Application.DTO;
-using Calmska.Domain.Entities;
+﻿using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
+using Calmska.Infrastructure.Mapping;
 using Calmska.Infrastructure.Persistence;
 using Calmska.Infrastructure.Persistence.Models;
 using Calmska.Infrastructure.Persistence.Repositories;
@@ -23,7 +23,7 @@ namespace Calmska.Tests.ApiTests.RepositoriesTests
         
             _context = new CalmskaDbContext(options);
             var mapperConfig = new MapperConfiguration(cfg =>
-                cfg.AddProfile<Infrastructure.Mapping.MapperProfiles>(), new NullLoggerFactory());
+                cfg.AddProfile<MapperProfiles>(), new NullLoggerFactory());
             var mapper = mapperConfig.CreateMapper();
             _mapper = mapper;
             _repository = new AccountRepository(_context, mapper);

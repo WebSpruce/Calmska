@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using Calmska.Helper;
-using Calmska.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -55,12 +55,12 @@ namespace Calmska.ViewModels
         }
 
         private Types_TipsFrontendDTO? _tipType = null;
-        private readonly IService<TipsDTO> _tipsService;
+        private readonly IApiClient<TipsDTO> _tipsApiClient;
         private CancellationTokenSource _cts;
 
-        public TipsListViewModel(IService<TipsDTO> tipsService)
+        public TipsListViewModel(IApiClient<TipsDTO> tipsApiClient)
         {
-            _tipsService = tipsService;
+            _tipsApiClient = tipsApiClient;
         }
         
         [RelayCommand]
@@ -81,7 +81,7 @@ namespace Calmska.ViewModels
                     return;
                 }
                 Title = _tipType?.Type ?? "";
-                var tips = await _tipsService.SearchAllByArgumentAsync(new TipsDTO { TipsTypeId = _tipType?.TypeId, Content = null }, null, null, _cts.Token);
+                var tips = await _tipsApiClient.SearchAllByArgumentAsync(new TipsDTO { TipsTypeId = _tipType?.TypeId, Content = null }, null, null, _cts.Token);
                 if (tips != null && string.IsNullOrEmpty(tips.Error) && tips.Result != null)
                 {
                     ObservableCollection<TipsExpandableItem> tempTips = new();

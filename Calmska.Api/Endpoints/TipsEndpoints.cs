@@ -71,11 +71,9 @@ public class TipsEndpoints : IModule
             var result = await sender.Send(query, token);
             return result.Result ? Results.Ok("Tip updated successfully") : Results.BadRequest(result.Error);
         });
-        tips.MapDelete("/", async (ISender sender, [FromBody] Guid tipId,
+        tips.MapDelete("/{tipId:guid}", async (ISender sender, Guid tipId,
             CancellationToken token) =>
         {
-            if (token.IsCancellationRequested)
-                return Results.StatusCode(499);
             var query = new DeleteCommand(tipId);
             
             var result = await sender.Send(query, token);

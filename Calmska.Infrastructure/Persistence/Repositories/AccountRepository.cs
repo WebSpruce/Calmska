@@ -23,9 +23,9 @@ namespace Calmska.Infrastructure.Persistence.Repositories
         public async Task<PaginatedResult<Account>> GetAllAsync(int? pageNumber, int? pageSize, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.Accounts.AsQueryable, token);
+            var query = _context.Accounts.AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Account>>(documentResult.Items);
             
             return new PaginatedResult<Account>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);
@@ -35,16 +35,16 @@ namespace Calmska.Infrastructure.Persistence.Repositories
             CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var query = await Task.Run(_context.Accounts
+            var query = _context.Accounts
             .Where(item =>
                 (!account.UserId.HasValue || item.UserId == account.UserId) &&
                 (string.IsNullOrEmpty(account.UserName) || (item.UserName != null && item.UserName.ToLower().Contains(account.UserName.ToLower())) ) &&
                 (string.IsNullOrEmpty(account.Email) || (item.Email != null && item.Email.ToLower().Contains(account.Email.ToLower())) ) &&
                 (string.IsNullOrEmpty(account.PasswordHashed) || item.PasswordHashed == account.PasswordHashed)
             )
-            .AsQueryable, token);
+            .AsQueryable();
             
-            var documentResult = Pagination.Paginate(query, pageNumber, pageSize);
+            var documentResult = await Pagination.Paginate(query, pageNumber, pageSize);
             var domainItems = _mapper.Map<IEnumerable<Account>>(documentResult.Items);
             
             return new PaginatedResult<Account>(domainItems, documentResult.TotalCount, documentResult.PageNumber, documentResult.PageSize);

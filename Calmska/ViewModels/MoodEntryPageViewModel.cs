@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Calmska.Services.Interfaces;
 using System.Text.Json;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Application.DTO;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Alerts;
@@ -24,18 +24,18 @@ namespace Calmska.ViewModels
 
         private bool _navigationAfterLogin = false;
         private const int NOTIFICATION_ID = 1002;
-        private readonly IService<MoodHistoryDTO> _moodhistoryService;
-        private readonly IService<MoodDTO> _moodService;
-        private readonly IAiPromptingService _aiPromptingService;
+        private readonly IApiClient<MoodHistoryDTO> _moodHistoryApiClient;
+        private readonly IApiClient<MoodDTO> _moodApiClient;
+        private readonly IAiPromptingApiClient _aiPromptingApiClient;
         private IQueryAttributable _queryAttributableImplementation;
         private CancellationTokenSource _cts;
 
-        public MoodEntryPageViewModel(IService<MoodHistoryDTO> moodHistoryService, IService<MoodDTO> moodService, IAiPromptingService aiPromptingService)
+        public MoodEntryPageViewModel(IApiClient<MoodHistoryDTO> moodHistoryApiClient, IApiClient<MoodDTO> moodApiClient, IAiPromptingApiClient aiPromptingApiClient)
         {
-            _moodhistoryService = moodHistoryService;
+            _moodHistoryApiClient = moodHistoryApiClient;
             MoodText = string.Empty;
-            _moodService = moodService;
-            _aiPromptingService = aiPromptingService;
+            _moodApiClient = moodApiClient;
+            _aiPromptingApiClient = aiPromptingApiClient;
 
 #if ANDROID
             Log.Debug("MoodEntryPageViewModel", "Constructor");
@@ -74,7 +74,7 @@ namespace Calmska.ViewModels
                     (NotificationManager)Android.App.Application.Context.GetSystemService(Context.NotificationService);
                 notificationManager.Cancel(NOTIFICATION_ID);
 #endif
-                string llmresponse = await _aiPromptingService.GetPromptResponseAsync(new PromptRequest(MoodText, false, true), linkedCts.Token);
+                string llmresponse = await _aiPromptingApiClient.GetPromptResponseAsync(new PromptRequest(MoodText, false, true), linkedCts.Token);
                 if (string.IsNullOrEmpty(llmresponse))
                 {
                     await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
@@ -86,7 +86,7 @@ namespace Calmska.ViewModels
                     return;
                 }
 
-                var mood = await _moodService.GetByArgumentAsync(new MoodDTO { MoodName = llmresponse, MoodId = null }, linkedCts.Token);
+                var mood = await _moodApiClient.GetByArgumentAsync(new MoodDTO { MoodName = llmresponse, MoodId = null }, linkedCts.Token);
                 if (mood == null || mood.Result == null || mood.Error != string.Empty)
                 {
                     await Shell.Current.DisplayAlertAsync("Warning", $"Error while getting mood.", "Close");
@@ -102,7 +102,7 @@ namespace Calmska.ViewModels
                     return;
                 }
 
-                var result = await _moodhistoryService.AddAsync(new MoodHistoryDTO
+                var result = await _moodHistoryApiClient.AddAsync(new MoodHistoryDTO
                 {
                     Date = DateTime.Now, MoodId = mood.Result.MoodId, UserId = user.UserId,
                     MoodHistoryId = Guid.NewGuid()

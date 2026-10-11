@@ -1,4 +1,5 @@
 using Calmska.Application.Abstractions;
+using Calmska.Application.DTO;
 using Calmska.Domain.Entities;
 using Calmska.Domain.Filters;
 using Calmska.Domain.Interfaces;
@@ -36,7 +37,7 @@ public static class DependencyInjection
         services.AddSingleton<IAiFirewallService, AiFirewallService>();
         services.AddHttpClient<IAiPromptingRepository, AiPromptingRepository>();
         services.AddScoped<IRepository<Account, AccountFilter>, AccountRepository>();
-        services.AddScoped<IRepository<Settings, SettingsFilter>, SettingsRepository>();
+        services.AddScoped<ISettingsRepository<Settings, SettingsDTO, SettingsFilter>, SettingsRepository>();
         services.AddScoped<IRepository<Mood, MoodFilter>, MoodRepository>();
         services.AddScoped<IRepository<MoodHistory, MoodHistoryFilter>, MoodHistoryRepository>();
         services.AddScoped<IRepository<Tips, TipsFilter>, TipsRepository>();
@@ -65,6 +66,7 @@ public static class DependencyInjection
             options.ApiKey   = configuration["ai_api_key"]   ?? string.Empty;
             options.ApiHost  = configuration["ai_api_host"]  ?? string.Empty;
             options.ApiModel = configuration["ai_api_model"] ?? string.Empty;
+            options.ApiModelClassification = configuration["ai_api_model_classification"] ?? string.Empty;
         });
 
         PromptLoader.ClearCache();

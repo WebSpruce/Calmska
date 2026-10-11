@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Calmska.ApiClients\Calmska.ApiClients.csproj" />
     <ProjectReference Include="..\Calmska.Api\Calmska.Api.csproj" />
-    <ProjectReference Include="..\Calmska.Services\Calmska.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

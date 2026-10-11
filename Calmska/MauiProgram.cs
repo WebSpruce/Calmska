@@ -1,13 +1,13 @@
 ﻿using Calmska.Controls;
-using Calmska.Services.Interfaces;
-using Calmska.Services.Services;
 using Calmska.ViewModels;
 using Calmska.Views;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Calmska.Application.DTO;
+using Calmska.ApiClients;
+using Calmska.ApiClients.Clients;
+using Calmska.ApiClients.Interfaces;
 using Calmska.Services;
 using Plugin.Maui.Audio;
 
@@ -40,7 +40,6 @@ namespace Calmska
 #endif
             builder.Services.AddSingleton(AudioManager.Current);
             builder.Services.AddSingleton<PomodoroTimerService>();
-            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>();
             
             builder.Services.AddView<LoginPage, LoginViewModel>(ServiceLifetime.Singleton);
             builder.Services.AddView<RegisterPage, RegisterViewModel>(ServiceLifetime.Singleton);
@@ -55,33 +54,8 @@ namespace Calmska
 
 
             builder.AddAppSettings();
-
-            var apiBaseUrl = builder.Configuration.GetValue<string>("ApiUrl") ?? string.Empty;
-            builder.Services.AddHttpClient<IAccountService, AccountsService>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IService<SettingsDTO>, SettingsService>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IService<TipsDTO>, TipsService>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<ITypesService<Types_TipsDTO>, TypesTipsService>(client =>
-            {
-                client.BaseAddress = new Uri(apiBaseUrl);
-            });
-            builder.Services.AddHttpClient<IService<MoodDTO>, MoodService>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
-            builder.Services.AddHttpClient<IService<MoodHistoryDTO>, MoodHistoryService>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
-            builder.Services.AddHttpClient<IAiPromptingService, AiPromptingService>(client =>
-                client.BaseAddress = new Uri(apiBaseUrl)
-            );
+            
+            builder.Services.AddCalmskaApiClients(builder.Configuration);
             
             var app = builder.Build(); // Build the app
 
