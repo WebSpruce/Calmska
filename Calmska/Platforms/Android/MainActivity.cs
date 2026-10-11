@@ -21,7 +21,7 @@ namespace Calmska
         private MoodNotificationReceiver _receiver;
         protected override void OnCreate(Bundle? savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
+            base.OnCreate(null);
             CheckPostNotificationPermission();
             if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
             {

@@ -17,11 +17,11 @@ public class AiPromptingApiClient : IAiPromptingApiClient
     {
         try
         {
-            var result = await _httpClientService.PostAsync<PromptRequest, string>("prompts/prompt", request, token);
+            var result = await _httpClientService.PostAsync<PromptRequest, PromptResponse>("prompts/prompt", request, token);
 
-            if (!string.IsNullOrEmpty(result.Result) && string.IsNullOrEmpty(result.Error))
+            if (!string.IsNullOrEmpty(result.Result?.Result) && string.IsNullOrEmpty(result.Error))
             {
-                return result.Result;
+                return result.Result.Result;
             }
             return $"AI service error: {result.Error}";
         }
